@@ -1,15 +1,11 @@
 package com.example.sensus.ui.splash
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -20,8 +16,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,12 +23,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
@@ -53,204 +43,264 @@ fun SplashScreen(
     modifier: Modifier = Modifier,
     onSplashFinished: () -> Unit
 ) {
-    // Dynamic Physics Animatable states
-    val logoScale = remember { Animatable(0.4f) }
-    val logoRotation = remember { Animatable(-6f) }
+    // 0.0s – 0.6s: Entrada, caída y rebote con Squash & Stretch
+    val logoOffsetY = remember { Animatable(-75f) }
+    val logoScaleX = remember { Animatable(0.95f) }
+    val logoScaleY = remember { Animatable(1.08f) }
     val logoAlpha = remember { Animatable(0f) }
 
-    val textOffsetY = remember { Animatable(40f) }
+    // 0.6s – 1.2s: Movimiento secundario orgánico del gato y balanceo pendular del cascabel
+    val catOffsetY = remember { Animatable(0f) }
+    val catScaleY = remember { Animatable(1.0f) }
+    val bellRotation = remember { Animatable(0f) }
+
+    // 1.0s – 1.8s: Aparición y expansión de tracking del texto 'Sensus'
+    val textOffsetY = remember { Animatable(32f) }
+    val textScale = remember { Animatable(0.7f) }
+    val textLetterSpacing = remember { Animatable(-1.5f) } // en sp
     val textAlpha = remember { Animatable(0f) }
 
-    val sparklesAlpha = remember { Animatable(0f) }
-    val loaderProgress = remember { Animatable(0f) }
-    val screenAlpha = remember { Animatable(1.0f) }
+    // 2.4s – 3.0s: Transición de salida rápida hacia arriba (1.0 -> 1.15) y fade-out (1 -> 0)
+    val exitScale = remember { Animatable(1.0f) }
+    val exitAlpha = remember { Animatable(1.0f) }
 
     LaunchedEffect(Unit) {
-        // STEP 1: Logo dynamic physics spring entrance + organic rotation
+        // =========================================================================
+        // FASE 1: 0.0s – 0.6s (Entrada y rebote elástico con squash & stretch)
+        // =========================================================================
         launch {
             logoAlpha.animateTo(
                 targetValue = 1f,
-                animationSpec = tween(durationMillis = 300, easing = LinearOutSlowInEasing)
-            )
-        }
-        launch {
-            logoScale.animateTo(
-                targetValue = 1.0f,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessLow
-                )
-            )
-        }
-        launch {
-            logoRotation.animateTo(
-                targetValue = 0f,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessLow
-                )
+                animationSpec = tween(durationMillis = 200, easing = LinearOutSlowInEasing)
             )
         }
 
-        // STEP 2: Retardo de 350ms para el texto "Sensus"
-        delay(350)
-
-        // STEP 3: Overshoot en texto con spring(dampingRatio = 0.6f, stiffness = 400f)
-        launch {
-            textAlpha.animateTo(
-                targetValue = 1f,
-                animationSpec = tween(durationMillis = 400, easing = LinearOutSlowInEasing)
-            )
-        }
-        launch {
-            textOffsetY.animateTo(
-                targetValue = 0f,
-                animationSpec = spring(
-                    dampingRatio = 0.6f,
-                    stiffness = 400f
-                )
-            )
-        }
-
-        // STEP 4: Destellos mágicos / Sparkles como en el video prueba.mp4
-        delay(300)
-        sparklesAlpha.animateTo(
-            targetValue = 1f,
-            animationSpec = tween(durationMillis = 400, easing = LinearOutSlowInEasing)
-        )
-
-        // STEP 5: Barra animada de progreso (como el indicador en prueba.mp4)
-        loaderProgress.animateTo(
-            targetValue = 1f,
-            animationSpec = tween(durationMillis = 900, easing = LinearOutSlowInEasing)
-        )
-
-        // STEP 6: Hold breve y salida suave
-        delay(250)
-        screenAlpha.animateTo(
+        // Caída desde arriba hacia el centro
+        logoOffsetY.animateTo(
             targetValue = 0f,
-            animationSpec = tween(durationMillis = 450, easing = LinearOutSlowInEasing)
+            animationSpec = tween(durationMillis = 320, easing = FastOutSlowInEasing)
         )
 
+        // Impacto: Squash (aplastamiento: scaleY: 0.9, scaleX: 1.05)
+        coroutineScope {
+            launch {
+                logoScaleX.animateTo(
+                    targetValue = 1.05f,
+                    animationSpec = tween(durationMillis = 110, easing = FastOutSlowInEasing)
+                )
+            }
+            launch {
+                logoScaleY.animateTo(
+                    targetValue = 0.90f,
+                    animationSpec = tween(durationMillis = 110, easing = FastOutSlowInEasing)
+                )
+            }
+        }
+
+        // Rebote y recuperación a escala normal 1.0
+        coroutineScope {
+            launch {
+                logoScaleX.animateTo(
+                    targetValue = 1.0f,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessLow
+                    )
+                )
+            }
+            launch {
+                logoScaleY.animateTo(
+                    targetValue = 1.0f,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessLow
+                    )
+                )
+            }
+        }
+
+        // =========================================================================
+        // FASE 2: 0.6s – 1.2s (Micro-movimiento orgánico del gato y cascabel)
+        // =========================================================================
+        // El gato respira/se acomoda (lomo sube y baja 2-3px)
+        launch {
+            // Sube el lomo (respiración suave)
+            catOffsetY.animateTo(
+                targetValue = -3f,
+                animationSpec = tween(durationMillis = 280, easing = FastOutSlowInEasing)
+            )
+            catScaleY.animateTo(
+                targetValue = 1.025f,
+                animationSpec = tween(durationMillis = 280, easing = FastOutSlowInEasing)
+            )
+            // Baja el lomo y se asienta
+            catOffsetY.animateTo(
+                targetValue = 0f,
+                animationSpec = tween(durationMillis = 320, easing = FastOutSlowInEasing)
+            )
+            catScaleY.animateTo(
+                targetValue = 1.0f,
+                animationSpec = tween(durationMillis = 320, easing = FastOutSlowInEasing)
+            )
+        }
+
+        // El cascabel naranja tiene un balanceo pendular amortiguado (-8° a +8°)
+        launch {
+            bellRotation.animateTo(targetValue = -8f, animationSpec = tween(90, easing = FastOutSlowInEasing))
+            bellRotation.animateTo(targetValue = 8f, animationSpec = tween(120, easing = FastOutSlowInEasing))
+            bellRotation.animateTo(targetValue = -5f, animationSpec = tween(110, easing = FastOutSlowInEasing))
+            bellRotation.animateTo(targetValue = 3f, animationSpec = tween(100, easing = FastOutSlowInEasing))
+            bellRotation.animateTo(targetValue = -1f, animationSpec = tween(90, easing = FastOutSlowInEasing))
+            bellRotation.animateTo(targetValue = 0f, animationSpec = tween(90, easing = FastOutSlowInEasing))
+        }
+
+        // =========================================================================
+        // FASE 3: 1.0s – 1.8s (Aparición y expansión del texto 'Sensus')
+        // Surge justo detrás de la base de la bolsa, tracking expandiéndose
+        // =========================================================================
+        delay(400) // tiempo acumulado ~1.0s
+
+        coroutineScope {
+            launch {
+                textAlpha.animateTo(
+                    targetValue = 1f,
+                    animationSpec = tween(durationMillis = 400, easing = LinearOutSlowInEasing)
+                )
+            }
+            launch {
+                textOffsetY.animateTo(
+                    targetValue = 0f,
+                    animationSpec = spring(dampingRatio = 0.65f, stiffness = Spring.StiffnessLow)
+                )
+            }
+            launch {
+                textScale.animateTo(
+                    targetValue = 1.0f,
+                    animationSpec = spring(dampingRatio = 0.65f, stiffness = Spring.StiffnessLow)
+                )
+            }
+            launch {
+                textLetterSpacing.animateTo(
+                    targetValue = 2.0f,
+                    animationSpec = tween(durationMillis = 700, easing = FastOutSlowInEasing)
+                )
+            }
+        }
+
+        // =========================================================================
+        // FASE 4: 1.8s – 2.4s (Pausa estática / Brand hold con nitidez total)
+        // =========================================================================
+        delay(600)
+
+        // =========================================================================
+        // FASE 5: 2.4s – 3.0s (Transición de salida: scale 1.0 -> 1.15 y fade-out)
+        // =========================================================================
+        coroutineScope {
+            launch {
+                exitScale.animateTo(
+                    targetValue = 1.15f,
+                    animationSpec = tween(durationMillis = 550, easing = FastOutSlowInEasing)
+                )
+            }
+            launch {
+                exitAlpha.animateTo(
+                    targetValue = 0f,
+                    animationSpec = tween(durationMillis = 550, easing = FastOutSlowInEasing)
+                )
+            }
+        }
+
+        // Finaliza y da paso a la pantalla principal
         onSplashFinished()
     }
 
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(SensusAmber)
-            .graphicsLayer { alpha = screenAlpha.value },
+            .background(SensusAmber),
         contentAlignment = Alignment.Center
     ) {
-        // Sparkle stars around the logo matching video aesthetic
-        SparkleParticles(
-            modifier = Modifier
-                .size(320.dp)
-                .alpha(sparklesAlpha.value)
-        )
-
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .graphicsLayer {
+                    scaleX = exitScale.value
+                    scaleY = exitScale.value
+                    alpha = exitAlpha.value
+                }
         ) {
-            // Logo (Bolsa + Gato): Rotación orgánica y física dinámica de resorte
+            // CONTENEDOR DEL LOGO (Bolsa + Gato independiente + Cascabel pendular)
             Box(
-                contentAlignment = Alignment.Center,
                 modifier = Modifier
+                    .size(230.dp)
                     .graphicsLayer {
-                        scaleX = logoScale.value
-                        scaleY = logoScale.value
-                        rotationZ = logoRotation.value
+                        translationY = logoOffsetY.value
+                        scaleX = logoScaleX.value
+                        scaleY = logoScaleY.value
                         alpha = logoAlpha.value
-                    }
+                    },
+                contentAlignment = Alignment.Center
             ) {
+                // CAPA 1: La Bolsa de compras (Interior transparente mostrando el fondo naranja)
                 Image(
-                    painter = painterResource(id = R.drawable.sensus_logo),
-                    contentDescription = "Sensus Logo",
-                    modifier = Modifier.size(210.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(18.dp))
-
-            // Texto "Sensus" con overshoot y retardo exacto
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .offset(y = textOffsetY.value.dp)
-                    .alpha(textAlpha.value)
-            ) {
-                Text(
-                    text = "Sensus",
-                    fontSize = 42.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    fontFamily = FontFamily.SansSerif,
-                    letterSpacing = 1.8.sp,
-                    color = SensusPurple
+                    painter = painterResource(id = R.drawable.sensus_bag),
+                    contentDescription = "Bolsa Sensus",
+                    modifier = Modifier.fillMaxSize()
                 )
 
-                Text(
-                    text = "Descuentos en tu zona",
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    letterSpacing = 0.5.sp,
-                    color = SensusPurple.copy(alpha = 0.9f)
+                // CAPA 2: El Gato dormido (con micro-movimiento orgánico de respiración 2-3px)
+                Image(
+                    painter = painterResource(id = R.drawable.sensus_cat),
+                    contentDescription = "Gato Sensus",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .graphicsLayer {
+                            translationY = catOffsetY.value
+                            scaleY = catScaleY.value
+                            transformOrigin = TransformOrigin(0.5f, 1.0f) // Anclado a la base
+                        }
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Indicador de carga animado como en prueba.mp4
+                // CAPA 3: Cascabel naranja en el collar con balanceo pendular (-8° a +8°)
+                // Posicionado exactamente sobre el collar del gato (x: 41%, y: 69%)
                 Box(
                     modifier = Modifier
-                        .width(100.dp)
-                        .height(4.dp)
-                        .clip(RoundedCornerShape(2.dp))
-                        .background(SensusPurple.copy(alpha = 0.2f))
+                        .align(Alignment.TopStart)
+                        .offset(x = (230.dp * 0.395f), y = (230.dp * 0.675f))
+                        .size(28.dp)
+                        .graphicsLayer {
+                            translationY = catOffsetY.value // sigue la respiración del gato
+                            rotationZ = bellRotation.value
+                            transformOrigin = TransformOrigin(0.5f, 0.15f) // pivota en la anilla superior
+                        }
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize(fraction = loaderProgress.value)
-                            .clip(RoundedCornerShape(2.dp))
-                            .background(SensusPurple)
+                    Image(
+                        painter = painterResource(id = R.drawable.sensus_bell),
+                        contentDescription = "Cascabel Sensus",
+                        modifier = Modifier.fillMaxSize()
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            // TEXTO 'Sensus' (Surge tras la base, escala 0.7 -> 1.0, tracking se expande)
+            Text(
+                text = "Sensus",
+                fontSize = 42.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily.SansSerif,
+                letterSpacing = textLetterSpacing.value.sp,
+                color = SensusPurple,
+                modifier = Modifier
+                    .offset(y = textOffsetY.value.dp)
+                    .graphicsLayer {
+                        scaleX = textScale.value
+                        scaleY = textScale.value
+                        alpha = textAlpha.value
+                    }
+            )
         }
     }
-}
-
-/**
- * Destellos en forma de estrella de 4 puntas idénticos a los del video prueba.mp4
- */
-@Composable
-private fun SparkleParticles(modifier: Modifier = Modifier) {
-    Canvas(modifier = modifier) {
-        val purple = Color(0xFF4A148C)
-        val white = Color.White
-        val gold = Color(0xFFFFD54F)
-
-        // Sparkle points at various angles around the center
-        drawSparkle(center = Offset(size.width * 0.18f, size.height * 0.22f), size = 18f, color = purple)
-        drawSparkle(center = Offset(size.width * 0.82f, size.height * 0.25f), size = 24f, color = gold)
-        drawSparkle(center = Offset(size.width * 0.12f, size.height * 0.65f), size = 20f, color = purple)
-        drawSparkle(center = Offset(size.width * 0.88f, size.height * 0.60f), size = 22f, color = white)
-        drawSparkle(center = Offset(size.width * 0.78f, size.height * 0.78f), size = 16f, color = gold)
-        drawSparkle(center = Offset(size.width * 0.24f, size.height * 0.80f), size = 14f, color = purple)
-    }
-}
-
-private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawSparkle(
-    center: Offset,
-    size: Float,
-    color: Color
-) {
-    val path = Path().apply {
-        moveTo(center.x, center.y - size)
-        quadraticTo(center.x, center.y, center.x + size, center.y)
-        quadraticTo(center.x, center.y, center.x, center.y + size)
-        quadraticTo(center.x, center.y, center.x - size, center.y)
-        quadraticTo(center.x, center.y, center.x, center.y - size)
-        close()
-    }
-    drawPath(path = path, color = color)
 }
