@@ -1,12 +1,12 @@
 package com.example.sensus.data
 
-enum class StoreCategory(val displayName: String, val iconEmoji: String) {
-    ALL("Todo", "🔥"),
-    FOOD("Comida", "🍕"),
-    GROCERY("Abarrotes", "🛒"),
-    CAFE("Cafeterías", "☕"),
-    PHARMACY("Farmacias", "💊"),
-    BAKERY("Panaderías", "🥐")
+enum class StoreCategory(val displayName: String) {
+    ALL("Todo"),
+    FOOD("Comida"),
+    GROCERY("Abarrotes"),
+    CAFE("Cafeterías"),
+    PHARMACY("Farmacias"),
+    BAKERY("Panaderías")
 }
 
 data class LocationZone(

@@ -3,7 +3,7 @@ package com.example.sensus.data
 object MockDataProvider {
 
     val zones = listOf(
-        LocationZone("gps", "📍 Mi Ubicación GPS (En vivo)", "Precisión alta • 15 comercios cerca"),
+        LocationZone("gps", "Mi Ubicación GPS (En vivo)", "Precisión alta • 15 comercios cerca"),
         LocationZone("condesa", "Condesa, CDMX", "Parque México y alrededores"),
         LocationZone("roma", "Roma Norte, CDMX", "Álvaro Obregón y Colima"),
         LocationZone("polanco", "Polanco, CDMX", "Av. Horacio y Masaryk"),

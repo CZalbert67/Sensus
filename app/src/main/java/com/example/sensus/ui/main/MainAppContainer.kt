@@ -1,10 +1,15 @@
 package com.example.sensus.ui.main
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ConfirmationNumber
+import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.filled.NearMe
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -19,13 +24,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sensus.data.Establishment
 import com.example.sensus.theme.SensusAmber
 import com.example.sensus.theme.SensusBackground
-import com.example.sensus.theme.SensusCardBorder
 import com.example.sensus.theme.SensusPurple
 import com.example.sensus.theme.SensusTextMuted
 import com.example.sensus.ui.coupons.SavedCouponsScreen
@@ -34,11 +39,11 @@ import com.example.sensus.ui.home.HomeScreen
 import com.example.sensus.ui.map.RadarMapScreen
 import com.example.sensus.ui.profile.ProfileScreen
 
-enum class MainNavigationTab(val title: String, val iconEmoji: String) {
-    EXPLORE("Explorar", "🛍️"),
-    RADAR("Radar", "📡"),
-    COUPONS("Cupones", "🎟️"),
-    PROFILE("Perfil", "👤")
+enum class MainNavigationTab(val title: String, val icon: ImageVector) {
+    EXPLORE("Explorar", Icons.Default.Explore),
+    RADAR("Radar", Icons.Default.NearMe),
+    COUPONS("Cupones", Icons.Default.ConfirmationNumber),
+    PROFILE("Perfil", Icons.Default.Person)
 }
 
 @Composable
@@ -63,9 +68,10 @@ fun MainAppContainer(
                         selected = isSelected,
                         onClick = { selectedTabIndex = index },
                         icon = {
-                            Text(
-                                text = tab.iconEmoji,
-                                fontSize = if (isSelected) 22.sp else 18.sp
+                            Icon(
+                                imageVector = tab.icon,
+                                contentDescription = tab.title,
+                                modifier = Modifier.size(24.dp)
                             )
                         },
                         label = {
@@ -112,9 +118,7 @@ fun MainAppContainer(
                 EstablishmentDetailSheet(
                     establishment = selectedEstablishmentForSheet,
                     onDismiss = { selectedEstablishmentForSheet = null },
-                    onRedeemCoupon = {
-                        // In mock mode, feedback handled inside sheet
-                    }
+                    onRedeemCoupon = {}
                 )
             }
         }

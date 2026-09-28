@@ -17,8 +17,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.GpsFixed
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,9 +50,11 @@ import com.example.sensus.theme.SensusBeige
 import com.example.sensus.theme.SensusDiscountTag
 import com.example.sensus.theme.SensusPurple
 import com.example.sensus.theme.SensusPurpleDark
+import com.example.sensus.theme.SensusRating
 import com.example.sensus.theme.SensusTextMuted
 import com.example.sensus.theme.SensusTextPrimary
 import com.example.sensus.theme.SensusTextSecondary
+import com.example.sensus.ui.common.getCategoryIcon
 
 @Composable
 fun RadarMapScreen(
@@ -89,13 +96,24 @@ fun RadarMapScreen(
                 shape = RoundedCornerShape(12.dp),
                 color = SensusAmber.copy(alpha = 0.2f)
             ) {
-                Text(
-                    text = "📡 GPS Activo",
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = SensusPurpleDark,
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
-                )
+                Row(
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.GpsFixed,
+                        contentDescription = "GPS",
+                        tint = SensusPurpleDark,
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "GPS Activo",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = SensusPurpleDark
+                    )
+                }
             }
         }
 
@@ -226,9 +244,11 @@ fun RadarMapScreen(
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = establishment.category.iconEmoji,
-                                fontSize = 11.sp
+                            Icon(
+                                imageVector = getCategoryIcon(establishment.category),
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(13.dp)
                             )
                             Spacer(modifier = Modifier.width(3.dp))
                             Text(
@@ -267,7 +287,12 @@ fun RadarMapScreen(
                                 .background(SensusBeige.copy(alpha = 0.5f)),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(text = selectedEstablishment.category.iconEmoji, fontSize = 20.sp)
+                            Icon(
+                                imageVector = getCategoryIcon(selectedEstablishment.category),
+                                contentDescription = null,
+                                tint = SensusPurple,
+                                modifier = Modifier.size(22.dp)
+                            )
                         }
                         Spacer(modifier = Modifier.width(10.dp))
                         Column {
@@ -315,18 +340,36 @@ fun RadarMapScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "⭐ ${selectedEstablishment.rating}  •  ${selectedEstablishment.schedule}",
-                        fontSize = 11.sp,
-                        color = SensusTextSecondary
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = null,
+                            tint = SensusRating,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Spacer(modifier = Modifier.width(2.dp))
+                        Text(
+                            text = "${selectedEstablishment.rating}  •  ${selectedEstablishment.schedule}",
+                            fontSize = 11.sp,
+                            color = SensusTextSecondary
+                        )
+                    }
 
-                    Text(
-                        text = "Toca para canjear →",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = SensusPurple
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "Toca para canjear",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = SensusPurple
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                            contentDescription = null,
+                            tint = SensusPurple,
+                            modifier = Modifier.size(13.dp)
+                        )
+                    }
                 }
             }
         }

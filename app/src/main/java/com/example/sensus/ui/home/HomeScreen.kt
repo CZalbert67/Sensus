@@ -20,13 +20,20 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.SearchOff
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
@@ -47,7 +54,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sensus.R
 import com.example.sensus.data.Establishment
-import com.example.sensus.data.LocationZone
 import com.example.sensus.data.MockDataProvider
 import com.example.sensus.data.StoreCategory
 import com.example.sensus.theme.SensusAmber
@@ -59,10 +65,11 @@ import com.example.sensus.theme.SensusDiscountTag
 import com.example.sensus.theme.SensusPurple
 import com.example.sensus.theme.SensusPurpleDark
 import com.example.sensus.theme.SensusPurpleLight
-import com.example.sensus.theme.SensusSuccess
+import com.example.sensus.theme.SensusRating
 import com.example.sensus.theme.SensusTextMuted
 import com.example.sensus.theme.SensusTextPrimary
 import com.example.sensus.theme.SensusTextSecondary
+import com.example.sensus.ui.common.getCategoryIcon
 
 @Composable
 fun HomeScreen(
@@ -74,7 +81,6 @@ fun HomeScreen(
     var currentZone by remember { mutableStateOf(MockDataProvider.zones.first()) }
     var showLocationDialog by remember { mutableStateOf(false) }
 
-    // Filter establishments based on category & search query
     val filteredEstablishments = remember(selectedCategory, searchQuery) {
         MockDataProvider.establishments.filter { est ->
             val matchesCategory = (selectedCategory == StoreCategory.ALL) || (est.category == selectedCategory)
@@ -123,17 +129,25 @@ fun HomeScreen(
                         modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        Icon(
+                            imageVector = Icons.Default.LocationOn,
+                            contentDescription = "Ubicación",
+                            tint = SensusPurple,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = currentZone.name,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
                             color = SensusPurple
                         )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = "▼",
-                            fontSize = 10.sp,
-                            color = SensusTextMuted
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowDown,
+                            contentDescription = "Cambiar",
+                            tint = SensusTextMuted,
+                            modifier = Modifier.size(16.dp)
                         )
                     }
                 }
@@ -168,15 +182,22 @@ fun HomeScreen(
                     )
                 },
                 leadingIcon = {
-                    Text("🔍", fontSize = 16.sp)
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Buscar",
+                        tint = SensusPurple,
+                        modifier = Modifier.size(20.dp)
+                    )
                 },
                 trailingIcon = {
                     if (searchQuery.isNotEmpty()) {
-                        Text(
-                            text = "✕",
-                            fontSize = 16.sp,
-                            color = SensusTextMuted,
-                            modifier = Modifier.clickable { searchQuery = "" }
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Limpiar",
+                            tint = SensusTextMuted,
+                            modifier = Modifier
+                                .size(20.dp)
+                                .clickable { searchQuery = "" }
                         )
                     }
                 },
@@ -259,7 +280,7 @@ fun HomeScreen(
             }
         }
 
-        // CATEGORY CHIPS
+        // CATEGORY CHIPS WITH VECTOR ICONS
         item {
             Text(
                 text = "Categorías",
@@ -277,9 +298,17 @@ fun HomeScreen(
                     FilterChip(
                         selected = isSelected,
                         onClick = { selectedCategory = category },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = getCategoryIcon(category),
+                                contentDescription = category.displayName,
+                                modifier = Modifier.size(16.dp),
+                                tint = if (isSelected) Color.White else SensusPurple
+                            )
+                        },
                         label = {
                             Text(
-                                text = "${category.iconEmoji} ${category.displayName}",
+                                text = category.displayName,
                                 fontSize = 13.sp,
                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                             )
@@ -318,7 +347,7 @@ fun HomeScreen(
                     color = SensusTextPrimary
                 )
                 Text(
-                    text = "📍 Orden: Cercanía",
+                    text = "Orden: Cercanía",
                     fontSize = 12.sp,
                     color = SensusTextSecondary,
                     fontWeight = FontWeight.Medium
@@ -336,7 +365,12 @@ fun HomeScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(text = "🔍", fontSize = 36.sp)
+                        Icon(
+                            imageVector = Icons.Default.SearchOff,
+                            contentDescription = "Sin resultados",
+                            tint = SensusTextMuted,
+                            modifier = Modifier.size(48.dp)
+                        )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = "No se encontraron ofertas en esta categoría",
@@ -373,7 +407,7 @@ fun EstablishmentCard(
             .clickable { onClick() }
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // Header: Category emoji, Distance and Discount Badge
+            // Header: Category Vector Icon, Distance and Discount Badge
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -387,7 +421,12 @@ fun EstablishmentCard(
                             .background(SensusBeige.copy(alpha = 0.5f)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = establishment.category.iconEmoji, fontSize = 18.sp)
+                        Icon(
+                            imageVector = getCategoryIcon(establishment.category),
+                            contentDescription = establishment.category.displayName,
+                            tint = SensusPurple,
+                            modifier = Modifier.size(20.dp)
+                        )
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Column {
@@ -439,11 +478,20 @@ fun EstablishmentCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             // Address
-            Text(
-                text = establishment.address,
-                fontSize = 12.sp,
-                color = SensusTextSecondary
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.LocationOn,
+                    contentDescription = null,
+                    tint = SensusTextMuted,
+                    modifier = Modifier.size(14.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = establishment.address,
+                    fontSize = 12.sp,
+                    color = SensusTextSecondary
+                )
+            }
 
             HorizontalDivider(
                 modifier = Modifier.padding(vertical = 10.dp),
@@ -456,25 +504,45 @@ fun EstablishmentCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "⭐ ${establishment.rating} (${establishment.reviewCount})",
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = SensusTextPrimary
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = "Rating",
+                        tint = SensusRating,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(3.dp))
+                    Text(
+                        text = "${establishment.rating} (${establishment.reviewCount})",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = SensusTextPrimary
+                    )
+                }
 
                 Surface(
                     shape = RoundedCornerShape(10.dp),
                     color = SensusPurple.copy(alpha = 0.08f),
                     modifier = Modifier.clickable { onClick() }
                 ) {
-                    Text(
-                        text = "Ver Descuento →",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = SensusPurple,
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
-                    )
+                    Row(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Ver Descuento",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = SensusPurple
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                            contentDescription = null,
+                            tint = SensusPurple,
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
                 }
             }
         }

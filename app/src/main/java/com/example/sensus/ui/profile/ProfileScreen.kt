@@ -19,10 +19,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
@@ -50,8 +56,6 @@ import com.example.sensus.theme.SensusAmber
 import com.example.sensus.theme.SensusBackground
 import com.example.sensus.theme.SensusCardBorder
 import com.example.sensus.theme.SensusPurple
-import com.example.sensus.theme.SensusPurpleDark
-import com.example.sensus.theme.SensusPurpleLight
 import com.example.sensus.theme.SensusSuccess
 import com.example.sensus.theme.SensusTextMuted
 import com.example.sensus.theme.SensusTextPrimary
@@ -65,7 +69,6 @@ fun ProfileScreen(
     val context = LocalContext.current
     var radiusKm by remember { mutableFloatStateOf(1.5f) }
     var notifyNearbyDeals by remember { mutableStateOf(true) }
-    var locationHighAccuracy by remember { mutableStateOf(true) }
     var showPrivacyDialog by remember { mutableStateOf(false) }
     var showTermsDialog by remember { mutableStateOf(false) }
 
@@ -188,13 +191,24 @@ fun ProfileScreen(
                             shape = RoundedCornerShape(6.dp),
                             color = SensusPurple.copy(alpha = 0.1f)
                         ) {
-                            Text(
-                                text = "⭐ Ahorrador Local",
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = SensusPurple,
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                            )
+                            Row(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Star,
+                                    contentDescription = null,
+                                    tint = SensusPurple,
+                                    modifier = Modifier.size(12.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = "Ahorrador Local",
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = SensusPurple
+                                )
+                            }
                         }
                     }
                 }
@@ -358,8 +372,22 @@ fun ProfileScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = "🛡️ Aviso de Privacidad", fontSize = 14.sp, color = SensusTextPrimary)
-                        Text(text = "→", fontSize = 16.sp, color = SensusTextMuted)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Security,
+                                contentDescription = null,
+                                tint = SensusPurple,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text(text = "Aviso de Privacidad", fontSize = 14.sp, color = SensusTextPrimary)
+                        }
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                            contentDescription = null,
+                            tint = SensusTextMuted,
+                            modifier = Modifier.size(16.dp)
+                        )
                     }
 
                     HorizontalDivider(color = SensusCardBorder)
@@ -372,8 +400,22 @@ fun ProfileScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = "📄 Términos y Condiciones", fontSize = 14.sp, color = SensusTextPrimary)
-                        Text(text = "→", fontSize = 16.sp, color = SensusTextMuted)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Description,
+                                contentDescription = null,
+                                tint = SensusPurple,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text(text = "Términos y Condiciones", fontSize = 14.sp, color = SensusTextPrimary)
+                        }
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                            contentDescription = null,
+                            tint = SensusTextMuted,
+                            modifier = Modifier.size(16.dp)
+                        )
                     }
 
                     HorizontalDivider(color = SensusCardBorder)
@@ -388,8 +430,22 @@ fun ProfileScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = "⭐ Calificar Sensus en Google Play", fontSize = 14.sp, color = SensusTextPrimary)
-                        Text(text = "→", fontSize = 16.sp, color = SensusTextMuted)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Star,
+                                contentDescription = null,
+                                tint = SensusPurple,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text(text = "Calificar Sensus en Google Play", fontSize = 14.sp, color = SensusTextPrimary)
+                        }
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                            contentDescription = null,
+                            tint = SensusTextMuted,
+                            modifier = Modifier.size(16.dp)
+                        )
                     }
                 }
             }

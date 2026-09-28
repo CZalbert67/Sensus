@@ -15,10 +15,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Directions
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -47,10 +54,12 @@ import com.example.sensus.theme.SensusBeige
 import com.example.sensus.theme.SensusDiscountTag
 import com.example.sensus.theme.SensusPurple
 import com.example.sensus.theme.SensusPurpleDark
+import com.example.sensus.theme.SensusRating
 import com.example.sensus.theme.SensusSuccess
 import com.example.sensus.theme.SensusTextMuted
 import com.example.sensus.theme.SensusTextPrimary
 import com.example.sensus.theme.SensusTextSecondary
+import com.example.sensus.ui.common.getCategoryIcon
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -79,7 +88,7 @@ fun EstablishmentDetailSheet(
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp, vertical = 12.dp)
         ) {
-            // Header: Category emoji, Distance & Discount tag
+            // Header: Category Icon, Distance & Discount tag
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -93,7 +102,12 @@ fun EstablishmentDetailSheet(
                             .background(SensusBeige.copy(alpha = 0.5f)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = establishment.category.iconEmoji, fontSize = 22.sp)
+                        Icon(
+                            imageVector = getCategoryIcon(establishment.category),
+                            contentDescription = establishment.category.displayName,
+                            tint = SensusPurple,
+                            modifier = Modifier.size(24.dp)
+                        )
                     }
                     Spacer(modifier = Modifier.width(10.dp))
                     Column {
@@ -140,8 +154,15 @@ fun EstablishmentDetailSheet(
                 modifier = Modifier.padding(top = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                Icon(
+                    imageVector = Icons.Default.Star,
+                    contentDescription = null,
+                    tint = SensusRating,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = "⭐ ${establishment.rating} (${establishment.reviewCount} opiniones)  •  ",
+                    text = "${establishment.rating} (${establishment.reviewCount} opiniones)  •  ",
                     fontSize = 13.sp,
                     color = SensusTextSecondary
                 )
@@ -156,11 +177,20 @@ fun EstablishmentDetailSheet(
             Spacer(modifier = Modifier.height(8.dp))
 
             // Address
-            Text(
-                text = "📍 ${establishment.address}",
-                fontSize = 13.sp,
-                color = SensusTextSecondary
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.LocationOn,
+                    contentDescription = null,
+                    tint = SensusTextMuted,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = establishment.address,
+                    fontSize = 13.sp,
+                    color = SensusTextSecondary
+                )
+            }
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = SensusBackground)
 
@@ -229,12 +259,19 @@ fun EstablishmentDetailSheet(
                         onClick = {
                             clipboardManager.setText(AnnotatedString(establishment.couponCode))
                             isCodeCopied = true
-                            Toast.makeText(context, "¡Código copiado al portapapeles!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Código copiado al portapapeles", Toast.LENGTH_SHORT).show()
                         },
                         shape = RoundedCornerShape(10.dp)
                     ) {
+                        Icon(
+                            imageVector = if (isCodeCopied) Icons.Default.Check else Icons.Default.ContentCopy,
+                            contentDescription = null,
+                            tint = SensusPurple,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = if (isCodeCopied) "✓ Copiado" else "Copiar",
+                            text = if (isCodeCopied) "Copiado" else "Copiar",
                             fontWeight = FontWeight.Bold,
                             color = SensusPurple
                         )
@@ -249,7 +286,7 @@ fun EstablishmentDetailSheet(
                 onClick = {
                     isRedeemed = true
                     onRedeemCoupon(establishment)
-                    Toast.makeText(context, "¡Cupón guardado con éxito! Muéstralo en caja.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "Cupón guardado. Muéstralo en caja.", Toast.LENGTH_LONG).show()
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -259,9 +296,16 @@ fun EstablishmentDetailSheet(
                     containerColor = if (isRedeemed) SensusSuccess else SensusPurple
                 )
             ) {
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = if (isRedeemed) "✓ Cupón Guardado en tu Perfil" else "Canjear Descuento en Caja",
-                    fontSize = 16.sp,
+                    text = if (isRedeemed) "Cupón Guardado en tu Perfil" else "Canjear Descuento en Caja",
+                    fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
@@ -278,8 +322,15 @@ fun EstablishmentDetailSheet(
                     .height(48.dp),
                 shape = RoundedCornerShape(14.dp)
             ) {
+                Icon(
+                    imageVector = Icons.Default.Directions,
+                    contentDescription = null,
+                    tint = SensusTextPrimary,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    text = "🧭 Cómo llegar (${establishment.formattedDistance})",
+                    text = "Cómo llegar (${establishment.formattedDistance})",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = SensusTextPrimary
