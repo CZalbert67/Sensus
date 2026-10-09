@@ -1,5 +1,7 @@
 package com.example.sensus.ui.profile
 
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -424,6 +426,41 @@ fun ProfileScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
+                                try {
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://rodnix.com.mx/sensus/eliminar-cuenta.html"))
+                                    context.startActivity(intent)
+                                } catch (e: Exception) {
+                                    Toast.makeText(context, "Visita: rodnix.com.mx/sensus/eliminar-cuenta.html", Toast.LENGTH_LONG).show()
+                                }
+                            }
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Security,
+                                contentDescription = null,
+                                tint = SensusPurple,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text(text = "Eliminar Cuenta y Datos (En línea)", fontSize = 14.sp, color = SensusTextPrimary)
+                        }
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                            contentDescription = null,
+                            tint = SensusTextMuted,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+
+                    HorizontalDivider(color = SensusCardBorder)
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
                                 Toast.makeText(context, "¡Gracias por apoyar a Sensus en Google Play!", Toast.LENGTH_SHORT).show()
                             }
                             .padding(16.dp),
@@ -460,13 +497,13 @@ fun ProfileScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Sensus v1.0.0 (Build 1)",
+                    text = "Sensus v1.1.0 (Build 2) • Pruebas Cerradas",
                     fontSize = 12.sp,
-                    color = SensusTextMuted,
-                    fontWeight = FontWeight.Medium
+                    color = SensusPurple,
+                    fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Descuentos locales en tu bolsillo",
+                    text = "Ahorro inteligente y cero desperdicio",
                     fontSize = 11.sp,
                     color = SensusTextMuted
                 )

@@ -245,7 +245,7 @@ fun HomeScreen(
                                 color = SensusPurple
                             ) {
                                 Text(
-                                    text = "OFERTAS DEL DÍA",
+                                    text = "OFERTAS DEL DÍA • CERO MERMAS",
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White,
