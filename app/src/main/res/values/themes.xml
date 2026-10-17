@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="Theme.Sensus" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.Sensus" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- Soporte para bajorrelieves de pantalla / Display Cutout (Android 9+ / API 28+) -->
+        <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="28">shortEdges</item>
+
+        <!-- Configuracion de barras del sistema para Edge-to-Edge transparente -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:enforceNavigationBarContrast" tools:targetApi="29">false</item>
+        <item name="android:enforceStatusBarContrast" tools:targetApi="29">false</item>
+    </style>
 </resources>

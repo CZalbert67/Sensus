@@ -1,9 +1,10 @@
 package com.example.sensus.ui.main
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ConfirmationNumber
@@ -56,11 +57,11 @@ fun MainAppContainer(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = SensusBackground,
+        contentWindowInsets = WindowInsets.safeDrawing,
         bottomBar = {
             NavigationBar(
                 containerColor = Color.White,
-                tonalElevation = 8.dp,
-                modifier = Modifier.navigationBarsPadding()
+                tonalElevation = 8.dp
             ) {
                 MainNavigationTab.values().forEachIndexed { index, tab ->
                     val isSelected = selectedTabIndex == index
