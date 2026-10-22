@@ -9,28 +9,53 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.example.sensus.ui.auth.LoginScreen
+import com.example.sensus.ui.auth.TermsScreen
 import com.example.sensus.ui.main.MainAppContainer
 import com.example.sensus.ui.splash.SplashScreen
 
+enum class AppScreen {
+    SPLASH,
+    LOGIN,
+    TERMS,
+    MAIN
+}
+
 @Composable
 fun MainNavigation() {
-    var isSplashFinished by remember { mutableStateOf(false) }
+    var currentScreen by remember { mutableStateOf(AppScreen.SPLASH) }
 
     Crossfade(
-        targetState = isSplashFinished,
-        animationSpec = tween(durationMillis = 600),
+        targetState = currentScreen,
+        animationSpec = tween(durationMillis = 400),
         modifier = Modifier.fillMaxSize(),
-        label = "SplashToMainTransition"
-    ) { finished ->
-        if (!finished) {
-            SplashScreen(
-                onSplashFinished = {
-                    isSplashFinished = true
-                }
-            )
-        } else {
-            MainAppContainer()
+        label = "AppScreenTransition"
+    ) { screen ->
+        when (screen) {
+            AppScreen.SPLASH -> {
+                SplashScreen(
+                    onSplashFinished = {
+                        currentScreen = AppScreen.LOGIN
+                    }
+                )
+            }
+            AppScreen.LOGIN -> {
+                LoginScreen(
+                    onLoginSuccess = {
+                        currentScreen = AppScreen.TERMS
+                    }
+                )
+            }
+            AppScreen.TERMS -> {
+                TermsScreen(
+                    onTermsAccepted = {
+                        currentScreen = AppScreen.MAIN
+                    }
+                )
+            }
+            AppScreen.MAIN -> {
+                MainAppContainer()
+            }
         }
     }
 }
-
