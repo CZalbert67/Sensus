@@ -79,6 +79,7 @@ Del análisis detallado del lienzo de diseño (`media_1792714419707_d780e074.png
 | **Sintaxis Compose** | Error de candidatos en `Modifier.padding` | Se combinaron parámetros `horizontal` con `top` y `bottom` en una sola llamada en `HomeScreen.kt`. | Se corrigió la llamada a `padding(start = 16.dp, end = 16.dp, top = 18.dp, bottom = 10.dp)`. |
 | **Primera versión Splash** | Animación plana / sin vida | Se hizo un fade-in genérico con un único asset plano. | El usuario solicitó reproducir el comportamiento orgánico del video `prueba.mp4`. Se dividió el arte en 3 capas alfa (`sensus_bag.png`, `sensus_cat.png`, `sensus_bell.png`) y se programó caída con squash & stretch, respiración del lomo del gato y balanceo pendular del cascabel. |
 | **Alineación con el diseño** | Creación de flujo de login apresurado | Se creó un flujo de login/términos sin considerar la estructura completa del nuevo tablero de Figma compartido. | El usuario instruyó pausar el código anterior, analizar el maquetado a fondo y crear este archivo `MEMORY.md` antes de reiniciar formalmente el diseño del Splash. |
+| **Rediseño Splash Gato Caminante** | Animación estática previa no concordaba con la nueva identidad de marca dinámica | El logo anterior mostraba al gato durmiendo dentro de la bolsa, mientras que la nueva dirección artística requería un gato blanco caminando sosteniendo la bolsa morada con el hocico. | Se procesó la ilustración del usuario aislando el fondo naranja (`#FDB106`) con canal alfa transparente y depuración de recovecos (`walking_cat_clean.png`). Se implementó un ciclo cinemático de 3 fragmentos (4.0s totales) en `SplashScreen.kt`: marcha de 4 tiempos con cabeceo vertical rítmico, balanceo pendular físico de la bolsa, amortiguación progresiva, squash & stretch orgánico y fade-out limpio. |
 
 ---
 
@@ -89,8 +90,11 @@ Del análisis detallado del lienzo de diseño (`media_1792714419707_d780e074.png
 
 ## 📋 6. Estado Actual y Próximos Pasos
 * **Estado Actual**: 
-  * Análisis del maquetado concluido y documentado.
-  * Archivo `MEMORY.md` creado y disponible para consultas permanentes.
-  * Pausa activa a la espera de las especificaciones del usuario para el rediseño formal del Splash Screen.
+  * Nuevo asset limpio y vectorizado `walking_cat_clean.png` integrado en `res/drawable/`.
+  * Rediseño completo de [`SplashScreen.kt`](file:///c:/Users/czalb/Downloads/Integradora/app/src/main/java/com/example/sensus/ui/splash/SplashScreen.kt) implementado con los 3 fragmentos requeridos (0.0s – 1.0s entrada, 1.0s – 2.5s crucero de 4 tiempos sobre `#FFA500`, 2.5s – 4.0s amortiguación de balanceo y fade-out).
+  * Color `SensusOrange` (`#FFA500`) añadido al sistema de diseño.
+  * Base de conocimientos `MEMORY.md` y `memori.md` sincronizadas.
 * **Siguiente Paso**:
-  * Recibir instrucciones del usuario respecto al diseño definitivo del Splash Screen según el maquetado.
+  * Verificar compilación limpia de Kotlin (`compileDebugKotlin`).
+  * Subir confirmación de commits a GitHub ([CZalbert67/Sensus](https://github.com/CZalbert67/Sensus)).
+  * Presentar la solución detallada al usuario.

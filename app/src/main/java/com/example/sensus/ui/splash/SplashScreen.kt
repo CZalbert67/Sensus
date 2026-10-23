@@ -2,9 +2,8 @@ package com.example.sensus.ui.splash
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -16,208 +15,158 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sensus.R
-import com.example.sensus.theme.SensusAmber
+import com.example.sensus.theme.SensusOrange
 import com.example.sensus.theme.SensusPurple
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlin.math.PI
+import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.sin
 
+/**
+ * Splash Screen Sensus con animación dinámica cuadro a cuadro del gato caminante:
+ *
+ * Fragmento 1 (0.0s – 1.0s):
+ *  - El gato blanco entra caminando desde el costado izquierdo hacia el centro.
+ *  - Sostiene la bolsa morada sujeta firmemente del hocico con ojos alegres (^ ^).
+ *  - Cola ondulante y ligero balanceo pendular físico hacia adelante y atrás sincronizado con los pasos.
+ *
+ * Fragmento 2 (1.0s – 2.5s):
+ *  - Desplazamiento central cruzando sobre fondo naranja liso (#FFA500).
+ *  - Ciclo de caminata felina de 4 tiempos (patas alternadas con flexión suave).
+ *  - Cabeza con leve cabeceo vertical rítmico (bobbing) al apoyar patas.
+ *  - Cascabel oscilando sutilmente con el rebote del cuerpo.
+ *  - Aparición y expansión de tracking del texto "Sensus".
+ *
+ * Fragmento 3 (2.5s – 4.0s):
+ *  - Culminación del paso continuando hacia el centro-derecha sin detener la marcha.
+ *  - Movimiento pendular de la bolsa amortiguado suavemente (dampening a 0).
+ *  - Mantiene silueta limpia con bordes morados y transición de salida / fade-out hacia MainActivity / Login.
+ */
 @Composable
 fun SplashScreen(
     modifier: Modifier = Modifier,
     onSplashFinished: () -> Unit
 ) {
-    // 0.0s – 0.6s: Entrada, caída y rebote con Squash & Stretch
-    val logoOffsetY = remember { Animatable(-75f) }
-    val logoScaleX = remember { Animatable(0.95f) }
-    val logoScaleY = remember { Animatable(1.08f) }
-    val logoAlpha = remember { Animatable(0f) }
-
-    // 0.6s – 1.2s: Movimiento secundario orgánico del gato y balanceo pendular del cascabel
-    val catOffsetY = remember { Animatable(0f) }
-    val catScaleY = remember { Animatable(1.0f) }
-    val bellRotation = remember { Animatable(0f) }
-
-    // 1.0s – 1.8s: Aparición y expansión de tracking del texto 'Sensus'
-    val textOffsetY = remember { Animatable(32f) }
-    val textScale = remember { Animatable(0.7f) }
-    val textLetterSpacing = remember { Animatable(-1.5f) } // en sp
-    val textAlpha = remember { Animatable(0f) }
-
-    // 2.4s – 3.0s: Transición de salida rápida hacia arriba (1.0 -> 1.15) y fade-out (1 -> 0)
-    val exitScale = remember { Animatable(1.0f) }
-    val exitAlpha = remember { Animatable(1.0f) }
+    // Reloj maestro de animación en milisegundos (0ms a 4000ms = 4.0 segundos)
+    val animTimeMs = remember { Animatable(0f) }
 
     LaunchedEffect(Unit) {
-        // =========================================================================
-        // FASE 1: 0.0s – 0.6s (Entrada y rebote elástico con squash & stretch)
-        // =========================================================================
-        launch {
-            logoAlpha.animateTo(
-                targetValue = 1f,
-                animationSpec = tween(durationMillis = 200, easing = LinearOutSlowInEasing)
+        animTimeMs.animateTo(
+            targetValue = 4000f,
+            animationSpec = tween(
+                durationMillis = 4000,
+                easing = LinearEasing
             )
-        }
-
-        // Caída desde arriba hacia el centro
-        logoOffsetY.animateTo(
-            targetValue = 0f,
-            animationSpec = tween(durationMillis = 320, easing = FastOutSlowInEasing)
         )
-
-        // Impacto: Squash (aplastamiento: scaleY: 0.9, scaleX: 1.05)
-        coroutineScope {
-            launch {
-                logoScaleX.animateTo(
-                    targetValue = 1.05f,
-                    animationSpec = tween(durationMillis = 110, easing = FastOutSlowInEasing)
-                )
-            }
-            launch {
-                logoScaleY.animateTo(
-                    targetValue = 0.90f,
-                    animationSpec = tween(durationMillis = 110, easing = FastOutSlowInEasing)
-                )
-            }
-        }
-
-        // Rebote y recuperación a escala normal 1.0
-        coroutineScope {
-            launch {
-                logoScaleX.animateTo(
-                    targetValue = 1.0f,
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessLow
-                    )
-                )
-            }
-            launch {
-                logoScaleY.animateTo(
-                    targetValue = 1.0f,
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessLow
-                    )
-                )
-            }
-        }
-
-        // =========================================================================
-        // FASE 2: 0.6s – 1.2s (Micro-movimiento orgánico del gato y cascabel)
-        // =========================================================================
-        // El gato respira/se acomoda (lomo sube y baja 2-3px)
-        launch {
-            // Sube el lomo (respiración suave)
-            catOffsetY.animateTo(
-                targetValue = -3f,
-                animationSpec = tween(durationMillis = 280, easing = FastOutSlowInEasing)
-            )
-            catScaleY.animateTo(
-                targetValue = 1.025f,
-                animationSpec = tween(durationMillis = 280, easing = FastOutSlowInEasing)
-            )
-            // Baja el lomo y se asienta
-            catOffsetY.animateTo(
-                targetValue = 0f,
-                animationSpec = tween(durationMillis = 320, easing = FastOutSlowInEasing)
-            )
-            catScaleY.animateTo(
-                targetValue = 1.0f,
-                animationSpec = tween(durationMillis = 320, easing = FastOutSlowInEasing)
-            )
-        }
-
-        // El cascabel naranja tiene un balanceo pendular amortiguado (-8° a +8°)
-        launch {
-            bellRotation.animateTo(targetValue = -8f, animationSpec = tween(90, easing = FastOutSlowInEasing))
-            bellRotation.animateTo(targetValue = 8f, animationSpec = tween(120, easing = FastOutSlowInEasing))
-            bellRotation.animateTo(targetValue = -5f, animationSpec = tween(110, easing = FastOutSlowInEasing))
-            bellRotation.animateTo(targetValue = 3f, animationSpec = tween(100, easing = FastOutSlowInEasing))
-            bellRotation.animateTo(targetValue = -1f, animationSpec = tween(90, easing = FastOutSlowInEasing))
-            bellRotation.animateTo(targetValue = 0f, animationSpec = tween(90, easing = FastOutSlowInEasing))
-        }
-
-        // =========================================================================
-        // FASE 3: 1.0s – 1.8s (Aparición y expansión del texto 'Sensus')
-        // Surge justo detrás de la base de la bolsa, tracking expandiéndose
-        // =========================================================================
-        delay(400) // tiempo acumulado ~1.0s
-
-        coroutineScope {
-            launch {
-                textAlpha.animateTo(
-                    targetValue = 1f,
-                    animationSpec = tween(durationMillis = 400, easing = LinearOutSlowInEasing)
-                )
-            }
-            launch {
-                textOffsetY.animateTo(
-                    targetValue = 0f,
-                    animationSpec = spring(dampingRatio = 0.65f, stiffness = Spring.StiffnessLow)
-                )
-            }
-            launch {
-                textScale.animateTo(
-                    targetValue = 1.0f,
-                    animationSpec = spring(dampingRatio = 0.65f, stiffness = Spring.StiffnessLow)
-                )
-            }
-            launch {
-                textLetterSpacing.animateTo(
-                    targetValue = 2.0f,
-                    animationSpec = tween(durationMillis = 700, easing = FastOutSlowInEasing)
-                )
-            }
-        }
-
-        // =========================================================================
-        // FASE 4: 1.8s – 2.4s (Pausa estática / Brand hold con nitidez total)
-        // =========================================================================
-        delay(600)
-
-        // =========================================================================
-        // FASE 5: 2.4s – 3.0s (Transición de salida: scale 1.0 -> 1.15 y fade-out)
-        // =========================================================================
-        coroutineScope {
-            launch {
-                exitScale.animateTo(
-                    targetValue = 1.15f,
-                    animationSpec = tween(durationMillis = 550, easing = FastOutSlowInEasing)
-                )
-            }
-            launch {
-                exitAlpha.animateTo(
-                    targetValue = 0f,
-                    animationSpec = tween(durationMillis = 550, easing = FastOutSlowInEasing)
-                )
-            }
-        }
-
-        // Finaliza y da paso a la pantalla principal
         onSplashFinished()
     }
 
+    val t = animTimeMs.value
+
+    // =========================================================================
+    // 1. DESPLAZAMIENTO HORIZONTAL (X Trajectory en Dp)
+    // =========================================================================
+    val posX: Dp = when {
+        t < 1000f -> {
+            // Fragmento 1 (0.0s – 1.0s): Entrada desde la izquierda hacia el centro
+            val progress = t / 1000f
+            val eased = FastOutSlowInEasing.transform(progress)
+            (-150f + (115f * eased)).dp // -150.dp -> -35.dp
+        }
+        t < 2500f -> {
+            // Fragmento 2 (1.0s – 2.5s): Desplazamiento firme cruzando el centro
+            val progress = (t - 1000f) / 1500f
+            (-35f + (65f * progress)).dp // -35.dp -> +30.dp
+        }
+        else -> {
+            // Fragmento 3 (2.5s – 4.0s): Continúa hacia centro-derecha con desaceleración suave
+            val progress = ((t - 2500f) / 1500f).coerceIn(0f, 1f)
+            val eased = LinearOutSlowInEasing.transform(progress)
+            (30f + (40f * eased)).dp // +30.dp -> +70.dp
+        }
+    }
+
+    // =========================================================================
+    // 2. CICLO DE CAMINATA FELINA DE 4 TIEMPOS (Cadencia: ~375ms por paso)
+    // =========================================================================
+    val stepPeriod = 375f // 4 pasos en el tramo central de 1.5s
+    val stepPhase = (t / stepPeriod) * PI.toFloat()
+
+    // Cabeceo vertical rítmico (Head & Body Vertical Bobbing)
+    // En cada paso, el cuerpo flexiona suavemente hacia abajo (5.5dp) y rebota
+    val bobbingY: Dp = (-abs(sin(stepPhase)) * 5.5f).dp
+
+    // Balanceo e inclinación corporal alternando las patas (Pitch / Tilt)
+    val walkTilt: Float = sin(stepPhase) * 2.8f
+
+    // Flexión suave / Squash & Stretch muscular en cada apoyo
+    val impactSquash: Float = abs(sin(stepPhase)) * 0.035f
+    val walkScaleX: Float = 1.0f + (impactSquash * 0.8f)
+    val walkScaleY: Float = 1.0f - impactSquash
+
+    // =========================================================================
+    // 3. BALANCEO PENDULAR DE LA BOLSA (Inercia física y amortiguación en F3)
+    // =========================================================================
+    // Desfase de inercia (~90° cos) respecto al paso
+    val bagDamping: Float = when {
+        t < 2500f -> 1.0f
+        else -> (1.0f - ((t - 2500f) / 1300f)).coerceIn(0f, 1f) // Amortigua suavemente a 0
+    }
+    val bagPendulumSwing: Float = cos(stepPhase) * 5.0f * bagDamping
+
+    // Rotación total acumulada del gato con la bolsa en el hocico
+    val totalCatRotation = walkTilt + bagPendulumSwing
+
+    // =========================================================================
+    // 4. TIPOGRAFÍA SENSUS (Aparición centrada debajo y expansión de tracking)
+    // =========================================================================
+    val textAlpha: Float = when {
+        t < 700f -> 0f
+        t < 1500f -> ((t - 700f) / 800f).coerceIn(0f, 1f)
+        else -> 1f
+    }
+    val textLetterSpacing = when {
+        t < 700f -> (-1.2f).sp
+        t < 1600f -> (-1.2f + (3.2f * ((t - 700f) / 900f))).sp
+        else -> 2.0.sp
+    }
+
+    // =========================================================================
+    // 5. TRANSICIONES DE ESCENA (Fade-in inicial y Fade-out final a pantalla Login)
+    // =========================================================================
+    val sceneAlpha: Float = when {
+        t < 250f -> (t / 250f).coerceIn(0f, 1f)
+        t > 3400f -> (1.0f - ((t - 3400f) / 600f)).coerceIn(0f, 1f)
+        else -> 1.0f
+    }
+    val sceneScale: Float = when {
+        t > 3400f -> 1.0f + (0.05f * ((t - 3400f) / 600f).coerceIn(0f, 1f))
+        else -> 1.0f
+    }
+
+    // =========================================================================
+    // ESTRUCTURA VISUAL: Fondo Naranja Cálido (#FFA500)
+    // =========================================================================
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(SensusAmber),
+            .background(SensusOrange),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -225,80 +174,44 @@ fun SplashScreen(
             verticalArrangement = Arrangement.Center,
             modifier = Modifier
                 .graphicsLayer {
-                    scaleX = exitScale.value
-                    scaleY = exitScale.value
-                    alpha = exitAlpha.value
+                    scaleX = sceneScale
+                    scaleY = sceneScale
+                    alpha = sceneAlpha
                 }
         ) {
-            // CONTENEDOR DEL LOGO (Bolsa + Gato independiente + Cascabel pendular)
+            // CONTENEDOR DEL GATO CAMINANTE CON BOLSA
             Box(
                 modifier = Modifier
-                    .size(230.dp)
+                    .offset(x = posX, y = bobbingY)
                     .graphicsLayer {
-                        translationY = logoOffsetY.value
-                        scaleX = logoScaleX.value
-                        scaleY = logoScaleY.value
-                        alpha = logoAlpha.value
+                        rotationZ = totalCatRotation
+                        scaleX = walkScaleX
+                        scaleY = walkScaleY
+                        // Anclado en las patas para física de paso natural
+                        transformOrigin = TransformOrigin(0.42f, 0.88f)
                     },
                 contentAlignment = Alignment.Center
             ) {
-                // CAPA 1: La Bolsa de compras (Interior transparente mostrando el fondo naranja)
                 Image(
-                    painter = painterResource(id = R.drawable.sensus_bag),
-                    contentDescription = "Bolsa Sensus",
-                    modifier = Modifier.fillMaxSize()
+                    painter = painterResource(id = R.drawable.walking_cat_clean),
+                    contentDescription = "Gato caminando Sensus",
+                    modifier = Modifier.size(width = 250.dp, height = 155.dp)
                 )
-
-                // CAPA 2: El Gato dormido (con micro-movimiento orgánico de respiración 2-3px)
-                Image(
-                    painter = painterResource(id = R.drawable.sensus_cat),
-                    contentDescription = "Gato Sensus",
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .graphicsLayer {
-                            translationY = catOffsetY.value
-                            scaleY = catScaleY.value
-                            transformOrigin = TransformOrigin(0.5f, 1.0f) // Anclado a la base
-                        }
-                )
-
-                // CAPA 3: Cascabel naranja en el collar con balanceo pendular (-8° a +8°)
-                // Posicionado exactamente sobre el collar del gato (x: 41%, y: 69%)
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .offset(x = (230.dp * 0.395f), y = (230.dp * 0.675f))
-                        .size(28.dp)
-                        .graphicsLayer {
-                            translationY = catOffsetY.value // sigue la respiración del gato
-                            rotationZ = bellRotation.value
-                            transformOrigin = TransformOrigin(0.5f, 0.15f) // pivota en la anilla superior
-                        }
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.sensus_bell),
-                        contentDescription = "Cascabel Sensus",
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(28.dp))
 
-            // TEXTO 'Sensus' (Surge tras la base, escala 0.7 -> 1.0, tracking se expande)
+            // TIPOGRAFÍA DE MARCA 'Sensus' (Bordes morados #4A148C y tracking orgánico)
             Text(
                 text = "Sensus",
-                fontSize = 42.sp,
+                fontSize = 40.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = FontFamily.SansSerif,
-                letterSpacing = textLetterSpacing.value.sp,
+                letterSpacing = textLetterSpacing,
                 color = SensusPurple,
                 modifier = Modifier
-                    .offset(y = textOffsetY.value.dp)
                     .graphicsLayer {
-                        scaleX = textScale.value
-                        scaleY = textScale.value
-                        alpha = textAlpha.value
+                        alpha = textAlpha
                     }
             )
         }
