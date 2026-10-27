@@ -173,9 +173,11 @@ fun SensiChatScreen(
             }
         }
 
-        // Barra inferior de entrada de texto
+        // Barra inferior de entrada de texto (con espacio para el menú flotante)
         Surface(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 76.dp),
             color = Color.White,
             shadowElevation = 8.dp
         ) {

@@ -68,7 +68,7 @@ fun BuyerProfileScreen(
         modifier = modifier
             .fillMaxSize()
             .background(SensusBackground),
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 96.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // Encabezado de usuario
@@ -111,95 +111,6 @@ fun BuyerProfileScreen(
                         Text(
                             text = "ana.torres@email.com",
                             fontSize = 13.sp,
-                            color = SensusTextSecondary
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.Shield,
-                                contentDescription = null,
-                                tint = SensusAmber,
-                                modifier = Modifier.size(14.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = "Nivel: Guardián del Ahorro",
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = SensusAmber
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
-        // Métricas de ahorro acumulado del comprador
-        item {
-            Card(
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceAround,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            text = "$340.00",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = SensusPurple
-                        )
-                        Text(
-                            text = "Ahorro total",
-                            fontSize = 11.sp,
-                            color = SensusTextSecondary
-                        )
-                    }
-
-                    VerticalDivider(
-                        modifier = Modifier
-                            .height(30.dp)
-                            .width(1.dp),
-                        color = Color(0xFFE2E8F0)
-                    )
-
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            text = "12",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = SensusSuccess
-                        )
-                        Text(
-                            text = "Mermas rescatadas",
-                            fontSize = 11.sp,
-                            color = SensusTextSecondary
-                        )
-                    }
-
-                    VerticalDivider(
-                        modifier = Modifier
-                            .height(30.dp)
-                            .width(1.dp),
-                        color = Color(0xFFE2E8F0)
-                    )
-
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            text = "4.9",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = SensusAmber
-                        )
-                        Text(
-                            text = "Puntualidad",
-                            fontSize = 11.sp,
                             color = SensusTextSecondary
                         )
                     }

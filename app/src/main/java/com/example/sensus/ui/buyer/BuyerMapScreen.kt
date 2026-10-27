@@ -1,18 +1,27 @@
 package com.example.sensus.ui.buyer
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -22,11 +31,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
-import androidx.compose.material.icons.filled.LocationSearching
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Storefront
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -40,17 +50,21 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.sensus.R
 import com.example.sensus.data.MockDataProvider
 import com.example.sensus.data.ProductOffer
 import com.example.sensus.data.StoreCategory
@@ -61,6 +75,8 @@ import com.example.sensus.theme.SensusSuccess
 import com.example.sensus.theme.SensusTextMuted
 import com.example.sensus.theme.SensusTextPrimary
 import com.example.sensus.theme.SensusTextSecondary
+import com.example.sensus.ui.common.RadiusSelectorBottomSheet
+import com.example.sensus.ui.common.formatRadiusText
 
 @Composable
 fun BuyerMapScreen(
@@ -72,12 +88,29 @@ fun BuyerMapScreen(
     var searchQuery by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf(StoreCategory.ALL) }
     var selectedOffer by remember { mutableStateOf(MockDataProvider.sampleOffers.first()) }
+    var selectedRadiusKm by remember { mutableFloatStateOf(2.0f) }
+    var showRadiusSheet by remember { mutableStateOf(false) }
 
-    Box(
+    // Animación suave de halo para el gatito sentado en el mapa
+    val infiniteTransition = rememberInfiniteTransition(label = "CatMarkerPulse")
+    val haloScale by infiniteTransition.animateFloat(
+        initialValue = 0.95f,
+        targetValue = 1.25f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1200, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "haloScale"
+    )
+
+    BoxWithConstraints(
         modifier = modifier
             .fillMaxSize()
             .background(Color(0xFFE5E7EB))
     ) {
+        val screenHeight = maxHeight
+        val screenWidth = maxWidth
+
         // Lienzo del mapa interactivo con carreteras y cuadrículas vectoriales
         Canvas(modifier = Modifier.fillMaxSize()) {
             val canvasWidth = size.width
@@ -124,32 +157,22 @@ fun BuyerMapScreen(
                 strokeWidth = 14f
             )
 
-            // Círculo de radio de búsqueda (2 km)
+            // Círculo de radio dinámico seleccionado (0.5 km a 5.0 km)
+            val visualRadius = (selectedRadiusKm / 2.0f) * 280f
             drawCircle(
                 color = SensusPurple.copy(alpha = 0.08f),
-                radius = 280f,
-                center = Offset(canvasWidth * 0.45f, canvasHeight * 0.50f)
-            )
-
-            // Posicion del usuario (punto azul GPS)
-            drawCircle(
-                color = Color(0xFF3B82F6).copy(alpha = 0.25f),
-                radius = 24f,
+                radius = visualRadius,
                 center = Offset(canvasWidth * 0.45f, canvasHeight * 0.50f)
             )
             drawCircle(
-                color = Color(0xFF2563EB),
-                radius = 10f,
-                center = Offset(canvasWidth * 0.45f, canvasHeight * 0.50f)
-            )
-            drawCircle(
-                color = Color.White,
-                radius = 4f,
-                center = Offset(canvasWidth * 0.45f, canvasHeight * 0.50f)
+                color = SensusPurple.copy(alpha = 0.25f),
+                radius = visualRadius,
+                center = Offset(canvasWidth * 0.45f, canvasHeight * 0.50f),
+                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f)
             )
         }
 
-        // Pines interactivos en el mapa sobre las tiendas
+        // Elementos superpuestos en el mapa: Pines de tiendas y Gatito sentado del usuario
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
@@ -160,7 +183,7 @@ fun BuyerMapScreen(
                 isSelected = selectedOffer.id == "off_1",
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .padding(bottom = 90.dp, end = 120.dp),
+                    .offset(x = (-90).dp, y = (-70).dp),
                 onClick = {
                     selectedOffer = MockDataProvider.sampleOffers.firstOrNull { it.id == "off_1" }
                         ?: MockDataProvider.sampleOffers.first()
@@ -174,7 +197,7 @@ fun BuyerMapScreen(
                 isSelected = selectedOffer.id == "off_2",
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .padding(top = 100.dp, start = 140.dp),
+                    .offset(x = 100.dp, y = 70.dp),
                 onClick = {
                     selectedOffer = MockDataProvider.sampleOffers.firstOrNull { it.id == "off_2" }
                         ?: MockDataProvider.sampleOffers.first()
@@ -188,19 +211,73 @@ fun BuyerMapScreen(
                 isSelected = selectedOffer.id == "off_3",
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .padding(bottom = 180.dp, start = 80.dp),
+                    .offset(x = 60.dp, y = (-140).dp),
                 onClick = {
                     selectedOffer = MockDataProvider.sampleOffers.firstOrNull { it.id == "off_3" }
                         ?: MockDataProvider.sampleOffers.first()
                 }
             )
+
+            // Marcador del Usuario: Gatito Sentado de Sensus en su posición GPS
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .offset(x = (-16).dp, y = 0.dp)
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center
+                ) {
+                    // Halo de pulso
+                    Box(
+                        modifier = Modifier
+                            .size(56.dp)
+                            .scale(haloScale)
+                            .clip(CircleShape)
+                            .background(SensusAmber.copy(alpha = 0.25f))
+                    )
+
+                    // Pin circular con la figura del gatito sentado
+                    Surface(
+                        shape = CircleShape,
+                        color = Color.White,
+                        shadowElevation = 8.dp,
+                        border = BorderStroke(2.5.dp, SensusAmber),
+                        modifier = Modifier.size(46.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.sensus_cat),
+                            contentDescription = "Tú estás aquí (Gatito Sensus)",
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(4.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = SensusPurple,
+                    shadowElevation = 4.dp
+                ) {
+                    Text(
+                        text = "Tú estás aquí",
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                    )
+                }
+            }
         }
 
-        // Barra superior de búsqueda y controles sobre el mapa
+        // Barra superior de búsqueda, selector funcional de radio y categorías
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(horizontal = 16.dp, vertical = 12.dp)
                 .align(Alignment.TopCenter)
         ) {
             OutlinedTextField(
@@ -242,14 +319,48 @@ fun BuyerMapScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Categorias rápidas horizontales
+            // Fila de chip funcional de radio y categorías rápidas
             val scrollState = rememberScrollState()
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .horizontalScroll(scrollState),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                // Chip interactivo para cambiar radio (0.5 a 5 km)
+                Surface(
+                    shape = RoundedCornerShape(20.dp),
+                    color = SensusAmber,
+                    shadowElevation = 2.dp,
+                    modifier = Modifier.clickable { showRadiusSheet = true }
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Tune,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "Radio: ${formatRadiusText(selectedRadiusKm)}",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                        Icon(
+                            imageVector = Icons.Default.ArrowDropDown,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
+
                 StoreCategory.values().take(5).forEach { cat ->
                     val isSelected = selectedCategory == cat
                     Surface(
@@ -270,13 +381,13 @@ fun BuyerMapScreen(
             }
         }
 
-        // Botón flotante para recentrar GPS
+        // Botón flotante para recentrar GPS (ubicado sobre la tarjeta de detalle)
         IconButton(
-            onClick = { /* Recenter GPS */ },
+            onClick = { /* Recentrar GPS en usuario */ },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(bottom = 190.dp, end = 16.dp)
-                .size(46.dp)
+                .padding(bottom = 260.dp, end = 16.dp)
+                .size(44.dp)
                 .clip(CircleShape)
                 .background(Color.White)
         ) {
@@ -288,16 +399,18 @@ fun BuyerMapScreen(
         }
 
         // Tarjeta flotante inferior de la tienda/oferta seleccionada
+        // Con espacio inferior adecuado para no obstruir el Floating Action Menu
         Card(
-            shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+            shape = RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
+                .padding(bottom = 76.dp) // Espacio para el Floating Action Menu
         ) {
             Column(
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)
             ) {
                 // Indicador de arrastre / Handle
                 Box(
@@ -308,7 +421,7 @@ fun BuyerMapScreen(
                         .align(Alignment.CenterHorizontally)
                 )
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -341,7 +454,7 @@ fun BuyerMapScreen(
                             color = SensusTextPrimary
                         )
 
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(2.dp))
 
                         Text(
                             text = "${selectedOffer.formattedDistance} • Recoge en ${selectedOffer.timeToCollectMinutes} min",
@@ -373,7 +486,7 @@ fun BuyerMapScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 // Botones de acción
                 Row(
@@ -423,6 +536,15 @@ fun BuyerMapScreen(
                 }
             }
         }
+
+        // Hoja inferior interactiva de selección de radio (0.5 a 5 km)
+        if (showRadiusSheet) {
+            RadiusSelectorBottomSheet(
+                currentRadiusKm = selectedRadiusKm,
+                onRadiusSelected = { selectedRadiusKm = it },
+                onDismiss = { showRadiusSheet = false }
+            )
+        }
     }
 }
 
@@ -438,6 +560,7 @@ private fun MapPinItem(
         shape = RoundedCornerShape(20.dp),
         color = if (isSelected) SensusPurple else Color.White,
         shadowElevation = 6.dp,
+        border = BorderStroke(1.dp, if (isSelected) SensusAmber else Color(0xFFE2E8F0)),
         modifier = modifier.clickable { onClick() }
     ) {
         Row(

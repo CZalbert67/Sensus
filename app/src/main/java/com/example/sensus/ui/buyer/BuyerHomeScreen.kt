@@ -42,6 +42,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -65,6 +66,8 @@ import com.example.sensus.theme.SensusSuccess
 import com.example.sensus.theme.SensusTextMuted
 import com.example.sensus.theme.SensusTextPrimary
 import com.example.sensus.theme.SensusTextSecondary
+import com.example.sensus.ui.common.RadiusSelectorBottomSheet
+import com.example.sensus.ui.common.formatRadiusText
 import com.example.sensus.ui.common.getCategoryIcon
 
 @Composable
@@ -76,7 +79,8 @@ fun BuyerHomeScreen(
 ) {
     var searchQuery by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf(StoreCategory.ALL) }
-    var selectedRadiusKm by remember { mutableStateOf(2) }
+    var selectedRadiusKm by remember { mutableFloatStateOf(2.0f) }
+    var showRadiusSheet by remember { mutableStateOf(false) }
 
     val filteredOffers = remember(searchQuery, selectedCategory) {
         MockDataProvider.sampleOffers.filter { offer ->
@@ -102,7 +106,7 @@ fun BuyerHomeScreen(
         modifier = modifier
             .fillMaxSize()
             .background(SensusBackground),
-        contentPadding = PaddingValues(bottom = 24.dp)
+        contentPadding = PaddingValues(bottom = 96.dp)
     ) {
         // Encabezado: Ubicacion + Notificaciones
         item {
@@ -231,12 +235,13 @@ fun BuyerHomeScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Chip de radio
+                    // Chip de radio interactivo
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .clip(RoundedCornerShape(12.dp))
                             .background(Color.White)
+                            .clickable { showRadiusSheet = true }
                             .padding(horizontal = 10.dp, vertical = 6.dp)
                     ) {
                         Icon(
@@ -247,7 +252,7 @@ fun BuyerHomeScreen(
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "Radio: ${selectedRadiusKm} km",
+                            text = "Radio: ${formatRadiusText(selectedRadiusKm)}",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Medium,
                             color = SensusTextPrimary
@@ -355,6 +360,14 @@ fun BuyerHomeScreen(
                 onClick = { onProductClick(offer) }
             )
         }
+    }
+
+    if (showRadiusSheet) {
+        RadiusSelectorBottomSheet(
+            currentRadiusKm = selectedRadiusKm,
+            onRadiusSelected = { selectedRadiusKm = it },
+            onDismiss = { showRadiusSheet = false }
+        )
     }
 }
 

@@ -15,12 +15,12 @@ Este archivo contiene el contexto persistente, el análisis exhaustivo del maque
 ---
 
 ## 🎨 2. Sistema de Diseño (Design System) & Reglas Estrictas
-* **Paleta de Colores Oficial**:
-  * **Morado de Marca (`#4A148C` / `SensusPurple`)**: Botones de acción principales, encabezados curvos en login/registro, títulos destacados, ruta GPS activa y tabs activas.
-  * **Ámbar / Naranja de Marca (`#FCA311` / `SensusAmber`)**: Fondo del Splash Screen, badges de descuento, botones de ofertas flash, marcadores del mapa y temporizador de apartados.
-  * **Blanco / Neutros Claros (`#FFFFFF`, `#F8F9FA`, `#F1F5F9`)**: Superficies elevadas, tarjetas y fondos limpios.
-  * **Rojo / Coral (`#DC2626`)**: Insignias de ofertas agresivas (-50%) y botones destructivos (eliminar cuenta).
-  * **Verde Éxito (`#10B981`)**: Confirmaciones de validación, ahorros acumulados y estado "Tienda Abierta".
+* **Paleta de Colores Oficial (Fiel al Maquetado)**:
+  * **Morado de Marca (`#4A148C` / `SensusPurple`)**: Botones de acción principales, encabezados curvos en login/registro, títulos destacados, ruta GPS activa y sub-botones del menú flotante.
+  * **Ámbar / Naranja de Marca (`#FCA311` / `SensusAmber`)**: Fondo del Splash Screen, badges de descuento, marcadores de tiendas, halo del gatito en el mapa y anillo del botón flotante.
+  * **Blanco / Neutros Claros (`#FFFFFF`, `#F8F9FA`, `#F1F5F9`)**: Superficies elevadas, tarjetas limpias y fondos sin saturación.
+  * **Rojo / Coral (`#DC2626`)**: Insignias de ofertas agresivas (-50%) y acciones destructivas.
+  * **Verde Éxito (`#10B981`)**: Confirmaciones de validación y estado "Tienda Abierta".
 * **Regla Estricta de Iconografía**:
   * **PROHIBIDO EL USO DE EMOJIS**.
   * Todos los iconos deben ser vectoriales de Material Design mediante `CategoryIcons.kt` o la librería `material-icons-extended` (versiones AutoMirrored donde corresponda).
@@ -29,33 +29,38 @@ Este archivo contiene el contexto persistente, el análisis exhaustivo del maque
 
 ---
 
-## 📐 3. Arquitectura del Maquetado Oficial Figma (`SENSUS (1).png`)
-Se reemplazaron completamente las pantallas genéricas iniciales (`explorar`, `radar`, `cupones`, `perfil`) por las pantallas reales del maquetado maestro:
+## 📐 3. Arquitectura del Maquetado Oficial Figma & Ajustes Solicitados
 
-### A. Flujo Cliente / Comprador (`ui/buyer/`)
-1. **`BuyerHomeScreen.kt`**: Feed principal "Encuentra tu próximo ahorro", selector de ubicación (Tula Centro), barra de búsqueda, chip de radio (2 km), selector de categorías con iconos oficiales (Abarrotes, Limpieza, Panadería, Bebidas, etc.), y tarjetas con etiquetas de descuento (-50%), existencias ("Quedan 3 u.") y botón "Apartar".
-2. **`BuyerMapScreen.kt`**: Mapa interactivo vectorial con calles, radio de cobertura (2 km), punto azul GPS de usuario, pines de tiendas (Bodega A., Don Luis, La Espiga) y tarjeta emergente inferior con detalles y botón "Cómo llegar".
-3. **`ProductDetailScreen.kt`**: Vista de detalle del producto (Detergente 1L $90, Arroz $24, etc.), galería, tarjeta del comercio verificado con calificación y dirección, contador de recolección en 45 min, impacto ambiental y botón inferior fijo "Apartar por $X MXN".
-4. **`ActiveApartadoScreen.kt`**: Pantalla de reserva activa con temporizador regresivo de 45 minutos ("44:59 restantes para recoger"), representación digital de código QR con código alfanumérico visible (`SNS-A7K9-24`), resumen del pedido y botón primario "Abrir en GPS / Cómo llegar".
-5. **`RouteMapScreen.kt`**: Mapa de navegación paso a paso con ruta trazada hacia el comercio, selector de modo de viaje (A pie 5 min, Bici 2 min, Auto 1 min), indicaciones de giro y botón "Ya llegué • Mostrar mi código QR".
-6. **`SensiChatScreen.kt`**: Asistente virtual Sensi IA para ahorro presupuestal, generador de combos de limpieza/despensa inteligente ($185 MXN) con botón para apartar paquete completo y chips de sugerencias rápidas.
-7. **`CommunityScreen.kt`**: Pantalla de comunidad y referidos con código de invitación (`SENSUS-ANA24`), métricas de impacto colectivo en Tula (vecinos activos, kg rescatados, dinero ahorrado) y muro de actividad reciente de vecinos.
-8. **`NotificationsScreen.kt`**: Bandeja con pestañas de filtro (Todas, Ofertas, Reservas, Seguridad), alertas de vencimiento de reservas y avisos de inicio de sesión.
-9. **`BuyerProfileScreen.kt`**: Perfil de Ana Torres con métricas de ahorro ($340 MXN), interruptor para cambiar al modo comercio, historial, enlaces legales y botones para cerrar sesión o eliminar cuenta.
+### A. Pantalla Inicial y Navegación Flotante
+1. **El Mapa como Primera Vista**: Al iniciar sesión o entrar como invitado, la primera pantalla que ve el usuario es **El Mapa** (`BuyerMapScreen`, índice 0 de navegación).
+2. **Floating Action Menu (FAM) con Gatito Vibrante**:
+   * Se eliminó por completo la barra inferior fija tradicional.
+   * La navegación se controla mediante un **Floating Action Menu** circular con la figura del gato de Sensus (`sensus_cat.png`).
+   * Cuenta con un **efecto de vibración / balanceo continuo** (`wobbleAngle` de -7° a +7°) y pulso cardíaco orgánico (`scale` de 1.0 a 1.08) para tentar al usuario a tocarlo.
+   * Al tocarlo, se despliega un scrim semitransparente oscuro y revela verticalmente los sub-botones con etiquetas redondeadas:
+     * *Modo Comprador*: Mapa, Ofertas, Sensi IA, Comunidad, Perfil.
+     * *Modo Comercio*: Mi Tienda, Nueva Oferta, Canjes QR, Perfil Comercio.
+   * Al seleccionar una opción, la pantalla cambia y el menú se pliega suavemente.
 
-### B. Flujo Comercio / Vendedor (`ui/merchant/`)
-1. **`MerchantDashboardScreen.kt`**: Panel de control con métricas del día ($480 MXN recuperados, 12 canjes, 4 ofertas activas), botón destacado "+ Publicar Nueva Oferta", botón para escanear QR y lista de inventario activo.
-2. **`MerchantNewOfferScreen.kt`**: Formulario de publicación con foto del producto, categoría, precio original, precio de oferta, cálculo automático del % de descuento, selector de unidades y tiempo límite.
-3. **`MerchantSalesScreen.kt`**: Escáner de código QR con cámara, entrada manual de código alfanumérico para validación inmediata en mostrador e historial de canjes completados hoy.
-4. **`MerchantProfileScreen.kt`**: Datos del establecimiento comercial (Bodega A. - Centro), interruptor para abrir/cerrar tienda, horarios de atención, teléfono y botón para volver al modo comprador.
-5. **`MerchantRegisterScreen.kt`**: Formulario de onboarding para nuevos vendedores (nombre comercial, RFC, giro, dirección y teléfono).
+### B. Flujo Cliente / Comprador (`ui/buyer/`)
+1. **`BuyerMapScreen.kt`**:
+   * **Marcador de Posición del Usuario**: Se sustituyó el punto azul genérico por un **gatito sentado** (`sensus_cat.png`) con borde ámbar y halo pulsante dinámico.
+   * **Selector de Radio Interactivo (`RadiusSelectorBottomSheet`)**: Ahora permite elegir de forma funcional distancias de 0.5 km (500 m), 1.0 km, 1.5 km, 2.0 km, 2.5 km, 3.0 km, 3.5 km, 4.0 km, 4.5 km hasta 5.0 km máximo, redimensionando en tiempo real el círculo de cobertura en el Canvas del mapa.
+   * Pines de comercios interactivos (*Bodega A., Don Luis, La Espiga*) y tarjeta de previsualización inferior posicionada estratégicamente para no colisionar con el botón flotante.
+2. **`BuyerHomeScreen.kt`**:
+   * Feed de ofertas con selector funcional de radio (0.5 a 5 km) compartido, búsqueda y categorías oficiales.
+   * Espaciado inferior de 96.dp para garantizar que ningún producto quede oculto detrás del menú flotante.
+3. **`BuyerProfileScreen.kt`**:
+   * Se **eliminaron** las métricas inventadas que no estaban en la maqueta (*"Ahorro total", "Mermas rescatadas", "Puntualidad"*).
+   * Mantiene el perfil auténtico: Ana Torres, switch "Soy Comercio / Vendedor", historial, soporte legal y cierre/eliminación de cuenta.
+4. **`CommunityScreen.kt`**:
+   * Se **eliminaron** las tarjetas ficticias (*"Invita un vecino y gana $30"* y *"Impacto en Tula Centro este mes"*).
+   * Se conserva la actividad genuina de compras y rescates de vecinos de la zona con soporte responsivo total.
+5. **`SensiChatScreen.kt`**: Asistente virtual Sensi IA con recomendaciones de paquetes de merma inteligentes y barra de texto adaptada por encima del menú flotante.
+6. **`ProductDetailScreen.kt`**, **`ActiveApartadoScreen.kt`** (QR 45 min), **`RouteMapScreen.kt`** y **`NotificationsScreen.kt`**: Flujos completos de apartado y recolección.
 
-### C. Modales & Diálogos (`ui/modals/`)
-1. **`ConfirmLogoutDialog`**: Confirmación de cierre de sesión seguro.
-2. **`ConfirmDeleteAccountDialog`**: Confirmación destructiva que solicita verificación de contraseña antes de proceder.
-3. **`GuestPromptDialog`**: Mensaje pedagógico que invita al usuario invitado a registrarse o iniciar sesión al intentar apartar un producto.
-4. **`OfflineDialog`**: Aviso de navegación fuera de línea con datos en caché.
-5. **`ForgotPasswordScreen`**: Flujo en dos pasos para recuperación de contraseña (solicitud de correo/teléfono y verificación de código PIN con nueva clave).
+### C. Flujo Comercio / Vendedor (`ui/merchant/`)
+* `MerchantDashboardScreen.kt`, `MerchantNewOfferScreen.kt`, `MerchantSalesScreen.kt`, `MerchantProfileScreen.kt`, `MerchantRegisterScreen.kt`, adaptados con padding inferior responsivo para convivir fluidamente con el Floating Action Menu.
 
 ---
 
@@ -65,15 +70,17 @@ Se reemplazaron completamente las pantallas genéricas iniciales (`explorar`, `r
 | :--- | :--- | :--- | :--- |
 | **Inicio del proyecto** | Uso de emojis en la UI | Se crearon mockups iniciales usando emojis (🍕, 🛒, 📍, ⭐). | El usuario instruyó: *"no ocupes emojis, ocupa iconos"*. Se migró todo a Material Design Icons vectoriales. |
 | **Compilación inicial** | Generación de APK prematuro | Se compiló `app-debug.apk` innecesariamente. | El usuario solicitó borrar el APK y no construirlo hasta nuevo aviso. Se eliminó el APK y se deshabilitaron tareas de empaquetado. |
-| **Splash Screen Final** | Animación rígida o plana previa | Animaciones estáticas en Compose se veían artificiales. | Se integró el video oficial de alta definición `sensus_splash.mp4` (H.264, 1.0 MB) mediante `VideoView` nativo en Compose con fondo `#F4B340`, audio silenciado y transición automática al terminar. |
-| **Transición de Maquetado** | Pantallas genéricas no alineadas al modelo de negocio de merma | Existían pantallas obsoletas de exploración y cupones que no reflejaban el Figma board `SENSUS (1).png`. | Se eliminaron completamente las carpetas `ui/home`, `ui/map`, `ui/coupons`, `ui/profile` y se construyeron los módulos `ui/buyer`, `ui/merchant` y `ui/modals`. |
-| **Compilación inicial de pantallas** | Error `Unresolved reference 'PaddingValues'` en `ProductDetailScreen.kt:436` | Faltaba la importación explícita de `androidx.compose.foundation.layout.PaddingValues`. | Se agregó el import faltante en la cabecera del archivo. |
-| **Deprecaciones de Compose M3** | Advertencias de `Divider` y `Icons.Default` obsoletos | `Divider` fue renombrado a `HorizontalDivider` y `VerticalDivider` en Material 3; varios iconos de navegación requieren versión `AutoMirrored`. | Se sustituyeron todas las ocurrencias por `HorizontalDivider`, `VerticalDivider` e `Icons.AutoMirrored.Filled.*`, logrando 0 advertencias y 0 errores. |
+| **Ajuste de fidelidad al diseño** | Elementos agregados que no estaban en la maqueta | Se crearon tarjetas de métricas en Perfil ("ahorro total", "mermas rescatadas") y promociones en Comunidad ("invita y gana $30", "impacto en Tula"). | El usuario solicitó eliminarlos tajantemente. Se depuraron ambos archivos dejando únicamente lo fiel al diseño de Figma. |
+| **Selector de Radio inerte** | El selector de radio mostraba texto fijo de "2 km" sin poder cambiarse | Faltaba la lógica interactiva para permitir elegir distancias personalizadas. | Se creó `RadiusSelectorModal.kt` con 10 opciones desde 0.5 km hasta 5.0 km máximo, integrándolo en el mapa y la lista para escalar el radio visualmente. |
+| **Representación del Usuario en el Mapa** | Punto azul genérico de GPS | El diseño requería que la presencia del usuario tuviera la identidad visual de la marca. | Se implementó el **gatito sentado** oficial (`sensus_cat.png`) dentro de una insignia circular con halo pulsante en Compose. |
+| **Navegación inferior fija vs flotante** | Barra tradicional de navegación ocupaba espacio rígido y no concordaba con la experiencia del usuario | Se implementó un BottomNavigationBar tradicional. | Se sustituyó por un **Floating Action Menu** circular con figura de gato y **animación de vibración/tentación**, que se despliega en abanico vertical con fondo atenuado (scrim). |
+| **Orden de llegada en Login** | El usuario entraba a la lista antes de ver el mapa | La primera pantalla por defecto era la lista de ofertas. | Se cambió el índice por defecto a 0 (**El Mapa**), siendo lo primero que ve tanto el usuario autenticado como el invitado. |
+| **Responsividad en pantallas** | Posible obstrucción entre contenidos inferiores y el botón flotante | Las listas y campos de texto podían quedar ocultos tras el FAB. | Se añadieron paddings dinámicos inferiores (`bottom = 76.dp` a `96.dp`) y `BoxWithConstraints` en todas las pantallas. |
 
 ---
 
 ## 📋 5. Estado Actual del Código
-* **Compilación**: `BUILD SUCCESSFUL` mediante `./gradlew.bat compileDebugKotlin` ejecutado con éxito.
-* **Archivos APK**: 0 archivos APK generados.
+* **Compilación**: `BUILD SUCCESSFUL` mediante `./gradlew.bat compileDebugKotlin` (0 errores, 0 advertencias).
+* **Archivos APK**: 0 archivos APK generados (`Test-Path` retornó `False`).
 * **Iconos**: 100% vectoriales, 0 emojis.
-* **Navegación**: Totalmente orquestada e interconectada en `Navigation.kt` y `MainAppContainer.kt`.
+* **Colores**: Estrictamente fieles a la paleta de la maqueta (`SensusPurple`, `SensusAmber`, blanco y neutros).

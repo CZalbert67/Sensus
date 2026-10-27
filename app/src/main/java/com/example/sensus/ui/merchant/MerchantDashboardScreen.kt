@@ -68,7 +68,7 @@ fun MerchantDashboardScreen(
         modifier = modifier
             .fillMaxSize()
             .background(SensusBackground),
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 96.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // Encabezado de la tienda con botón de cambio de modo
