@@ -77,7 +77,8 @@ fun LoginScreen(
     onLoginSuccess: () -> Unit,
     onNavigateToRegister: () -> Unit,
     onNavigateToOtp: () -> Unit,
-    onContinueAsGuest: () -> Unit
+    onContinueAsGuest: () -> Unit,
+    onForgotPassword: () -> Unit = {}
 ) {
     var emailOrPhone by remember { mutableStateOf("usuario@sensus.app") }
     var password by remember { mutableStateOf("••••••••") }
@@ -252,7 +253,7 @@ fun LoginScreen(
                                 )
                             }
 
-                            TextButton(onClick = { /* Olvidé contraseña */ }) {
+                            TextButton(onClick = onForgotPassword) {
                                 Text(
                                     text = "¿Olvidaste tu contraseña?",
                                     fontSize = 12.sp,

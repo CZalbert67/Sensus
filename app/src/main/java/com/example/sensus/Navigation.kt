@@ -15,6 +15,7 @@ import com.example.sensus.ui.auth.OtpVerificationScreen
 import com.example.sensus.ui.auth.RegisterScreen
 import com.example.sensus.ui.auth.TermsScreen
 import com.example.sensus.ui.main.MainAppContainer
+import com.example.sensus.ui.modals.ForgotPasswordScreen
 import com.example.sensus.ui.splash.SplashScreen
 
 enum class AppScreen {
@@ -24,12 +25,14 @@ enum class AppScreen {
     REGISTER,
     OTP,
     TERMS,
+    FORGOT_PASSWORD,
     MAIN
 }
 
 @Composable
 fun MainNavigation() {
     var currentScreen by remember { mutableStateOf(AppScreen.SPLASH) }
+    var isGuestUser by remember { mutableStateOf(false) }
 
     Crossfade(
         targetState = currentScreen,
@@ -58,6 +61,7 @@ fun MainNavigation() {
             AppScreen.LOGIN -> {
                 LoginScreen(
                     onLoginSuccess = {
+                        isGuestUser = false
                         currentScreen = AppScreen.TERMS
                     },
                     onNavigateToRegister = {
@@ -67,7 +71,11 @@ fun MainNavigation() {
                         currentScreen = AppScreen.OTP
                     },
                     onContinueAsGuest = {
+                        isGuestUser = true
                         currentScreen = AppScreen.MAIN
+                    },
+                    onForgotPassword = {
+                        currentScreen = AppScreen.FORGOT_PASSWORD
                     }
                 )
             }
@@ -87,9 +95,20 @@ fun MainNavigation() {
             AppScreen.OTP -> {
                 OtpVerificationScreen(
                     onVerifySuccess = {
+                        isGuestUser = false
                         currentScreen = AppScreen.TERMS
                     },
                     onNavigateBack = {
+                        currentScreen = AppScreen.LOGIN
+                    }
+                )
+            }
+            AppScreen.FORGOT_PASSWORD -> {
+                ForgotPasswordScreen(
+                    onNavigateBack = {
+                        currentScreen = AppScreen.LOGIN
+                    },
+                    onPasswordResetSuccess = {
                         currentScreen = AppScreen.LOGIN
                     }
                 )
@@ -103,8 +122,13 @@ fun MainNavigation() {
             }
             AppScreen.MAIN -> {
                 MainAppContainer(
+                    isGuest = isGuestUser,
                     onLogout = {
+                        isGuestUser = false
                         currentScreen = AppScreen.LOGIN
+                    },
+                    onNavigateToTerms = {
+                        currentScreen = AppScreen.TERMS
                     }
                 )
             }

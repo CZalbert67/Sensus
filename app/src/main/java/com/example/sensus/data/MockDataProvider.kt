@@ -2,149 +2,164 @@ package com.example.sensus.data
 
 object MockDataProvider {
 
-    val zones = listOf(
-        LocationZone("gps", "Mi Ubicación GPS (En vivo)", "Precisión alta • 15 comercios cerca"),
-        LocationZone("condesa", "Condesa, CDMX", "Parque México y alrededores"),
-        LocationZone("roma", "Roma Norte, CDMX", "Álvaro Obregón y Colima"),
-        LocationZone("polanco", "Polanco, CDMX", "Av. Horacio y Masaryk"),
-        LocationZone("coyoacan", "Coyoacán Centro, CDMX", "Jardín Hidalgo y Centenario")
-    )
-
-    val establishments = listOf(
-        Establishment(
-            id = "est-1",
-            name = "Abarrotes & Cremería Don Lupe",
-            category = StoreCategory.GROCERY,
-            discountPercent = 25,
-            discountTitle = "25% en lácteos y embutidos",
-            discountDescription = "Válido en compras mínimas de \$150 MXN pagando en efectivo o transferencia.",
-            couponCode = "DONLUPE25",
-            distanceMeters = 150,
-            rating = 4.9,
-            reviewCount = 184,
-            address = "Calle Amsterdam 142, Col. Condesa",
-            schedule = "Abierto • Cierra 22:00 hrs",
-            isFeatured = true
-        ),
-        Establishment(
-            id = "est-2",
-            name = "Taquería El Pastor Feliz",
-            category = StoreCategory.FOOD,
-            discountPercent = 35,
-            discountTitle = "3x2 en tacos al pastor",
-            discountDescription = "Aplica en todos los tacos al pastor con queso y refresco de 18:00 a 22:00 hrs.",
-            couponCode = "PASTOR3X2",
-            distanceMeters = 280,
-            rating = 4.8,
-            reviewCount = 312,
-            address = "Av. Michoacán 78, Col. Condesa",
-            schedule = "Abierto • Cierra 01:00 hrs",
-            isFeatured = true
-        ),
-        Establishment(
-            id = "est-3",
-            name = "Café & Tostaduría Don Gato",
-            category = StoreCategory.CAFE,
-            discountPercent = 30,
-            discountTitle = "30% en Flat White y Repostería",
-            discountDescription = "Presenta el cupón Sensus y obtén 30% en cualquier café de especialidad y pastel.",
-            couponCode = "GATOCAFE30",
-            distanceMeters = 340,
-            rating = 4.9,
-            reviewCount = 98,
-            address = "Calle Tamaulipas 54, Col. Condesa",
-            schedule = "Abierto • Cierra 20:30 hrs",
-            isFeatured = true
-        ),
-        Establishment(
-            id = "est-4",
-            name = "Panadería Artesanal Masa Madre",
-            category = StoreCategory.BAKERY,
-            discountPercent = 20,
-            discountTitle = "20% en pan dulce después de las 6 PM",
-            discountDescription = "Llévate conchas, roles de canela y hogazas con descuento nocturno especial.",
-            couponCode = "MASA20",
-            distanceMeters = 420,
-            rating = 4.7,
-            reviewCount = 145,
-            address = "Av. Mazatlán 110, Col. Condesa",
-            schedule = "Abierto • Cierra 21:00 hrs",
-            isFeatured = false
-        ),
-        Establishment(
-            id = "est-5",
-            name = "Super Express Las Torres",
-            category = StoreCategory.GROCERY,
-            discountPercent = 15,
-            discountTitle = "15% en canasta básica y botanas",
-            discountDescription = "Aplica en abarrotes, bebidas y productos de limpieza seleccionados.",
-            couponCode = "EXPRESS15",
-            distanceMeters = 560,
-            rating = 4.5,
-            reviewCount = 76,
-            address = "Av. Vicente Suárez 92, Col. Condesa",
-            schedule = "Abierto 24 Horas",
-            isFeatured = false
-        ),
-        Establishment(
-            id = "est-6",
-            name = "Farmacia & Perfumería Central",
-            category = StoreCategory.PHARMACY,
-            discountPercent = 40,
-            discountTitle = "40% en higiene y cuidado personal",
-            discountDescription = "Descuento directo en bloqueadores solares, cremas corporales y vitaminas.",
-            couponCode = "FARMACENTRAL40",
-            distanceMeters = 610,
-            rating = 4.6,
-            reviewCount = 89,
-            address = "Calle Campeche 210, Col. Condesa",
-            schedule = "Abierto • Cierra 23:00 hrs",
-            isFeatured = false
-        ),
-        Establishment(
-            id = "est-7",
-            name = "Pizzería Nápoles al Horno",
-            category = StoreCategory.FOOD,
+    val sampleOffers = listOf(
+        ProductOffer(
+            id = "off_1",
+            name = "Detergente - 1 L",
+            storeName = "Bodega A. - Centro",
+            category = "Limpieza y Hogar",
+            originalPrice = 180.0,
+            discountPrice = 90.0,
             discountPercent = 50,
-            discountTitle = "Segunda pizza al 50%",
-            discountDescription = "En pizzas medianas y familiares de especialidad para llevar o en mesa.",
-            couponCode = "PIZZA50",
-            distanceMeters = 750,
+            unitsLeft = 3,
+            distanceMeters = 350,
+            timeToCollectMinutes = 45,
             rating = 4.8,
-            reviewCount = 230,
-            address = "Calle Alfonso Reyes 188, Col. Condesa",
-            schedule = "Abierto • Cierra 23:30 hrs",
-            isFeatured = true
+            reviewCount = 120,
+            address = "Av. Juárez 120, Centro, Tula de Allende, Hgo.",
+            couponCode = "SNS-A7K9-24"
+        ),
+        ProductOffer(
+            id = "off_2",
+            name = "Arroz - 1 kg",
+            storeName = "Abarrotes Don Luis",
+            category = "Abarrotes",
+            originalPrice = 48.0,
+            discountPrice = 24.0,
+            discountPercent = 50,
+            unitsLeft = 5,
+            distanceMeters = 250,
+            timeToCollectMinutes = 60,
+            rating = 4.6,
+            reviewCount = 85,
+            address = "Calle Morelos 45, Col. Centro",
+            couponCode = "SNS-ARR-50"
+        ),
+        ProductOffer(
+            id = "off_3",
+            name = "Conchas - 4 piezas",
+            storeName = "Panadería La Espiga",
+            category = "Panadería",
+            originalPrice = 60.0,
+            discountPrice = 30.0,
+            discountPercent = 50,
+            unitsLeft = 4,
+            distanceMeters = 200,
+            timeToCollectMinutes = 30,
+            rating = 4.9,
+            reviewCount = 210,
+            address = "Av. Hidalgo 12, Centro",
+            couponCode = "SNS-PAN-30"
+        ),
+        ProductOffer(
+            id = "off_4",
+            name = "Croquetas - 500 g",
+            storeName = "Mascotas Tula",
+            category = "Mascotas",
+            originalPrice = 80.0,
+            discountPrice = 40.0,
+            discountPercent = 50,
+            unitsLeft = 6,
+            distanceMeters = 400,
+            timeToCollectMinutes = 60,
+            rating = 4.7,
+            reviewCount = 64,
+            address = "Calle Zaragoza 88, Centro",
+            couponCode = "SNS-PET-40"
+        ),
+        ProductOffer(
+            id = "off_5",
+            name = "Jugo de naranja natural - 1 L",
+            storeName = "Abarrotes Don Luis",
+            category = "Bebidas",
+            originalPrice = 48.0,
+            discountPrice = 24.0,
+            discountPercent = 50,
+            unitsLeft = 8,
+            distanceMeters = 250,
+            timeToCollectMinutes = 45,
+            rating = 4.6,
+            reviewCount = 85,
+            address = "Calle Morelos 45, Col. Centro",
+            couponCode = "SNS-JUG-24"
+        ),
+        ProductOffer(
+            id = "off_6",
+            name = "Refresco de cola - 2 L",
+            storeName = "Bodega A. - Centro",
+            category = "Bebidas",
+            originalPrice = 36.0,
+            discountPrice = 18.0,
+            discountPercent = 50,
+            unitsLeft = 10,
+            distanceMeters = 350,
+            timeToCollectMinutes = 90,
+            rating = 4.8,
+            reviewCount = 120,
+            address = "Av. Juárez 120, Centro",
+            couponCode = "SNS-REF-18"
         )
     )
 
-    val sampleSavedCoupons = listOf(
-        UserCoupon(
-            id = "c-1",
-            establishmentId = "est-3",
-            establishmentName = "Café & Tostaduría Don Gato",
-            discountTitle = "30% en Flat White y Repostería",
-            couponCode = "GATOCAFE30",
-            expiresAt = "Expira en 3 días",
-            isRedeemed = false
+    val sampleStore = MerchantStore()
+
+    val sampleChatMessages = listOf(
+        ChatMessage(
+            id = "msg_1",
+            isFromUser = true,
+            text = "Quiero limpiar mi casa y solo tengo $200 MXN"
         ),
-        UserCoupon(
-            id = "c-2",
-            establishmentId = "est-1",
-            establishmentName = "Abarrotes & Cremería Don Lupe",
-            discountTitle = "25% en lácteos y embutidos",
-            couponCode = "DONLUPE25",
-            expiresAt = "Expira hoy",
-            isRedeemed = false
-        ),
-        UserCoupon(
-            id = "c-3",
-            establishmentId = "est-2",
-            establishmentName = "Taquería El Pastor Feliz",
-            discountTitle = "3x2 en tacos al pastor",
-            couponCode = "PASTOR3X2",
-            expiresAt = "Canjeado el 25 Sep",
-            isRedeemed = true
+        ChatMessage(
+            id = "msg_2",
+            isFromUser = false,
+            text = "¡Sí alcanza! Encontré ofertas de merma en 2 tiendas cercanas. Priorizamos ropa, superficies y manos sin salir de tu presupuesto.",
+            comboTitle = "Paquete de Limpieza Ahorro",
+            comboPrice = 185.0,
+            comboItems = listOf(
+                "Detergente • 1 L (Bodega A. - 350m) $90",
+                "Limpiador multiusos • 1 L (Mercado L. - 400m) $45",
+                "Jabón líquido • 500 ml (Mercado L. - 400m) $50"
+            )
         )
+    )
+
+    val sampleNotifications = listOf(
+        NotificationItem(
+            id = "notif_1",
+            title = "¡Nueva oferta cerca!",
+            message = "Panadería La Espiga tiene un paquete de pan por $30 MXN a 500 m de ti.",
+            timeAgo = "Hace 15 min",
+            category = "Ofertas",
+            actionText = "Ver oferta"
+        ),
+        NotificationItem(
+            id = "notif_2",
+            title = "¡Tu reserva expira pronto!",
+            message = "Recoge tu paquete en Frutería Lupita antes de las 10:00. ¡Te quedan 18 min!",
+            timeAgo = "Hace 18 min",
+            category = "Reservas",
+            actionText = "Ver reserva"
+        ),
+        NotificationItem(
+            id = "notif_3",
+            title = "Pedido validado",
+            message = "Recogiste tu paquete en Frutería Lupita. Ahorraste $60 MXN.",
+            timeAgo = "Ayer, 18:20",
+            category = "Reservas"
+        ),
+        NotificationItem(
+            id = "notif_4",
+            title = "Intento de inicio de sesión",
+            message = "Detectamos un intento desde un dispositivo nuevo en Ciudad de México.",
+            timeAgo = "8 oct • 21:18",
+            category = "Seguridad"
+        )
+    )
+
+    val sampleFriends = listOf(
+        FriendShare("Juan Pérez", "350 m • Activo ahora", 3, "Hace 20 min"),
+        FriendShare("Carlos Ramírez", "500 m • Hace 25 min", 2, "Hace 1 h"),
+        FriendShare("Sofía García", "850 m • Hace 1 h", 4, "Hace 3 h"),
+        FriendShare("Ximena Salgado", "650 m • Hace 2 h", 1, "Ayer")
     )
 }

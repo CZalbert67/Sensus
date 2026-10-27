@@ -8,7 +8,7 @@ Este archivo contiene el contexto persistente, el análisis exhaustivo del maque
 * **Nombre de la Aplicación**: Sensus
 * **Plataforma**: Android Nativo
 * **Lenguaje & UI**: Kotlin + Jetpack Compose con Material Design 3
-* **Objetivo de Negocio**: Aplicación móvil que utiliza geolocalización para conectar a usuarios con comercios locales (abarrotes, restaurantes, cafeterías, panaderías, farmacias) que ofrecen promociones, descuentos y cupones canjeables.
+* **Modelo de Negocio**: Marketplace dual (Comprador / Comercio) para el rescate de excedentes comerciales y merma en perfecto estado ("Encuentra tu próximo ahorro", "Convierte mermas en ganancias").
 * **Estrategia de Lanzamiento**: Publicación en Google Play Store con interfaz gráfica completa, fluida y datos simulados ("pintada" / mock estructurado) para pasar el proceso de revisión de tienda en el primer mes, permitiendo iteraciones y actualizaciones progresivas de backend.
 * **Repositorio GitHub**: [CZalbert67/Sensus](https://github.com/CZalbert67/Sensus) (Rama: `main`)
 
@@ -16,56 +16,46 @@ Este archivo contiene el contexto persistente, el análisis exhaustivo del maque
 
 ## 🎨 2. Sistema de Diseño (Design System) & Reglas Estrictas
 * **Paleta de Colores Oficial**:
-  * **Morado de Marca (`#4A148C` / `SensusPurple`)**: Botones de acción principales, encabezados curvos en login/registro, títulos destacados y tabs activas.
-  * **Ámbar / Naranja de Marca (`#FCA311` / `SensusAmber`)**: Fondo del Splash Screen, badges de descuento, botones de ofertas flash y marcadores del mapa.
+  * **Morado de Marca (`#4A148C` / `SensusPurple`)**: Botones de acción principales, encabezados curvos en login/registro, títulos destacados, ruta GPS activa y tabs activas.
+  * **Ámbar / Naranja de Marca (`#FCA311` / `SensusAmber`)**: Fondo del Splash Screen, badges de descuento, botones de ofertas flash, marcadores del mapa y temporizador de apartados.
   * **Blanco / Neutros Claros (`#FFFFFF`, `#F8F9FA`, `#F1F5F9`)**: Superficies elevadas, tarjetas y fondos limpios.
-  * **Rojo / Coral (`#DC2626`)**: Insignias de ofertas agresivas y alertas.
-  * **Verde Éxito (`#10B981`)**: Confirmaciones de canje y estados "Abierto".
+  * **Rojo / Coral (`#DC2626`)**: Insignias de ofertas agresivas (-50%) y botones destructivos (eliminar cuenta).
+  * **Verde Éxito (`#10B981`)**: Confirmaciones de validación, ahorros acumulados y estado "Tienda Abierta".
 * **Regla Estricta de Iconografía**:
   * **PROHIBIDO EL USO DE EMOJIS**.
-  * Todos los iconos deben ser vectoriales de Material Design mediante [`CategoryIcons.kt`](file:///c:/Users/czalb/Downloads/Integradora/app/src/main/java/com/example/sensus/ui/common/CategoryIcons.kt) o la librería `material-icons-extended`.
-* **Componentes**: Esquinas redondeadas (14.dp a 22.dp), elevación sutil (1.dp - 2.dp) y campos limpios con bordes suaves.
+  * Todos los iconos deben ser vectoriales de Material Design mediante `CategoryIcons.kt` o la librería `material-icons-extended` (versiones AutoMirrored donde corresponda).
+* **Regla de Empaquetado**:
+  * **NO GENERAR ARCHIVOS APK** salvo instrucción explícita del usuario. Verificar siempre la integridad mediante compilación Kotlin pura (`compileDebugKotlin`).
 
 ---
 
-## 📐 3. Análisis Exhaustivo del Maquetado (Figma Board)
-Del análisis detallado del lienzo de diseño (`media_1792714419707_d780e074.png`), se identificaron 8 flujos y módulos estructurados:
+## 📐 3. Arquitectura del Maquetado Oficial Figma (`SENSUS (1).png`)
+Se reemplazaron completamente las pantallas genéricas iniciales (`explorar`, `radar`, `cupones`, `perfil`) por las pantallas reales del maquetado maestro:
 
-1. **Módulo Splash & Onboarding**:
-   * Splash Screen: Fondo ámbar sólido con la identidad de marca (bolsa + gato dormido).
-   * Pantallas de introducción (carrusel de bienvenida con puntos de paginación).
-   * Solicitud explícita y pedagógica de permisos de geolocalización (clave para aprobación en Google Play).
-2. **Módulo de Autenticación (Auth)**:
-   * Encabezado curvo morado característico.
-   * Formulario de Login y Registro con validaciones visuales.
-   * Acceso rápido como invitado y autenticación social.
-   * Pantalla de verificación OTP (código PIN de 4 dígitos).
-3. **Módulo Explorar (Home / Feed)**:
-   * Barra superior con selector de colonia/ubicación actual y barra de búsqueda con filtros.
-   * Carrusel horizontal de categorías con iconos vectoriales.
-   * Banners promocionales de ofertas destacadas.
-   * Tarjetas de comercio en 1 o 2 columnas con: imagen, badge de % de descuento, nombre, categoría, distancia en metros, calificación de estrellas y horario.
-4. **Módulo Mapa / Radar Geográfico**:
-   * Mapa interactivo con pines de comercios con promociones activas.
-   * Tarjeta flotante inferior (*Peek Sheet*) que se actualiza al tocar un pin en el mapa.
-   * Vista de ruta / cómo llegar desde la posición actual con cálculo de distancia y tiempo.
-5. **Módulo Detalle del Comercio & Catálogo**:
-   * Galería de fotos del local y productos.
-   * Información de contacto, dirección y horarios.
-   * Lista de productos con descuento y botón inferior fijo para obtener cupón.
-6. **Módulo de Cupones & Canje QR**:
-   * Cupón activo con código QR de gran escala para escaneo en mostrador.
-   * Código alfanumérico visible con botón de copia rápida.
-   * Contador de validez del cupón.
-   * Pantalla/modal de confirmación de canje con animación de éxito.
-   * Billetera de cupones dividida en pestañas: *Activos* e *Historial / Canjeados*.
-7. **Módulo de Modales & Hojas Inferiores (Bottom Sheets)**:
-   * Modales con fondo oscurecido (*scrim*) para confirmar canjes en caja.
-   * Hojas inferiores expandibles para filtros y opciones secundarias.
-8. **Módulo de Perfil & Cumplimiento Legal**:
-   * Datos del usuario y métricas de ahorro acumulado.
-   * Ajuste de radio de búsqueda (slider de 500m a 5km).
-   * Secciones legales obligatorias para Google Play: Aviso de Privacidad y Términos del Servicio.
+### A. Flujo Cliente / Comprador (`ui/buyer/`)
+1. **`BuyerHomeScreen.kt`**: Feed principal "Encuentra tu próximo ahorro", selector de ubicación (Tula Centro), barra de búsqueda, chip de radio (2 km), selector de categorías con iconos oficiales (Abarrotes, Limpieza, Panadería, Bebidas, etc.), y tarjetas con etiquetas de descuento (-50%), existencias ("Quedan 3 u.") y botón "Apartar".
+2. **`BuyerMapScreen.kt`**: Mapa interactivo vectorial con calles, radio de cobertura (2 km), punto azul GPS de usuario, pines de tiendas (Bodega A., Don Luis, La Espiga) y tarjeta emergente inferior con detalles y botón "Cómo llegar".
+3. **`ProductDetailScreen.kt`**: Vista de detalle del producto (Detergente 1L $90, Arroz $24, etc.), galería, tarjeta del comercio verificado con calificación y dirección, contador de recolección en 45 min, impacto ambiental y botón inferior fijo "Apartar por $X MXN".
+4. **`ActiveApartadoScreen.kt`**: Pantalla de reserva activa con temporizador regresivo de 45 minutos ("44:59 restantes para recoger"), representación digital de código QR con código alfanumérico visible (`SNS-A7K9-24`), resumen del pedido y botón primario "Abrir en GPS / Cómo llegar".
+5. **`RouteMapScreen.kt`**: Mapa de navegación paso a paso con ruta trazada hacia el comercio, selector de modo de viaje (A pie 5 min, Bici 2 min, Auto 1 min), indicaciones de giro y botón "Ya llegué • Mostrar mi código QR".
+6. **`SensiChatScreen.kt`**: Asistente virtual Sensi IA para ahorro presupuestal, generador de combos de limpieza/despensa inteligente ($185 MXN) con botón para apartar paquete completo y chips de sugerencias rápidas.
+7. **`CommunityScreen.kt`**: Pantalla de comunidad y referidos con código de invitación (`SENSUS-ANA24`), métricas de impacto colectivo en Tula (vecinos activos, kg rescatados, dinero ahorrado) y muro de actividad reciente de vecinos.
+8. **`NotificationsScreen.kt`**: Bandeja con pestañas de filtro (Todas, Ofertas, Reservas, Seguridad), alertas de vencimiento de reservas y avisos de inicio de sesión.
+9. **`BuyerProfileScreen.kt`**: Perfil de Ana Torres con métricas de ahorro ($340 MXN), interruptor para cambiar al modo comercio, historial, enlaces legales y botones para cerrar sesión o eliminar cuenta.
+
+### B. Flujo Comercio / Vendedor (`ui/merchant/`)
+1. **`MerchantDashboardScreen.kt`**: Panel de control con métricas del día ($480 MXN recuperados, 12 canjes, 4 ofertas activas), botón destacado "+ Publicar Nueva Oferta", botón para escanear QR y lista de inventario activo.
+2. **`MerchantNewOfferScreen.kt`**: Formulario de publicación con foto del producto, categoría, precio original, precio de oferta, cálculo automático del % de descuento, selector de unidades y tiempo límite.
+3. **`MerchantSalesScreen.kt`**: Escáner de código QR con cámara, entrada manual de código alfanumérico para validación inmediata en mostrador e historial de canjes completados hoy.
+4. **`MerchantProfileScreen.kt`**: Datos del establecimiento comercial (Bodega A. - Centro), interruptor para abrir/cerrar tienda, horarios de atención, teléfono y botón para volver al modo comprador.
+5. **`MerchantRegisterScreen.kt`**: Formulario de onboarding para nuevos vendedores (nombre comercial, RFC, giro, dirección y teléfono).
+
+### C. Modales & Diálogos (`ui/modals/`)
+1. **`ConfirmLogoutDialog`**: Confirmación de cierre de sesión seguro.
+2. **`ConfirmDeleteAccountDialog`**: Confirmación destructiva que solicita verificación de contraseña antes de proceder.
+3. **`GuestPromptDialog`**: Mensaje pedagógico que invita al usuario invitado a registrarse o iniciar sesión al intentar apartar un producto.
+4. **`OfflineDialog`**: Aviso de navegación fuera de línea con datos en caché.
+5. **`ForgotPasswordScreen`**: Flujo en dos pasos para recuperación de contraseña (solicitud de correo/teléfono y verificación de código PIN con nueva clave).
 
 ---
 
@@ -73,31 +63,17 @@ Del análisis detallado del lienzo de diseño (`media_1792714419707_d780e074.png
 
 | Fecha / Hito | Fallo / Situación | Causa | Solución Aplicada |
 | :--- | :--- | :--- | :--- |
-| **Inicio del proyecto** | Uso de emojis en la UI | Se crearon mockups iniciales usando emojis (🍕, 🛒, 📍, ⭐) en chips y textos. | El usuario solicitó expresamente: *"no ocupes emojis, ocupa iconos"*. Se creó `CategoryIcons.kt` y se migraron todos los elementos a iconos vectoriales de Material Design. |
-| **Compilación inicial** | Generación de APK prematuro | Se compiló `app-debug.apk` como prueba de empaquetado. | El usuario indicó que no quería APKs en esta etapa porque la app recibirá múltiples actualizaciones continuas. Se eliminó el APK y la carpeta de outputs de inmediato. |
-| **Fusión de recursos** | Conflicto de recursos en mipmap | Coexistencia de `ic_launcher.png` y `ic_launcher.webp` al reemplazar el icono. | Se eliminó el PNG duplicado en mipmap y se enlazó el adaptive icon con `@drawable/sensus_logo`. |
-| **Sintaxis Compose** | Error de candidatos en `Modifier.padding` | Se combinaron parámetros `horizontal` con `top` y `bottom` en una sola llamada en `HomeScreen.kt`. | Se corrigió la llamada a `padding(start = 16.dp, end = 16.dp, top = 18.dp, bottom = 10.dp)`. |
-| **Primera versión Splash** | Animación plana / sin vida | Se hizo un fade-in genérico con un único asset plano. | El usuario solicitó reproducir el comportamiento orgánico del video `prueba.mp4`. Se dividió el arte en 3 capas alfa (`sensus_bag.png`, `sensus_cat.png`, `sensus_bell.png`) y se programó caída con squash & stretch, respiración del lomo del gato y balanceo pendular del cascabel. |
-| **Alineación con el diseño** | Creación de flujo de login apresurado | Se creó un flujo de login/términos sin considerar la estructura completa del nuevo tablero de Figma compartido. | El usuario instruyó pausar el código anterior, analizar el maquetado a fondo y crear este archivo `MEMORY.md` antes de reiniciar formalmente el diseño del Splash. |
-| **Rediseño Splash Gato Caminante** | Animación estática previa no concordaba con la nueva identidad de marca dinámica | El logo anterior mostraba al gato durmiendo dentro de la bolsa, mientras que la nueva dirección artística requería un gato blanco caminando sosteniendo la bolsa morada con el hocico. | Se procesó la ilustración del usuario aislando el fondo naranja (`#FDB106`) con canal alfa transparente y depuración de recovecos (`walking_cat_clean.png`). Se implementó un ciclo cinemático de 3 fragmentos (4.0s totales) en `SplashScreen.kt`: marcha de 4 tiempos con cabeceo vertical rítmico, balanceo pendular físico de la bolsa, amortiguación progresiva, squash & stretch orgánico y fade-out limpio. |
-| **Splash de Video Real Nativo** | Animación de PNG único se percibía como títere rígido ("como en Paint") | Mover una imagen estática con transformaciones matemáticas en Compose carece de flexión real de patas, fotogramas 2D, movimiento de cola y expresiones faciales animadas. | Se localizó el video del usuario `gato.mp4` (1080x1920, 30fps), optimizado de 4.9MB a 1.0MB en H.264 (`res/raw/sensus_splash.mp4`). Se implementó `VideoView` nativo con aceleración por hardware en Compose, fondo continuo `#F4B340` sin bandas negras, modo silencioso (Muted), anti-destello negro con `AnimatedVisibility`, soporte para tocar y omitir, y avance automático al completar la animación. |
-| **Maquetado Completo y Flujo Coherente** | Pantallas incompletas o flujos aislados sin conexión | Se requería implementar todas las plantillas del maquetado de Figma sin omisiones y con coherencia total de navegación. | Se crearon y vincularon todas las pantallas del flujo: Onboarding con permisos (`OnboardingLocationScreen.kt`), Login con encabezado curvo morado (`LoginScreen.kt`), Registro (`RegisterScreen.kt`), Verificación OTP con casillas de PIN (`OtpVerificationScreen.kt`), Términos (`TermsScreen.kt`), Explorar con BottomSheet de filtros (`FilterBottomSheet.kt`), Radar con Peek Sheet, Cupones con pantalla de canje QR vectorizado y cuenta regresiva (`CouponQrScreen.kt`), Modal de canje exitoso (`RedeemSuccessDialog.kt`), y Perfil con métricas de ahorro y logout. Todo orquestado en `Navigation.kt` y `MainAppContainer.kt`. |
+| **Inicio del proyecto** | Uso de emojis en la UI | Se crearon mockups iniciales usando emojis (🍕, 🛒, 📍, ⭐). | El usuario instruyó: *"no ocupes emojis, ocupa iconos"*. Se migró todo a Material Design Icons vectoriales. |
+| **Compilación inicial** | Generación de APK prematuro | Se compiló `app-debug.apk` innecesariamente. | El usuario solicitó borrar el APK y no construirlo hasta nuevo aviso. Se eliminó el APK y se deshabilitaron tareas de empaquetado. |
+| **Splash Screen Final** | Animación rígida o plana previa | Animaciones estáticas en Compose se veían artificiales. | Se integró el video oficial de alta definición `sensus_splash.mp4` (H.264, 1.0 MB) mediante `VideoView` nativo en Compose con fondo `#F4B340`, audio silenciado y transición automática al terminar. |
+| **Transición de Maquetado** | Pantallas genéricas no alineadas al modelo de negocio de merma | Existían pantallas obsoletas de exploración y cupones que no reflejaban el Figma board `SENSUS (1).png`. | Se eliminaron completamente las carpetas `ui/home`, `ui/map`, `ui/coupons`, `ui/profile` y se construyeron los módulos `ui/buyer`, `ui/merchant` y `ui/modals`. |
+| **Compilación inicial de pantallas** | Error `Unresolved reference 'PaddingValues'` en `ProductDetailScreen.kt:436` | Faltaba la importación explícita de `androidx.compose.foundation.layout.PaddingValues`. | Se agregó el import faltante en la cabecera del archivo. |
+| **Deprecaciones de Compose M3** | Advertencias de `Divider` y `Icons.Default` obsoletos | `Divider` fue renombrado a `HorizontalDivider` y `VerticalDivider` en Material 3; varios iconos de navegación requieren versión `AutoMirrored`. | Se sustituyeron todas las ocurrencias por `HorizontalDivider`, `VerticalDivider` e `Icons.AutoMirrored.Filled.*`, logrando 0 advertencias y 0 errores. |
 
 ---
 
-## 🤖 5. Uso de Subagentes
-* Se activarán subagentes especializados únicamente para tareas puntuales y pesadas (por ejemplo: procesamiento y recorte de assets visuales, investigación de compatibilidad de librerías, generación de modelos de datos complejos), manteniendo la dirección y la coordinación central en este hilo para evitar dispersión de contexto.
-
----
-
-## 📋 6. Estado Actual y Próximos Pasos
-* **Estado Actual**: 
-  * Todas las plantillas del maquetado de Figma implementadas con diseño fiel y coherente.
-  * Flujo de navegación continuo: Splash -> Onboarding -> Login -> Registro -> OTP -> Términos -> App Principal (Explorar, Radar, Cupones, Perfil).
-  * Pantalla de cupón QR activo y modal de confirmación de canje conectados.
-  * Filtros de búsqueda con BottomSheet y selector de colonia conectados.
-  * Cero emojis, respetando iconos vectoriales y paleta de diseño morado/ámbar.
-* **Siguiente Paso**:
-  * Confirmar compilación exitosa de Kotlin (`compileDebugKotlin`).
-  * Subir commits a GitHub ([CZalbert67/Sensus](https://github.com/CZalbert67/Sensus)).
-  * Notificar al usuario con el desglose detallado de pantallas y navegación.
+## 📋 5. Estado Actual del Código
+* **Compilación**: `BUILD SUCCESSFUL` mediante `./gradlew.bat compileDebugKotlin` ejecutado con éxito.
+* **Archivos APK**: 0 archivos APK generados.
+* **Iconos**: 100% vectoriales, 0 emojis.
+* **Navegación**: Totalmente orquestada e interconectada en `Navigation.kt` y `MainAppContainer.kt`.
