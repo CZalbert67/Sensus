@@ -1,4 +1,4 @@
-package com.example.sensus.ui.profile
+﻿package com.example.sensus.ui.profile
 
 import android.content.Intent
 import android.net.Uri
@@ -66,7 +66,9 @@ import kotlin.math.roundToInt
 
 @Composable
 fun ProfileScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onLogout: () -> Unit = {},
+    onNavigateToTerms: () -> Unit = {}
 ) {
     val context = LocalContext.current
     var radiusKm by remember { mutableFloatStateOf(1.5f) }
@@ -483,6 +485,28 @@ fun ProfileScreen(
                             tint = SensusTextMuted,
                             modifier = Modifier.size(16.dp)
                         )
+                    }
+
+                    HorizontalDivider(color = SensusCardBorder)
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onLogout() }
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                contentDescription = null,
+                                tint = Color(0xFFDC2626),
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text(text = "Cerrar Sesión", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFFDC2626))
+                        }
                     }
                 }
             }

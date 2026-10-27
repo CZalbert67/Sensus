@@ -1,4 +1,4 @@
-package com.example.sensus.ui.home
+﻿package com.example.sensus.ui.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -69,7 +69,9 @@ import com.example.sensus.theme.SensusRating
 import com.example.sensus.theme.SensusTextMuted
 import com.example.sensus.theme.SensusTextPrimary
 import com.example.sensus.theme.SensusTextSecondary
+import androidx.compose.material.icons.filled.Tune
 import com.example.sensus.ui.common.getCategoryIcon
+import com.example.sensus.ui.home.FilterBottomSheet
 
 @Composable
 fun HomeScreen(
@@ -80,6 +82,7 @@ fun HomeScreen(
     var selectedCategory by remember { mutableStateOf(StoreCategory.ALL) }
     var currentZone by remember { mutableStateOf(MockDataProvider.zones.first()) }
     var showLocationDialog by remember { mutableStateOf(false) }
+    var showFilterSheet by remember { mutableStateOf(false) }
 
     val filteredEstablishments = remember(selectedCategory, searchQuery) {
         MockDataProvider.establishments.filter { est ->
@@ -90,6 +93,16 @@ fun HomeScreen(
                     est.address.contains(searchQuery, ignoreCase = true)
             matchesCategory && matchesQuery
         }
+    }
+
+    if (showFilterSheet) {
+        FilterBottomSheet(
+            onDismiss = { showFilterSheet = false },
+            onApplyFilters = { cat, minDisc, _, _ ->
+                selectedCategory = cat
+                showFilterSheet = false
+            }
+        )
     }
 
     if (showLocationDialog) {
@@ -169,50 +182,75 @@ fun HomeScreen(
             }
         }
 
-        // SEARCH BAR
+        // SEARCH BAR WITH FILTER BUTTON
         item {
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                placeholder = {
-                    Text(
-                        text = "Buscar abarrotes, comida, farmacia...",
-                        fontSize = 14.sp,
-                        color = SensusTextMuted
-                    )
-                },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Buscar",
-                        tint = SensusPurple,
-                        modifier = Modifier.size(20.dp)
-                    )
-                },
-                trailingIcon = {
-                    if (searchQuery.isNotEmpty()) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "Limpiar",
-                            tint = SensusTextMuted,
-                            modifier = Modifier
-                                .size(20.dp)
-                                .clickable { searchQuery = "" }
-                        )
-                    }
-                },
-                singleLine = true,
-                shape = RoundedCornerShape(16.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
-                    focusedBorderColor = SensusPurple,
-                    unfocusedBorderColor = SensusCardBorder
-                ),
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 6.dp)
-            )
+                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    placeholder = {
+                        Text(
+                            text = "Buscar abarrotes, comida...",
+                            fontSize = 14.sp,
+                            color = SensusTextMuted
+                        )
+                    },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Buscar",
+                            tint = SensusPurple,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    },
+                    trailingIcon = {
+                        if (searchQuery.isNotEmpty()) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Limpiar",
+                                tint = SensusTextMuted,
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .clickable { searchQuery = "" }
+                            )
+                        }
+                    },
+                    singleLine = true,
+                    shape = RoundedCornerShape(16.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        focusedBorderColor = SensusPurple,
+                        unfocusedBorderColor = SensusCardBorder
+                    ),
+                    modifier = Modifier.weight(1f)
+                )
+
+                Spacer(modifier = Modifier.width(10.dp))
+
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = SensusPurple,
+                    shadowElevation = 2.dp,
+                    modifier = Modifier
+                        .size(54.dp)
+                        .clickable { showFilterSheet = true }
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = Icons.Default.Tune,
+                            contentDescription = "Filtros",
+                            tint = Color.White,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+                }
+            }
         }
 
         // PROMOTIONAL HERO BANNER

@@ -30,10 +30,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sensus.data.Establishment
+import com.example.sensus.data.MockDataProvider
 import com.example.sensus.theme.SensusAmber
 import com.example.sensus.theme.SensusBackground
 import com.example.sensus.theme.SensusPurple
 import com.example.sensus.theme.SensusTextMuted
+import com.example.sensus.ui.coupons.CouponQrScreen
 import com.example.sensus.ui.coupons.SavedCouponsScreen
 import com.example.sensus.ui.home.EstablishmentDetailSheet
 import com.example.sensus.ui.home.HomeScreen
@@ -49,10 +51,22 @@ enum class MainNavigationTab(val title: String, val icon: ImageVector) {
 
 @Composable
 fun MainAppContainer(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onLogout: () -> Unit = {}
 ) {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     var selectedEstablishmentForSheet by remember { mutableStateOf<Establishment?>(null) }
+    var activeQrEstablishment by remember { mutableStateOf<Establishment?>(null) }
+
+    // Si hay un cupón QR activo abierto, se muestra en pantalla completa
+    if (activeQrEstablishment != null) {
+        CouponQrScreen(
+            establishment = activeQrEstablishment!!,
+            onNavigateBack = { activeQrEstablishment = null },
+            onRedeemConfirmed = { activeQrEstablishment = null }
+        )
+        return
+    }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -110,16 +124,27 @@ fun MainAppContainer(
                         selectedEstablishmentForSheet = establishment
                     }
                 )
-                2 -> SavedCouponsScreen()
-                3 -> ProfileScreen()
+                2 -> SavedCouponsScreen(
+                    onCouponClick = { coupon ->
+                        val est = MockDataProvider.establishments.firstOrNull { it.id == coupon.establishmentId }
+                            ?: MockDataProvider.establishments.first()
+                        activeQrEstablishment = est
+                    }
+                )
+                3 -> ProfileScreen(
+                    onLogout = onLogout
+                )
             }
 
-            // Coupon Detail Bottom Sheet
+            // Hoja Inferior (Bottom Sheet) de detalle del establecimiento
             if (selectedEstablishmentForSheet != null) {
                 EstablishmentDetailSheet(
                     establishment = selectedEstablishmentForSheet,
                     onDismiss = { selectedEstablishmentForSheet = null },
-                    onRedeemCoupon = {}
+                    onRedeemCoupon = { est ->
+                        selectedEstablishmentForSheet = null
+                        activeQrEstablishment = est
+                    }
                 )
             }
         }

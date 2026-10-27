@@ -81,6 +81,7 @@ Del análisis detallado del lienzo de diseño (`media_1792714419707_d780e074.png
 | **Alineación con el diseño** | Creación de flujo de login apresurado | Se creó un flujo de login/términos sin considerar la estructura completa del nuevo tablero de Figma compartido. | El usuario instruyó pausar el código anterior, analizar el maquetado a fondo y crear este archivo `MEMORY.md` antes de reiniciar formalmente el diseño del Splash. |
 | **Rediseño Splash Gato Caminante** | Animación estática previa no concordaba con la nueva identidad de marca dinámica | El logo anterior mostraba al gato durmiendo dentro de la bolsa, mientras que la nueva dirección artística requería un gato blanco caminando sosteniendo la bolsa morada con el hocico. | Se procesó la ilustración del usuario aislando el fondo naranja (`#FDB106`) con canal alfa transparente y depuración de recovecos (`walking_cat_clean.png`). Se implementó un ciclo cinemático de 3 fragmentos (4.0s totales) en `SplashScreen.kt`: marcha de 4 tiempos con cabeceo vertical rítmico, balanceo pendular físico de la bolsa, amortiguación progresiva, squash & stretch orgánico y fade-out limpio. |
 | **Splash de Video Real Nativo** | Animación de PNG único se percibía como títere rígido ("como en Paint") | Mover una imagen estática con transformaciones matemáticas en Compose carece de flexión real de patas, fotogramas 2D, movimiento de cola y expresiones faciales animadas. | Se localizó el video del usuario `gato.mp4` (1080x1920, 30fps), optimizado de 4.9MB a 1.0MB en H.264 (`res/raw/sensus_splash.mp4`). Se implementó `VideoView` nativo con aceleración por hardware en Compose, fondo continuo `#F4B340` sin bandas negras, modo silencioso (Muted), anti-destello negro con `AnimatedVisibility`, soporte para tocar y omitir, y avance automático al completar la animación. |
+| **Maquetado Completo y Flujo Coherente** | Pantallas incompletas o flujos aislados sin conexión | Se requería implementar todas las plantillas del maquetado de Figma sin omisiones y con coherencia total de navegación. | Se crearon y vincularon todas las pantallas del flujo: Onboarding con permisos (`OnboardingLocationScreen.kt`), Login con encabezado curvo morado (`LoginScreen.kt`), Registro (`RegisterScreen.kt`), Verificación OTP con casillas de PIN (`OtpVerificationScreen.kt`), Términos (`TermsScreen.kt`), Explorar con BottomSheet de filtros (`FilterBottomSheet.kt`), Radar con Peek Sheet, Cupones con pantalla de canje QR vectorizado y cuenta regresiva (`CouponQrScreen.kt`), Modal de canje exitoso (`RedeemSuccessDialog.kt`), y Perfil con métricas de ahorro y logout. Todo orquestado en `Navigation.kt` y `MainAppContainer.kt`. |
 
 ---
 
@@ -91,11 +92,12 @@ Del análisis detallado del lienzo de diseño (`media_1792714419707_d780e074.png
 
 ## 📋 6. Estado Actual y Próximos Pasos
 * **Estado Actual**: 
-  * Video nativo ultra-optimizado (1.0 MB, 1080x1920) integrado en `res/raw/sensus_splash.mp4`.
-  * [`SplashScreen.kt`](file:///c:/Users/czalb/Downloads/Integradora/app/src/main/java/com/example/sensus/ui/splash/SplashScreen.kt) implementado con reproductor acelerado por hardware, silencioso, con fondo continuo `#F4B340` y salto por toque.
-  * Color `SensusSplashYellow` (`#F4B340`) añadido a `Color.kt`.
-  * Base de conocimientos `MEMORY.md` y `memori.md` actualizadas.
+  * Todas las plantillas del maquetado de Figma implementadas con diseño fiel y coherente.
+  * Flujo de navegación continuo: Splash -> Onboarding -> Login -> Registro -> OTP -> Términos -> App Principal (Explorar, Radar, Cupones, Perfil).
+  * Pantalla de cupón QR activo y modal de confirmación de canje conectados.
+  * Filtros de búsqueda con BottomSheet y selector de colonia conectados.
+  * Cero emojis, respetando iconos vectoriales y paleta de diseño morado/ámbar.
 * **Siguiente Paso**:
-  * Confirmar finalización de compilación (`compileDebugKotlin`).
+  * Confirmar compilación exitosa de Kotlin (`compileDebugKotlin`).
   * Subir commits a GitHub ([CZalbert67/Sensus](https://github.com/CZalbert67/Sensus)).
-  * Notificar al usuario.
+  * Notificar al usuario con el desglose detallado de pantallas y navegación.
