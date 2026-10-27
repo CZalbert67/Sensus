@@ -53,7 +53,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sensus.data.ChatMessage
 import com.example.sensus.data.MockDataProvider
-import com.example.sensus.theme.SensusAmber
 import com.example.sensus.theme.SensusBackground
 import com.example.sensus.theme.SensusPurple
 import com.example.sensus.theme.SensusSuccess
@@ -103,7 +102,7 @@ fun SensiChatScreen(
                     Icon(
                         imageVector = Icons.Default.AutoAwesome,
                         contentDescription = "Sensi IA",
-                        tint = SensusAmber,
+                        tint = Color.White,
                         modifier = Modifier.size(24.dp)
                     )
                 }
@@ -339,7 +338,7 @@ private fun ChatBubble(
                                     text = "$${String.format("%.2f", message.comboPrice ?: 0.0)} MXN",
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.ExtraBold,
-                                    color = SensusAmber
+                                    color = SensusPurple
                                 )
                             }
 
@@ -372,7 +371,7 @@ private fun ChatBubble(
                             Button(
                                 onClick = onApartarCombo,
                                 shape = RoundedCornerShape(10.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = SensusAmber),
+                                colors = ButtonDefaults.buttonColors(containerColor = SensusPurple),
                                 modifier = Modifier.fillMaxWidth(),
                                 contentPadding = PaddingValues(vertical = 10.dp)
                             ) {

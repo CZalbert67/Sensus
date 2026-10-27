@@ -39,7 +39,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.sensus.theme.SensusAmber
 import com.example.sensus.theme.SensusPurple
 import com.example.sensus.theme.SensusTextPrimary
 import com.example.sensus.theme.SensusTextSecondary
@@ -195,13 +194,13 @@ fun GuestPromptDialog(
                 modifier = Modifier
                     .size(48.dp)
                     .clip(CircleShape)
-                    .background(SensusAmber.copy(alpha = 0.15f)),
+                    .background(SensusPurple.copy(alpha = 0.12f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.Person,
                     contentDescription = null,
-                    tint = SensusAmber,
+                    tint = SensusPurple,
                     modifier = Modifier.size(24.dp)
                 )
             }

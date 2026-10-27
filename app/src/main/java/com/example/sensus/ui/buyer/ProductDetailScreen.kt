@@ -47,7 +47,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sensus.data.ProductOffer
-import com.example.sensus.theme.SensusAmber
 import com.example.sensus.theme.SensusBackground
 import com.example.sensus.theme.SensusDiscountTag
 import com.example.sensus.theme.SensusPurple
@@ -178,7 +177,7 @@ fun ProductDetailScreen(
                     }
 
                     Surface(
-                        color = SensusAmber,
+                        color = SensusPurple,
                         shape = RoundedCornerShape(8.dp)
                     ) {
                         Text(
@@ -215,7 +214,7 @@ fun ProductDetailScreen(
                     Icon(
                         imageVector = Icons.Default.AccessTime,
                         contentDescription = "Tiempo",
-                        tint = SensusAmber,
+                        tint = SensusPurple,
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
@@ -223,7 +222,7 @@ fun ProductDetailScreen(
                         text = "Recoge en los próximos ${offer.timeToCollectMinutes} minutos",
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Medium,
-                        color = SensusAmber
+                        color = SensusPurple
                     )
                 }
             }
@@ -433,7 +432,7 @@ fun ProductDetailScreen(
                 Button(
                     onClick = { onApartarClick(offer) },
                     shape = RoundedCornerShape(14.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = SensusAmber),
+                    colors = ButtonDefaults.buttonColors(containerColor = SensusPurple),
                     contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp)
                 ) {
                     Icon(

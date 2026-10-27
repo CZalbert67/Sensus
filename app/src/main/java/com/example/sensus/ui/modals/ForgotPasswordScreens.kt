@@ -42,7 +42,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.sensus.theme.SensusAmber
 import com.example.sensus.theme.SensusBackground
 import com.example.sensus.theme.SensusCardBorder
 import com.example.sensus.theme.SensusPurple
@@ -167,7 +166,7 @@ fun ForgotPasswordScreen(
                                 }
                             },
                             shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = SensusAmber),
+                            colors = ButtonDefaults.buttonColors(containerColor = SensusPurple),
                             modifier = Modifier.fillMaxWidth(),
                             contentPadding = PaddingValues(vertical = 12.dp)
                         ) {

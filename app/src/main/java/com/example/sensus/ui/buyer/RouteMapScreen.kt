@@ -48,7 +48,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sensus.data.ProductOffer
-import com.example.sensus.theme.SensusAmber
 import com.example.sensus.theme.SensusPurple
 import com.example.sensus.theme.SensusTextMuted
 import com.example.sensus.theme.SensusTextPrimary
@@ -119,8 +118,8 @@ fun RouteMapScreen(
             drawCircle(Color(0xFF2563EB), radius = 10f, center = pathPoints.first())
             drawCircle(Color.White, radius = 4f, center = pathPoints.first())
 
-            // Punto de destino: Tienda (morado/ámbar)
-            drawCircle(SensusAmber.copy(alpha = 0.3f), radius = 28f, center = pathPoints.last())
+            // Punto de destino: Tienda (morado)
+            drawCircle(SensusPurple.copy(alpha = 0.2f), radius = 28f, center = pathPoints.last())
             drawCircle(SensusPurple, radius = 14f, center = pathPoints.last())
         }
 
@@ -256,7 +255,7 @@ fun RouteMapScreen(
                             text = "En 120 metros",
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
-                            color = SensusAmber
+                            color = SensusPurple
                         )
                         Text(
                             text = "Gira a la derecha en Av. Juárez",

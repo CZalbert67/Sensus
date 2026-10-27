@@ -52,7 +52,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sensus.data.ProductOffer
-import com.example.sensus.theme.SensusAmber
 import com.example.sensus.theme.SensusBackground
 import com.example.sensus.theme.SensusPurple
 import com.example.sensus.theme.SensusSuccess
@@ -133,7 +132,7 @@ fun ActiveApartadoScreen(
             // Tarjeta de contador regresivo de urgencia
             Card(
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = SensusAmber.copy(alpha = 0.12f)),
+                colors = CardDefaults.cardColors(containerColor = SensusPurple.copy(alpha = 0.08f)),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
@@ -146,7 +145,7 @@ fun ActiveApartadoScreen(
                         modifier = Modifier
                             .size(46.dp)
                             .clip(CircleShape)
-                            .background(SensusAmber),
+                            .background(SensusPurple),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
@@ -164,7 +163,7 @@ fun ActiveApartadoScreen(
                             text = "$formattedTimer restantes para recoger",
                             fontSize = 17.sp,
                             fontWeight = FontWeight.ExtraBold,
-                            color = SensusAmber
+                            color = SensusPurple
                         )
                         Text(
                             text = "Tienes hasta las 10:00 para acudir y pagar en caja",

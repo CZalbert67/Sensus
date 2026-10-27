@@ -45,7 +45,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sensus.data.MockDataProvider
 import com.example.sensus.data.ProductOffer
-import com.example.sensus.theme.SensusAmber
 import com.example.sensus.theme.SensusBackground
 import com.example.sensus.theme.SensusPurple
 import com.example.sensus.theme.SensusRating
@@ -145,7 +144,7 @@ fun MerchantDashboardScreen(
                         Icon(
                             imageVector = Icons.Default.Star,
                             contentDescription = null,
-                            tint = SensusAmber,
+                            tint = Color.White,
                             modifier = Modifier.size(15.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
@@ -206,7 +205,7 @@ fun MerchantDashboardScreen(
                 Button(
                     onClick = onNewOfferClick,
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = SensusAmber),
+                    colors = ButtonDefaults.buttonColors(containerColor = SensusPurple),
                     modifier = Modifier.weight(1f),
                     contentPadding = PaddingValues(vertical = 12.dp)
                 ) {

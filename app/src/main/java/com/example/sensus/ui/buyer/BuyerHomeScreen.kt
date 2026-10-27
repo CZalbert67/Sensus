@@ -57,7 +57,6 @@ import androidx.compose.ui.unit.sp
 import com.example.sensus.data.MockDataProvider
 import com.example.sensus.data.ProductOffer
 import com.example.sensus.data.StoreCategory
-import com.example.sensus.theme.SensusAmber
 import com.example.sensus.theme.SensusBackground
 import com.example.sensus.theme.SensusCardBorder
 import com.example.sensus.theme.SensusDiscountTag
@@ -164,7 +163,7 @@ fun BuyerHomeScreen(
                         modifier = Modifier
                             .size(10.dp)
                             .clip(CircleShape)
-                            .background(SensusAmber)
+                            .background(SensusPurple)
                             .align(Alignment.TopEnd)
                     )
                 }
@@ -247,7 +246,7 @@ fun BuyerHomeScreen(
                         Icon(
                             imageVector = Icons.Default.Tune,
                             contentDescription = "Filtro radio",
-                            tint = SensusAmber,
+                            tint = SensusPurple,
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
@@ -410,12 +409,12 @@ fun ProductOfferCard(
                     }
 
                     Surface(
-                        color = SensusAmber.copy(alpha = 0.15f),
+                        color = SensusPurple.copy(alpha = 0.10f),
                         shape = RoundedCornerShape(6.dp)
                     ) {
                         Text(
                             text = "Quedan ${offer.unitsLeft} u.",
-                            color = SensusAmber,
+                            color = SensusPurple,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
@@ -503,7 +502,7 @@ fun ProductOfferCard(
                 Button(
                     onClick = onClick,
                     shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = SensusAmber),
+                    colors = ButtonDefaults.buttonColors(containerColor = SensusPurple),
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
                 ) {
                     Icon(

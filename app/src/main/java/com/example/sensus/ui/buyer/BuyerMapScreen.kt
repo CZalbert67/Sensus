@@ -68,7 +68,6 @@ import com.example.sensus.R
 import com.example.sensus.data.MockDataProvider
 import com.example.sensus.data.ProductOffer
 import com.example.sensus.data.StoreCategory
-import com.example.sensus.theme.SensusAmber
 import com.example.sensus.theme.SensusCardBorder
 import com.example.sensus.theme.SensusPurple
 import com.example.sensus.theme.SensusSuccess
@@ -234,7 +233,7 @@ fun BuyerMapScreen(
                             .size(56.dp)
                             .scale(haloScale)
                             .clip(CircleShape)
-                            .background(SensusAmber.copy(alpha = 0.25f))
+                            .background(SensusPurple.copy(alpha = 0.20f))
                     )
 
                     // Pin circular con la figura del gatito sentado
@@ -242,7 +241,7 @@ fun BuyerMapScreen(
                         shape = CircleShape,
                         color = Color.White,
                         shadowElevation = 8.dp,
-                        border = BorderStroke(2.5.dp, SensusAmber),
+                        border = BorderStroke(2.5.dp, SensusPurple),
                         modifier = Modifier.size(46.dp)
                     ) {
                         Image(
@@ -331,7 +330,7 @@ fun BuyerMapScreen(
                 // Chip interactivo para cambiar radio (0.5 a 5 km)
                 Surface(
                     shape = RoundedCornerShape(20.dp),
-                    color = SensusAmber,
+                    color = SensusPurple,
                     shadowElevation = 2.dp,
                     modifier = Modifier.clickable { showRadiusSheet = true }
                 ) {
@@ -516,7 +515,7 @@ fun BuyerMapScreen(
                     Button(
                         onClick = { onProductClick(selectedOffer) },
                         shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = SensusAmber),
+                        colors = ButtonDefaults.buttonColors(containerColor = SensusPurple),
                         modifier = Modifier.weight(1f)
                     ) {
                         Text(
@@ -560,7 +559,7 @@ private fun MapPinItem(
         shape = RoundedCornerShape(20.dp),
         color = if (isSelected) SensusPurple else Color.White,
         shadowElevation = 6.dp,
-        border = BorderStroke(1.dp, if (isSelected) SensusAmber else Color(0xFFE2E8F0)),
+        border = BorderStroke(1.dp, if (isSelected) SensusPurple else Color(0xFFE2E8F0)),
         modifier = modifier.clickable { onClick() }
     ) {
         Row(
@@ -585,7 +584,7 @@ private fun MapPinItem(
                     text = price,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.ExtraBold,
-                    color = if (isSelected) SensusAmber else SensusPurple
+                    color = if (isSelected) Color.White else SensusPurple
                 )
             }
         }

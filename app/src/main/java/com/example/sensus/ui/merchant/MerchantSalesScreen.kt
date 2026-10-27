@@ -45,7 +45,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.sensus.theme.SensusAmber
 import com.example.sensus.theme.SensusBackground
 import com.example.sensus.theme.SensusPurple
 import com.example.sensus.theme.SensusSuccess
@@ -112,7 +111,7 @@ fun MerchantSalesScreen(
                             val h = size.height
                             val cornerLen = 30f
                             val stroke = 6f
-                            val color = SensusAmber
+                            val color = SensusPurple
 
                             // Esquina sup izq
                             drawLine(color, Offset(20f, 20f), Offset(20f + cornerLen, 20f), stroke)
@@ -215,7 +214,7 @@ fun MerchantSalesScreen(
                                 }
                             },
                             shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = SensusAmber),
+                            colors = ButtonDefaults.buttonColors(containerColor = SensusPurple),
                             contentPadding = PaddingValues(horizontal = 14.dp, vertical = 14.dp)
                         ) {
                             Text(
