@@ -3,6 +3,7 @@ package com.example.sensus.theme
 import androidx.compose.ui.graphics.Color
 
 // Brand Primary & Secondary Colors
+val SensusSplashYellow = Color(0xFFF4B340)
 val SensusOrange = Color(0xFFFFA500)
 val SensusAmber = Color(0xFFFCA311)
 val SensusAmberDark = Color(0xFFE59200)
