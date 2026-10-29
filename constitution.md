@@ -1,3 +1,12 @@
+---
+version: 1.0.0
+ratified: 2026-10-29
+last_amended: 2026-10-29
+status: active
+source_of_truth: .specify/memory/constitution.md
+mirror: ./constitution.md
+methodology: SDD
+---
 # CONSTITUTION — Sensus Mobile
 
 > Documento constitucional del proyecto **Sensus Mobile**. Es la fuente de verdad arquitectónica, de seguridad y de proceso. Todo otro artefacto SDD (`AGENTS.md`, `memoria.md`, `spec.md`, `plan.md`, `task.md`, subagentes y skills) DEBE estar alineado y ser coherente con este documento. Cualquier cambio a esta constitución requiere revisión y aprobación explícita.

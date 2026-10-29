@@ -1,0 +1,56 @@
+# Detekt — Sensus Mobile (constitucion §7).
+# Metodo <= 10 via CyclomaticComplexMethod. Clase <= 15 sin regla equivalente en
+# detekt 2.x (LargeClass mide lineas): la valida `layer-guardian` (gate manual).
+#
+# Estado: configuracion lista; el plugin aun no esta aplicado en app/build.gradle.kts.
+# Cablearlo es deuda registrada en task.md (fase de gates de calidad).
+
+config:
+  validation: true
+  warningsAsErrors: false
+
+complexity:
+  CyclomaticComplexMethod:
+    active: true
+    allowedComplexity: 10
+  LongMethod:
+    active: true
+    allowedLines: 60
+  TooManyFunctions:
+    active: true
+    allowedFunctionsPerFile: 20
+    allowedFunctionsPerClass: 15
+
+style:
+  MaxLineLength:
+    active: true
+    maxLineLength: 160
+  MagicNumber:
+    active: true
+    ignoreNumbers: ['-1', '0', '1', '2', '100']
+  ReturnCount:
+    active: true
+    max: 3
+  UnusedPrivateMember:
+    active: true
+
+naming:
+  FunctionNaming:
+    active: true
+    ignoreAnnotated:
+      - 'Composable'
+      - 'Preview'
+  TopLevelPropertyNaming:
+    active: true
+
+exceptions:
+  TooGenericExceptionCaught:
+    active: true
+  SwallowedException:
+    active: true
+
+comments:
+  UndocumentedPublicClass:
+    active: false
+  UndocumentedPublicFunction:
+    active: false

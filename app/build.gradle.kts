@@ -84,6 +84,16 @@ dependencies {
   implementation(libs.androidx.navigation3.ui)
   implementation(libs.androidx.navigation3.runtime)
   implementation(libs.androidx.lifecycle.viewmodel.navigation3)
+
+  // Sprint 1 Core Libraries: Coil, Location, Crypto & Serialization
+  implementation(libs.coil.compose)
+  implementation(libs.play.services.location)
+  implementation(libs.androidx.security.crypto)
+  implementation(libs.kotlinx.serialization.json)
+
+  // Unit & Flow Testing
+  testImplementation(libs.mockk)
+  testImplementation(libs.turbine)
 }
 
 tasks.matching { it.name.contains("AarMetadata") }.configureEach {

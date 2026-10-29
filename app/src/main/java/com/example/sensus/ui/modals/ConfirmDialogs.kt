@@ -40,6 +40,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sensus.theme.SensusPurple
+import com.example.sensus.theme.SensusRed
 import com.example.sensus.theme.SensusTextPrimary
 import com.example.sensus.theme.SensusTextSecondary
 
@@ -87,7 +88,7 @@ fun ConfirmLogoutDialog(
             Button(
                 onClick = onConfirmLogout,
                 shape = RoundedCornerShape(10.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE11D48))
+                colors = ButtonDefaults.buttonColors(containerColor = SensusRed)
             ) {
                 Text("Cerrar sesión", fontWeight = FontWeight.Bold, color = Color.White)
             }
@@ -103,7 +104,8 @@ fun ConfirmLogoutDialog(
 @Composable
 fun ConfirmDeleteAccountDialog(
     onDismiss: () -> Unit,
-    onConfirmDelete: () -> Unit
+    onConfirmDeleteWithPassword: (password: String) -> Unit,
+    onConfirmDelete: (() -> Unit)? = null
 ) {
     var passwordConfirmation by remember { mutableStateOf("") }
 
@@ -116,13 +118,13 @@ fun ConfirmDeleteAccountDialog(
                 modifier = Modifier
                     .size(48.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFFE11D48).copy(alpha = 0.12f)),
+                    .background(SensusRed.copy(alpha = 0.12f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.DeleteForever,
                     contentDescription = null,
-                    tint = Color(0xFFE11D48),
+                    tint = SensusRed,
                     modifier = Modifier.size(26.dp)
                 )
             }
@@ -163,10 +165,13 @@ fun ConfirmDeleteAccountDialog(
         },
         confirmButton = {
             Button(
-                onClick = onConfirmDelete,
+                onClick = {
+                    onConfirmDeleteWithPassword(passwordConfirmation)
+                    onConfirmDelete?.invoke()
+                },
                 enabled = passwordConfirmation.isNotBlank(),
                 shape = RoundedCornerShape(10.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE11D48))
+                colors = ButtonDefaults.buttonColors(containerColor = SensusRed)
             ) {
                 Text("Eliminar definitivamente", fontWeight = FontWeight.Bold, color = Color.White)
             }
@@ -176,6 +181,18 @@ fun ConfirmDeleteAccountDialog(
                 Text("Cancelar", color = SensusTextSecondary)
             }
         }
+    )
+}
+
+@Composable
+fun ConfirmDeleteAccountDialog(
+    onDismiss: () -> Unit,
+    onConfirmDelete: () -> Unit
+) {
+    ConfirmDeleteAccountDialog(
+        onDismiss = onDismiss,
+        onConfirmDeleteWithPassword = {},
+        onConfirmDelete = onConfirmDelete
     )
 }
 
@@ -207,7 +224,7 @@ fun GuestPromptDialog(
         },
         title = {
             Text(
-                text = "Inicia sesión para apartar",
+                text = "Inicia sesión para continuar",
                 fontSize = 17.sp,
                 fontWeight = FontWeight.Bold,
                 color = SensusTextPrimary
@@ -215,7 +232,7 @@ fun GuestPromptDialog(
         },
         text = {
             Text(
-                text = "Estás navegando como invitado. Para reservar mermas, generar tu código QR y acumular ahorros necesitas una cuenta Sensus.",
+                text = "Estás navegando en Modo Invitado (2 km). Para reservar mermas, ampliar tu radio, publicar ofertas o guardar favoritos necesitas una cuenta Sensus.",
                 fontSize = 13.sp,
                 color = SensusTextSecondary
             )

@@ -1,0 +1,12 @@
+# Copiar a keys.properties (gitignored). Nunca subir secretos al repositorio.
+# Las llaves de firma viven solo en variables de entorno de CI.
+#
+# key.alias.aliasDebug=
+# key.store.password.256b.from.env=
+# SIGNING_STORE_FILE=
+# SIGNING_STORE_PASSWORD=
+# SIGNING_KEY_ALIAS=
+# SIGNING_KEY_PASSWORD=
+#
+# Base URL del backend (no es secreto, pero no se hardcodea en codigo):
+# SENSUS_BASE_URL=https://

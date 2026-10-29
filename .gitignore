@@ -1,11 +1,36 @@
 *.iml
-.gradle
-/local.properties
-/.idea/
+.gradle/
+.kotlin/
 .idea/
 .DS_Store
-/build
 /captures
 .externalNativeBuild
 .cxx
+
+# Builds (constitucion §4: binarios jamas se versionan)
+/build/
+/app/build/
+**/build/
+/out/
+/reports/
+
+# Secretos y firma (constitucion §4)
+keys.properties
 local.properties
+*.jks
+*.keystore
+signing/
+.env
+.env.*
+
+# Artefactos binarios de release
+*.apk
+*.aab
+*.hprof
+
+# Medios: video permitido solo como recurso de app
+*.mp4
+!app/src/main/res/raw/**/*.mp4
+
+# Entorno dual: junction hacia .opencode/skills (Fase 2)
+.agent/skills/

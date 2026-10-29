@@ -315,7 +315,7 @@ fun LoginScreen(
                                 .height(48.dp)
                         ) {
                             Text(
-                                text = "Explorar como invitado",
+                                text = "Continuar como invitado",
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = SensusPurple

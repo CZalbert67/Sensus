@@ -2,29 +2,35 @@ package com.example.sensus.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Brand Primary & Secondary Colors
-val SensusSplashYellow = Color(0xFFF4B340)
-val SensusOrange = Color(0xFFFFA500)
-val SensusAmber = Color(0xFFFCA311)
-val SensusAmberDark = Color(0xFFE59200)
-val SensusAmberLight = Color(0xFFFFB94F)
+// Brand Primary & Secondary Colors (Figma Design Tokens)
+val SensusPurple = Color(0xFF7C3AED) // Primary Violet (#7C3AED)
+val SensusPurpleLight = Color(0xFF9061F9)
+val SensusPurpleDark = Color(0xFF5B21B6)
+val SensusViolet = Color(0xFF7C3AED)
+val SensusVioletLight = Color(0xFFF6F2FD)
+val SensusVioletBg = Color(0xFFF2EBFE)
 
-val SensusPurple = Color(0xFF4A148C)
-val SensusPurpleLight = Color(0xFF7C43BD)
-val SensusPurpleDark = Color(0xFF12005E)
-
-val SensusBeige = Color(0xFFE6D5B8)
-val SensusWhite = Color(0xFFFFFFFF)
+// Text Colors (Figma)
+val SensusTextPrimary = Color(0xFF211A2E) // Primary Dark (#211A2E)
+val SensusTextSecondary = Color(0xFF6B7280)
+val SensusTextMuted = Color(0xFF9CA3AF)
 
 // UI Accent & State Colors
 val SensusBackground = Color(0xFFF8F9FA)
 val SensusSurface = Color(0xFFFFFFFF)
-val SensusTextPrimary = Color(0xFF1C1917)
-val SensusTextSecondary = Color(0xFF78716C)
-val SensusTextMuted = Color(0xFFA8A29E)
+val SensusCardBorder = Color(0xFFE8E1F5)
+val SensusBorder = Color(0xFFE8E1F5)
 
+// Status & Action Colors
 val SensusSuccess = Color(0xFF10B981)
+val SensusSuccessBg = Color(0xFFECFDF5)
 val SensusDiscountTag = Color(0xFFDC2626)
+val SensusRed = Color(0xFFDC2626)
+val SensusRedBg = Color(0xFFFEF2F2)
+val SensusOrange = Color(0xFFF97316)
+val SensusAmber = Color(0xFFF59E0B)
 val SensusRating = Color(0xFFF59E0B)
-val SensusCardBorder = Color(0xFFF1F5F9)
 
+val SensusSplashYellow = Color(0xFFF4B340)
+val SensusBeige = Color(0xFFE6D5B8)
+val SensusWhite = Color(0xFFFFFFFF)

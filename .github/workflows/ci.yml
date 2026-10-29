@@ -1,0 +1,159 @@
+name: ci
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+# Orden: wrapper -> gates SDD -> SAST -> analisis -> tests -> integracion -> build.
+# Sin generacion de APK/AAB: el build solo valida compilacion.
+jobs:
+  validate-wrapper:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: gradle/wrapper-validation-action@v2
+
+  sdd-gates:
+    needs: validate-wrapper
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Estructura SDD
+        run: python scripts/check_sdd.py
+      - name: Capas Clean
+        run: python scripts/check_layers.py
+      - name: Endpoints internos
+        run: python scripts/check_endpoints.py
+      - name: Secretos
+        run: python scripts/check_secrets.py
+      - name: Cobertura (SKIP si aun no hay Kover)
+        run: python scripts/check_coverage.py --min 45
+      - name: Evidencia de gates
+        if: always()
+        run: |
+          {
+            echo "## Gates SDD"
+            python scripts/check_sdd.py || true
+            python scripts/check_layers.py || true
+            python scripts/check_endpoints.py || true
+            python scripts/check_secrets.py || true
+            python scripts/check_coverage.py --min 45 || true
+          } > sdd-gates.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sdd-gates
+          path: sdd-gates.txt
+          if-no-files-found: ignore
+          retention-days: 7
+
+  security-scan:
+    needs: sdd-gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: java-kotlin
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - run: chmod +x ./gradlew
+      # CodeQL necesita trazar la compilacion. Se compila sin generar APK (regla del proyecto).
+      - run: ./gradlew compileDebugKotlin --no-daemon
+      - uses: github/codeql-action/analyze@v3
+
+  static-analysis:
+    needs: security-scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', 'gradle/libs.versions.toml') }}
+          restore-keys: gradle-${{ runner.os }}-
+      - run: chmod +x ./gradlew
+      - run: ./gradlew lint --no-daemon
+      # Cuando detekt/ktlint esten cableados (task.md, fase de gates):
+      # - run: ./gradlew detekt ktlintCheck --no-daemon
+
+  unit-test:
+    needs: static-analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - run: chmod +x ./gradlew
+      - run: ./gradlew testDebugUnitTest --no-daemon
+      # Cuando Kover este cableado: ./gradlew testDebugUnitTest koverVerify --no-daemon
+      - name: Subir reporte de tests
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-reports
+          path: app/build/reports/tests/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  instrumentation-compile:
+    needs: unit-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - run: chmod +x ./gradlew
+      - run: ./gradlew compileDebugAndroidTestSources --no-daemon
+
+  build:
+    if: github.ref == 'refs/heads/main'
+    needs: instrumentation-compile
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - run: chmod +x ./gradlew
+      # Sin APK: solo se valida la compilacion. El AAB firmado se genera en el release manual.
+      - run: ./gradlew compileDebugKotlin --no-daemon

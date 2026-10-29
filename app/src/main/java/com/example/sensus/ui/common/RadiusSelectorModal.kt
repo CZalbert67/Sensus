@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.NearMe
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -32,7 +33,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.sensus.domain.model.GuestRadiusPolicy
 import com.example.sensus.theme.SensusPurple
+import com.example.sensus.theme.SensusTextMuted
 import com.example.sensus.theme.SensusTextPrimary
 import com.example.sensus.theme.SensusTextSecondary
 
@@ -40,7 +43,7 @@ val availableRadiusOptions = listOf(
     0.5f to "500 m (Medio kilómetro)",
     1.0f to "1.0 km",
     1.5f to "1.5 km",
-    2.0f to "2.0 km (Recomendado)",
+    2.0f to "2.0 km (Límite invitado)",
     2.5f to "2.5 km",
     3.0f to "3.0 km",
     3.5f to "3.5 km",
@@ -57,7 +60,9 @@ fun formatRadiusText(radiusKm: Float): String {
 @Composable
 fun RadiusSelectorBottomSheet(
     currentRadiusKm: Float,
+    isGuest: Boolean = false,
     onRadiusSelected: (Float) -> Unit,
+    onRequireAuth: () -> Unit = {},
     onDismiss: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -102,14 +107,42 @@ fun RadiusSelectorBottomSheet(
                         color = SensusTextPrimary
                     )
                     Text(
-                        text = "Encuentra excedentes de comercios dentro de esta distancia",
+                        text = if (isGuest) "Modo Invitado: Radio limitado a 2 km" else "Encuentra excedentes de comercios cercanos",
                         fontSize = 12.sp,
-                        color = SensusTextSecondary
+                        color = if (isGuest) SensusPurple else SensusTextSecondary
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            if (isGuest) {
+                Spacer(modifier = Modifier.height(10.dp))
+                Surface(
+                    shape = RoundedCornerShape(10.dp),
+                    color = SensusPurple.copy(alpha = 0.08f),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Lock,
+                            contentDescription = null,
+                            tint = SensusPurple,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Regístrate para ampliar tu cobertura hasta 5 km",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = SensusPurple
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
             HorizontalDivider(color = Color(0xFFF1F5F9))
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -120,17 +153,28 @@ fun RadiusSelectorBottomSheet(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 items(availableRadiusOptions) { (km, label) ->
-                    val isSelected = currentRadiusKm == km
+                    val isLocked = isGuest && km > GuestRadiusPolicy.GUEST_MAX_RADIUS_KM
+                    val isSelected = !isLocked && currentRadiusKm == km
+
                     Card(
                         shape = RoundedCornerShape(12.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = if (isSelected) SensusPurple.copy(alpha = 0.08f) else Color.Transparent
+                            containerColor = when {
+                                isSelected -> SensusPurple.copy(alpha = 0.08f)
+                                isLocked -> Color(0xFFF8FAFC)
+                                else -> Color.Transparent
+                            }
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-                                onRadiusSelected(km)
-                                onDismiss()
+                                if (isLocked) {
+                                    onDismiss()
+                                    onRequireAuth()
+                                } else {
+                                    onRadiusSelected(km)
+                                    onDismiss()
+                                }
                             }
                     ) {
                         Row(
@@ -140,20 +184,43 @@ fun RadiusSelectorBottomSheet(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = label,
-                                fontSize = 14.sp,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                color = if (isSelected) SensusPurple else SensusTextPrimary
-                            )
-
-                            if (isSelected) {
-                                Icon(
-                                    imageVector = Icons.Default.Check,
-                                    contentDescription = "Seleccionado",
-                                    tint = SensusPurple,
-                                    modifier = Modifier.size(20.dp)
+                            Column {
+                                Text(
+                                    text = label,
+                                    fontSize = 14.sp,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                    color = when {
+                                        isLocked -> SensusTextMuted
+                                        isSelected -> SensusPurple
+                                        else -> SensusTextPrimary
+                                    }
                                 )
+                                if (isLocked) {
+                                    Text(
+                                        text = "Bloqueado para invitados",
+                                        fontSize = 11.sp,
+                                        color = SensusTextMuted
+                                    )
+                                }
+                            }
+
+                            when {
+                                isLocked -> {
+                                    Icon(
+                                        imageVector = Icons.Default.Lock,
+                                        contentDescription = "Bloqueado",
+                                        tint = SensusTextMuted,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
+                                isSelected -> {
+                                    Icon(
+                                        imageVector = Icons.Default.Check,
+                                        contentDescription = "Seleccionado",
+                                        tint = SensusPurple,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
                             }
                         }
                     }
