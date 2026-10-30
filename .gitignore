@@ -7,14 +7,14 @@
 .externalNativeBuild
 .cxx
 
-# Builds (constitucion §4: binarios jamas se versionan)
+# Builds
 /build/
 /app/build/
 **/build/
 /out/
 /reports/
 
-# Secretos y firma (constitucion §4)
+# Secretos y firma
 keys.properties
 local.properties
 *.jks
@@ -32,5 +32,6 @@ signing/
 *.mp4
 !app/src/main/res/raw/**/*.mp4
 
-# Entorno dual: junction hacia .opencode/skills (Fase 2)
+# Entorno dual
 .agent/skills/
+sensus-back/

@@ -13,8 +13,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -57,6 +60,7 @@ import com.example.sensus.theme.SensusSuccess
 import com.example.sensus.theme.SensusTextMuted
 import com.example.sensus.theme.SensusTextPrimary
 import com.example.sensus.theme.SensusTextSecondary
+import com.example.sensus.theme.sensusOutlinedTextFieldColors
 
 @Composable
 fun MerchantNewOfferScreen(
@@ -71,6 +75,9 @@ fun MerchantNewOfferScreen(
     var selectedCategory by remember { mutableStateOf(StoreCategory.GROCERY) }
     var collectHours by remember { mutableStateOf("2 horas") }
     var isSubmitted by remember { mutableStateOf(false) }
+
+    var productNameError by remember { mutableStateOf<String?>(null) }
+    var priceError by remember { mutableStateOf<String?>(null) }
 
     val origPriceVal = originalPrice.toDoubleOrNull() ?: 0.0
     val discPriceVal = discountPrice.toDoubleOrNull() ?: 0.0
@@ -88,6 +95,9 @@ fun MerchantNewOfferScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .statusBarsPadding()
+                .navigationBarsPadding()
+                .imePadding()
                 .verticalScroll(scrollState)
                 .padding(16.dp)
         ) {
@@ -188,16 +198,25 @@ fun MerchantNewOfferScreen(
                         Spacer(modifier = Modifier.height(4.dp))
                         OutlinedTextField(
                             value = productName,
-                            onValueChange = { productName = it },
+                            onValueChange = {
+                                productName = it
+                                if (productNameError != null) productNameError = null
+                            },
                             placeholder = { Text("Ej. Detergente 1 L, Pan artesanal...") },
+                            isError = productNameError != null,
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(12.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = SensusPurple,
-                                unfocusedBorderColor = SensusCardBorder
-                            ),
+                            colors = sensusOutlinedTextFieldColors(),
                             singleLine = true
                         )
+                        if (productNameError != null) {
+                            Text(
+                                text = productNameError!!,
+                                color = Color(0xFFDC2626),
+                                fontSize = 11.sp,
+                                modifier = Modifier.padding(start = 6.dp, top = 2.dp)
+                            )
+                        }
                     }
 
                     // Categoría
@@ -250,11 +269,15 @@ fun MerchantNewOfferScreen(
                             Spacer(modifier = Modifier.height(4.dp))
                             OutlinedTextField(
                                 value = originalPrice,
-                                onValueChange = { originalPrice = it },
+                                onValueChange = {
+                                    originalPrice = it
+                                    if (priceError != null) priceError = null
+                                },
                                 placeholder = { Text("180.00") },
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(12.dp),
+                                colors = sensusOutlinedTextFieldColors(),
                                 singleLine = true
                             )
                         }
@@ -269,14 +292,27 @@ fun MerchantNewOfferScreen(
                             Spacer(modifier = Modifier.height(4.dp))
                             OutlinedTextField(
                                 value = discountPrice,
-                                onValueChange = { discountPrice = it },
+                                onValueChange = {
+                                    discountPrice = it
+                                    if (priceError != null) priceError = null
+                                },
                                 placeholder = { Text("90.00") },
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(12.dp),
+                                colors = sensusOutlinedTextFieldColors(),
                                 singleLine = true
                             )
                         }
+                    }
+
+                    if (priceError != null) {
+                        Text(
+                            text = priceError!!,
+                            color = Color(0xFFDC2626),
+                            fontSize = 11.sp,
+                            modifier = Modifier.padding(start = 6.dp, top = 2.dp)
+                        )
                     }
 
                     // Chip de descuento calculado
@@ -370,8 +406,31 @@ fun MerchantNewOfferScreen(
             // Botón de publicar
             Button(
                 onClick = {
-                    isSubmitted = true
-                    onOfferCreated()
+                    var hasErr = false
+                    if (productName.trim().length < 3) {
+                        productNameError = "Ingresa el nombre del producto (mínimo 3 caracteres)"
+                        hasErr = true
+                    } else {
+                        productNameError = null
+                    }
+
+                    if (origPriceVal <= 0.0) {
+                        priceError = "Ingresa un precio original válido"
+                        hasErr = true
+                    } else if (discPriceVal <= 0.0) {
+                        priceError = "Ingresa un precio de oferta válido"
+                        hasErr = true
+                    } else if (discPriceVal >= origPriceVal) {
+                        priceError = "El precio de oferta debe ser menor que el original"
+                        hasErr = true
+                    } else {
+                        priceError = null
+                    }
+
+                    if (!hasErr) {
+                        isSubmitted = true
+                        onOfferCreated()
+                    }
                 },
                 shape = RoundedCornerShape(14.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = SensusPurple),

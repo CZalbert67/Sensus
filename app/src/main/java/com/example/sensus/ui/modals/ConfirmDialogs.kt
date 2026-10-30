@@ -43,6 +43,7 @@ import com.example.sensus.theme.SensusPurple
 import com.example.sensus.theme.SensusRed
 import com.example.sensus.theme.SensusTextPrimary
 import com.example.sensus.theme.SensusTextSecondary
+import com.example.sensus.theme.sensusOutlinedTextFieldColors
 
 @Composable
 fun ConfirmLogoutDialog(
@@ -159,6 +160,7 @@ fun ConfirmDeleteAccountDialog(
                     visualTransformation = PasswordVisualTransformation(),
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp),
+                    colors = sensusOutlinedTextFieldColors(),
                     singleLine = true
                 )
             }

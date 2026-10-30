@@ -1,19 +1,27 @@
 package com.example.sensus.ui.buyer
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -48,6 +56,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -59,7 +68,9 @@ import com.example.sensus.theme.SensusSuccess
 import com.example.sensus.theme.SensusTextMuted
 import com.example.sensus.theme.SensusTextPrimary
 import com.example.sensus.theme.SensusTextSecondary
+import com.example.sensus.theme.sensusOutlinedTextFieldColors
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SensiChatScreen(
     modifier: Modifier = Modifier,
@@ -69,7 +80,16 @@ fun SensiChatScreen(
     var inputText by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
 
-    LaunchedEffect(messages.size) {
+    val density = LocalDensity.current
+    val imeBottom = WindowInsets.ime.getBottom(density)
+    val isKeyboardOpen = imeBottom > 0 || WindowInsets.isImeVisible
+
+    val bottomPadding by animateDpAsState(
+        targetValue = if (isKeyboardOpen) 0.dp else 76.dp,
+        label = "InputBarBottomPadding"
+    )
+
+    LaunchedEffect(messages.size, isKeyboardOpen) {
         if (messages.isNotEmpty()) {
             listState.animateScrollToItem(messages.size - 1)
         }
@@ -79,6 +99,7 @@ fun SensiChatScreen(
         modifier = modifier
             .fillMaxSize()
             .background(SensusBackground)
+            .imePadding()
     ) {
         // Encabezado de Sensi IA
         Surface(
@@ -89,6 +110,7 @@ fun SensiChatScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .statusBarsPadding()
                     .padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -172,11 +194,11 @@ fun SensiChatScreen(
             }
         }
 
-        // Barra inferior de entrada de texto (con espacio para el menú flotante)
+        // Barra inferior de entrada de texto (con espacio para el menú flotante solo cuando el teclado está cerrado)
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 76.dp),
+                .padding(bottom = bottomPadding),
             color = Color.White,
             shadowElevation = 8.dp
         ) {
@@ -198,9 +220,8 @@ fun SensiChatScreen(
                     },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(20.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = SensusBackground,
-                        unfocusedContainerColor = SensusBackground,
+                    colors = sensusOutlinedTextFieldColors(
+                        containerColor = SensusBackground,
                         focusedBorderColor = SensusPurple,
                         unfocusedBorderColor = Color.Transparent
                     ),

@@ -1,5 +1,7 @@
-﻿package com.example.sensus.ui.auth
+package com.example.sensus.ui.auth
 
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,8 +13,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -43,17 +47,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.sensus.data.SensusAuthManager
 import com.example.sensus.theme.SensusBackground
 import com.example.sensus.theme.SensusCardBorder
 import com.example.sensus.theme.SensusPurple
 import com.example.sensus.theme.SensusTextPrimary
 import com.example.sensus.theme.SensusTextSecondary
+import com.example.sensus.theme.sensusOutlinedTextFieldColors
 
 @Composable
 fun RegisterScreen(
@@ -62,11 +69,77 @@ fun RegisterScreen(
     onNavigateToLogin: () -> Unit,
     onNavigateToTerms: () -> Unit
 ) {
+    val context = LocalContext.current
+    BackHandler { onNavigateToLogin() }
+
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var acceptTerms by remember { mutableStateOf(true) }
+
+    var nameError by remember { mutableStateOf<String?>(null) }
+    var emailError by remember { mutableStateOf<String?>(null) }
+    var phoneError by remember { mutableStateOf<String?>(null) }
+    var passwordError by remember { mutableStateOf<String?>(null) }
+    var generalError by remember { mutableStateOf<String?>(null) }
+
+    fun validateAndRegister() {
+        var hasError = false
+        generalError = null
+
+        val cleanName = name.trim()
+        if (cleanName.length < 3) {
+            nameError = "Ingresa tu nombre completo (mínimo 3 letras)"
+            hasError = true
+        } else {
+            nameError = null
+        }
+
+        val cleanEmail = email.trim()
+        val emailRegex = Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
+        if (!emailRegex.matches(cleanEmail)) {
+            emailError = "Ingresa un correo electrónico válido (ej. usuario@correo.com)"
+            hasError = true
+        } else {
+            emailError = null
+        }
+
+        val cleanPhone = phone.filter { it.isDigit() }
+        if (cleanPhone.length != 10) {
+            phoneError = "El número celular debe tener exactamente 10 dígitos"
+            hasError = true
+        } else {
+            phoneError = null
+        }
+
+        if (password.length < 6) {
+            passwordError = "La contraseña debe tener al menos 6 caracteres"
+            hasError = true
+        } else {
+            passwordError = null
+        }
+
+        if (!acceptTerms) {
+            generalError = "Debes aceptar los Términos y Privacidad para continuar"
+            hasError = true
+        }
+
+        if (!hasError) {
+            val (success, err) = SensusAuthManager.registerUser(
+                name = cleanName,
+                email = cleanEmail,
+                phone = cleanPhone,
+                password = password
+            )
+            if (success) {
+                Toast.makeText(context, "Cuenta creada exitosamente", Toast.LENGTH_SHORT).show()
+                onRegisterSuccess()
+            } else {
+                generalError = err ?: "Error al registrar la cuenta"
+            }
+        }
+    }
 
     Box(
         modifier = modifier
@@ -77,6 +150,7 @@ fun RegisterScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
+                .navigationBarsPadding()
                 .imePadding()
         ) {
             // Header curvo morado con botón de volver
@@ -87,7 +161,8 @@ fun RegisterScreen(
                         color = SensusPurple,
                         shape = RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp)
                     )
-                    .padding(horizontal = 20.dp, vertical = 28.dp)
+                    .statusBarsPadding()
+                    .padding(horizontal = 20.dp, vertical = 20.dp)
             ) {
                 Column {
                     IconButton(
@@ -133,78 +208,141 @@ fun RegisterScreen(
                         modifier = Modifier.padding(22.dp),
                         verticalArrangement = Arrangement.spacedBy(14.dp)
                     ) {
+                        // Error general
+                        if (generalError != null) {
+                            Text(
+                                text = generalError!!,
+                                color = Color(0xFFDC2626),
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+
                         // Nombre
-                        OutlinedTextField(
-                            value = name,
-                            onValueChange = { name = it },
-                            label = { Text("Nombre Completo") },
-                            leadingIcon = {
-                                Icon(Icons.Default.Person, contentDescription = null, tint = SensusPurple)
-                            },
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                            shape = RoundedCornerShape(14.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = SensusPurple,
-                                unfocusedBorderColor = SensusCardBorder
-                            ),
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                        Column {
+                            OutlinedTextField(
+                                value = name,
+                                onValueChange = { input ->
+                                    if (input.length <= 50 && input.all { it.isLetter() || it.isWhitespace() }) {
+                                        name = input
+                                        if (nameError != null) nameError = null
+                                    }
+                                },
+                                label = { Text("Nombre Completo") },
+                                isError = nameError != null,
+                                leadingIcon = {
+                                    Icon(Icons.Default.Person, contentDescription = null, tint = SensusPurple)
+                                },
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                                shape = RoundedCornerShape(14.dp),
+                                colors = sensusOutlinedTextFieldColors(),
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            if (nameError != null) {
+                                Text(
+                                    text = nameError!!,
+                                    color = Color(0xFFDC2626),
+                                    fontSize = 11.sp,
+                                    modifier = Modifier.padding(start = 8.dp, top = 2.dp)
+                                )
+                            }
+                        }
 
                         // Correo
-                        OutlinedTextField(
-                            value = email,
-                            onValueChange = { email = it },
-                            label = { Text("Correo Electrónico") },
-                            leadingIcon = {
-                                Icon(Icons.Default.Email, contentDescription = null, tint = SensusPurple)
-                            },
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
-                            shape = RoundedCornerShape(14.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = SensusPurple,
-                                unfocusedBorderColor = SensusCardBorder
-                            ),
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                        Column {
+                            OutlinedTextField(
+                                value = email,
+                                onValueChange = { input ->
+                                    if (input.length <= 60 && !input.contains(" ")) {
+                                        email = input
+                                        if (emailError != null) emailError = null
+                                    }
+                                },
+                                label = { Text("Correo Electrónico") },
+                                isError = emailError != null,
+                                leadingIcon = {
+                                    Icon(Icons.Default.Email, contentDescription = null, tint = SensusPurple)
+                                },
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
+                                shape = RoundedCornerShape(14.dp),
+                                colors = sensusOutlinedTextFieldColors(),
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            if (emailError != null) {
+                                Text(
+                                    text = emailError!!,
+                                    color = Color(0xFFDC2626),
+                                    fontSize = 11.sp,
+                                    modifier = Modifier.padding(start = 8.dp, top = 2.dp)
+                                )
+                            }
+                        }
 
                         // Teléfono
-                        OutlinedTextField(
-                            value = phone,
-                            onValueChange = { phone = it },
-                            label = { Text("Teléfono Celular") },
-                            leadingIcon = {
-                                Icon(Icons.Default.Phone, contentDescription = null, tint = SensusPurple)
-                            },
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Next),
-                            shape = RoundedCornerShape(14.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = SensusPurple,
-                                unfocusedBorderColor = SensusCardBorder
-                            ),
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                        Column {
+                            OutlinedTextField(
+                                value = phone,
+                                onValueChange = { input ->
+                                    val digits = input.filter { it.isDigit() }
+                                    if (digits.length <= 10) {
+                                        phone = digits
+                                        if (phoneError != null) phoneError = null
+                                    }
+                                },
+                                label = { Text("Teléfono Celular (10 dígitos)") },
+                                isError = phoneError != null,
+                                leadingIcon = {
+                                    Icon(Icons.Default.Phone, contentDescription = null, tint = SensusPurple)
+                                },
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Next),
+                                shape = RoundedCornerShape(14.dp),
+                                colors = sensusOutlinedTextFieldColors(),
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            if (phoneError != null) {
+                                Text(
+                                    text = phoneError!!,
+                                    color = Color(0xFFDC2626),
+                                    fontSize = 11.sp,
+                                    modifier = Modifier.padding(start = 8.dp, top = 2.dp)
+                                )
+                            }
+                        }
 
                         // Contraseña
-                        OutlinedTextField(
-                            value = password,
-                            onValueChange = { password = it },
-                            label = { Text("Contraseña") },
-                            leadingIcon = {
-                                Icon(Icons.Default.Lock, contentDescription = null, tint = SensusPurple)
-                            },
-                            visualTransformation = PasswordVisualTransformation(),
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
-                            shape = RoundedCornerShape(14.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = SensusPurple,
-                                unfocusedBorderColor = SensusCardBorder
-                            ),
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                        Column {
+                            OutlinedTextField(
+                                value = password,
+                                onValueChange = { input ->
+                                    if (input.length <= 30) {
+                                        password = input
+                                        if (passwordError != null) passwordError = null
+                                    }
+                                },
+                                label = { Text("Contraseña (mínimo 6 caracteres)") },
+                                isError = passwordError != null,
+                                leadingIcon = {
+                                    Icon(Icons.Default.Lock, contentDescription = null, tint = SensusPurple)
+                                },
+                                visualTransformation = PasswordVisualTransformation(),
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+                                shape = RoundedCornerShape(14.dp),
+                                colors = sensusOutlinedTextFieldColors(),
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            if (passwordError != null) {
+                                Text(
+                                    text = passwordError!!,
+                                    color = Color(0xFFDC2626),
+                                    fontSize = 11.sp,
+                                    modifier = Modifier.padding(start = 8.dp, top = 2.dp)
+                                )
+                            }
+                        }
 
                         // Checkbox términos
                         Row(
@@ -213,7 +351,10 @@ fun RegisterScreen(
                         ) {
                             Checkbox(
                                 checked = acceptTerms,
-                                onCheckedChange = { acceptTerms = it },
+                                onCheckedChange = {
+                                    acceptTerms = it
+                                    if (generalError != null) generalError = null
+                                },
                                 colors = CheckboxDefaults.colors(checkedColor = SensusPurple)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
@@ -233,8 +374,7 @@ fun RegisterScreen(
 
                         // Botón de registro
                         Button(
-                            onClick = onRegisterSuccess,
-                            enabled = acceptTerms,
+                            onClick = { validateAndRegister() },
                             shape = RoundedCornerShape(14.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = SensusPurple),
                             modifier = Modifier
