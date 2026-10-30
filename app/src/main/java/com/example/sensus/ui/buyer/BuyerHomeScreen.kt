@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -65,6 +66,7 @@ import com.example.sensus.theme.SensusSuccess
 import com.example.sensus.theme.SensusTextMuted
 import com.example.sensus.theme.SensusTextPrimary
 import com.example.sensus.theme.SensusTextSecondary
+import com.example.sensus.theme.sensusOutlinedTextFieldColors
 import com.example.sensus.ui.common.RadiusSelectorBottomSheet
 import com.example.sensus.ui.common.formatRadiusText
 import com.example.sensus.ui.common.getCategoryIcon
@@ -112,6 +114,7 @@ fun BuyerHomeScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .statusBarsPadding()
                     .padding(horizontal = 16.dp, vertical = 12.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
@@ -217,12 +220,7 @@ fun BuyerHomeScreen(
                         )
                     },
                     shape = RoundedCornerShape(14.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color.White,
-                        unfocusedContainerColor = Color.White,
-                        focusedBorderColor = SensusPurple,
-                        unfocusedBorderColor = SensusCardBorder
-                    ),
+                    colors = sensusOutlinedTextFieldColors(containerColor = Color.White),
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -46,6 +47,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.sensus.data.SensusAuthManager
 import com.example.sensus.theme.SensusAmber
 import com.example.sensus.theme.SensusBackground
 import com.example.sensus.theme.SensusPurple
@@ -76,7 +78,9 @@ fun BuyerProfileScreen(
             Card(
                 shape = RoundedCornerShape(18.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .statusBarsPadding()
             ) {
                 Row(
                     modifier = Modifier
@@ -101,15 +105,19 @@ fun BuyerProfileScreen(
 
                     Spacer(modifier = Modifier.width(16.dp))
 
+                    val user = SensusAuthManager.currentUser
+                    val displayName = user?.name?.ifBlank { null } ?: "Usuario Sensus"
+                    val displayEmail = user?.email?.ifBlank { null } ?: "usuario@sensus.app"
+
                     Column {
                         Text(
-                            text = "Ana Torres",
+                            text = displayName,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             color = SensusTextPrimary
                         )
                         Text(
-                            text = "ana.torres@email.com",
+                            text = displayEmail,
                             fontSize = 13.sp,
                             color = SensusTextSecondary
                         )
@@ -119,11 +127,18 @@ fun BuyerProfileScreen(
         }
 
         // Tarjeta con Switch: Modo Comercio / Vendedor
+        val isRegisteredMerchant = SensusAuthManager.currentUser?.isMerchant == true
+        val storeInfo = SensusAuthManager.currentUser?.merchantStore
+
         item {
             Card(
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = SensusPurple.copy(alpha = 0.08f)),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        onToggleMerchantMode(true)
+                    }
             ) {
                 Row(
                     modifier = Modifier
@@ -161,7 +176,11 @@ fun BuyerProfileScreen(
                                 color = SensusPurple
                             )
                             Text(
-                                text = "Publica excedentes y recupera dinero",
+                                text = if (isRegisteredMerchant) {
+                                    "Comercio activo: ${storeInfo?.name ?: "Mi Tienda"} • Toca para gestionar"
+                                } else {
+                                    "Publica excedentes y recupera dinero"
+                                },
                                 fontSize = 11.sp,
                                 color = SensusTextSecondary
                             )
@@ -169,7 +188,7 @@ fun BuyerProfileScreen(
                     }
 
                     Switch(
-                        checked = isMerchantMode,
+                        checked = isRegisteredMerchant || isMerchantMode,
                         onCheckedChange = { onToggleMerchantMode(it) },
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = Color.White,
@@ -198,11 +217,6 @@ fun BuyerProfileScreen(
                     ProfileMenuOption(
                         icon = Icons.Default.NotificationsNone,
                         title = "Preferencias de notificaciones",
-                        onClick = { }
-                    )
-                    ProfileMenuOption(
-                        icon = Icons.Default.Payment,
-                        title = "Métodos de pago",
                         onClick = { }
                     )
                     ProfileMenuOption(

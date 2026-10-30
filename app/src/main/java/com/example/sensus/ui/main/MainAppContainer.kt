@@ -1,5 +1,9 @@
 package com.example.sensus.ui.main
 
+import android.app.Activity
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
+
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -17,11 +21,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -59,6 +66,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -69,6 +77,7 @@ import androidx.compose.ui.unit.sp
 import com.example.sensus.R
 import com.example.sensus.data.MockDataProvider
 import com.example.sensus.data.ProductOffer
+import com.example.sensus.data.SensusAuthManager
 import com.example.sensus.theme.SensusBackground
 import com.example.sensus.theme.SensusPurple
 import com.example.sensus.theme.SensusTextPrimary
@@ -108,6 +117,7 @@ enum class MerchantNavTab(val title: String, val icon: ImageVector) {
     PROFILE("Perfil", Icons.Default.AccountCircle)
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun MainAppContainer(
     modifier: Modifier = Modifier,
@@ -136,6 +146,44 @@ fun MainAppContainer(
     var showConfirmDeleteAccount by remember { mutableStateOf(false) }
     var showOfflineDialog by remember { mutableStateOf(false) }
     var showGuestPrompt by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+    var lastBackPressTime by remember { mutableStateOf(0L) }
+
+    // Manejador del botón de regreso del sistema para evitar salir abruptamente
+    BackHandler(enabled = true) {
+        when {
+            showConfirmLogout -> showConfirmLogout = false
+            showConfirmDeleteAccount -> showConfirmDeleteAccount = false
+            showOfflineDialog -> showOfflineDialog = false
+            showGuestPrompt -> showGuestPrompt = false
+            isFamOpen -> isFamOpen = false
+            showNotifications -> showNotifications = false
+            activeRouteOffer != null -> activeRouteOffer = null
+            activeApartadoOffer != null -> activeApartadoOffer = null
+            selectedProductForDetail != null -> selectedProductForDetail = null
+            showMerchantRegister -> showMerchantRegister = false
+            isMerchantMode -> {
+                if (merchantTabIndex != 0) {
+                    merchantTabIndex = 0
+                } else {
+                    isMerchantMode = false
+                }
+            }
+            buyerTabIndex != 0 -> {
+                buyerTabIndex = 0 // Vuelve al mapa
+            }
+            else -> {
+                val currentTime = System.currentTimeMillis()
+                if (currentTime - lastBackPressTime < 2000L) {
+                    (context as? Activity)?.finish()
+                } else {
+                    lastBackPressTime = currentTime
+                    Toast.makeText(context, "Presiona atrás de nuevo para salir", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
 
     // Animación de resorte para el despliegue lateral tipo acordeón / arcoíris
     val animProgress by animateFloatAsState(
@@ -243,7 +291,7 @@ fun MainAppContainer(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = SensusBackground,
-        contentWindowInsets = WindowInsets.safeDrawing
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -271,10 +319,17 @@ fun MainAppContainer(
                     )
                     3 -> CommunityScreen()
                     4 -> BuyerProfileScreen(
-                        isMerchantMode = false,
+                        isMerchantMode = SensusAuthManager.currentUser?.isMerchant == true || isMerchantMode,
                         onToggleMerchantMode = { enableMerchant ->
                             if (enableMerchant) {
-                                showMerchantRegister = true
+                                if (SensusAuthManager.currentUser?.isMerchant == true) {
+                                    isMerchantMode = true
+                                    merchantTabIndex = 0
+                                } else {
+                                    showMerchantRegister = true
+                                }
+                            } else {
+                                isMerchantMode = false
                             }
                         },
                         onLogoutClick = { showConfirmLogout = true },
@@ -318,16 +373,19 @@ fun MainAppContainer(
                 )
             }
 
-            // FLOATING ACTION MENU EN ARCOÍRIS / ACORDEÓN HACIA LOS LADOS
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomCenter)
-                    .navigationBarsPadding()
-                    .padding(bottom = 6.dp), // Posicionado bien abajo
-                contentAlignment = Alignment.BottomCenter
-            ) {
-                val density = LocalDensity.current
+            // FLOATING ACTION MENU EN ARCOÍRIS / ACORDEÓN HACIA LOS LADOS (oculto mientras se escribe con teclado abierto)
+            val currentDensity = LocalDensity.current
+            val isKeyboardOpen = WindowInsets.ime.getBottom(currentDensity) > 0 || WindowInsets.isImeVisible
+            if (!isKeyboardOpen) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.BottomCenter)
+                        .navigationBarsPadding()
+                        .padding(bottom = 6.dp), // Posicionado bien abajo
+                    contentAlignment = Alignment.BottomCenter
+                ) {
+                    val density = LocalDensity.current
 
                 // Sub-botones en arcoíris / abanico lateral alrededor del botón central
                 if (animProgress > 0.01f) {
@@ -427,6 +485,7 @@ fun MainAppContainer(
                     }
                 }
             }
+        }
 
             // Diálogos modales
             if (showConfirmLogout) {

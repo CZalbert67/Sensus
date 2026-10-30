@@ -10,11 +10,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.LockReset
@@ -48,6 +53,7 @@ import com.example.sensus.theme.SensusPurple
 import com.example.sensus.theme.SensusTextMuted
 import com.example.sensus.theme.SensusTextPrimary
 import com.example.sensus.theme.SensusTextSecondary
+import com.example.sensus.theme.sensusOutlinedTextFieldColors
 
 @Composable
 fun ForgotPasswordScreen(
@@ -69,6 +75,10 @@ fun ForgotPasswordScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .statusBarsPadding()
+                .navigationBarsPadding()
+                .imePadding()
+                .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
             // Barra superior
@@ -150,10 +160,17 @@ fun ForgotPasswordScreen(
 
                         OutlinedTextField(
                             value = emailOrPhone,
-                            onValueChange = { emailOrPhone = it },
+                            onValueChange = { input ->
+                                if (input.all { it.isDigit() }) {
+                                    if (input.length <= 10) emailOrPhone = input
+                                } else {
+                                    if (input.length <= 60 && !input.contains(" ")) emailOrPhone = input
+                                }
+                            },
                             placeholder = { Text("ejemplo@correo.com", fontSize = 13.sp) },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(12.dp),
+                            colors = sensusOutlinedTextFieldColors(),
                             singleLine = true
                         )
 
@@ -227,6 +244,7 @@ fun ForgotPasswordScreen(
                                 placeholder = { Text("Código de 4 o 6 dígitos", fontSize = 12.sp) },
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(12.dp),
+                                colors = sensusOutlinedTextFieldColors(),
                                 singleLine = true
                             )
                         }
@@ -246,6 +264,7 @@ fun ForgotPasswordScreen(
                                 visualTransformation = PasswordVisualTransformation(),
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(12.dp),
+                                colors = sensusOutlinedTextFieldColors(),
                                 singleLine = true
                             )
                         }
@@ -265,6 +284,7 @@ fun ForgotPasswordScreen(
                                 visualTransformation = PasswordVisualTransformation(),
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(12.dp),
+                                colors = sensusOutlinedTextFieldColors(),
                                 singleLine = true
                             )
                         }

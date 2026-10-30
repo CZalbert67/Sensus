@@ -1,5 +1,9 @@
 package com.example.sensus.ui.auth
 
+import android.Manifest
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,8 +13,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -34,10 +40,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.sensus.data.SensusAuthManager
 import com.example.sensus.theme.SensusAmber
 import com.example.sensus.theme.SensusBackground
 import com.example.sensus.theme.SensusCardBorder
@@ -52,6 +60,23 @@ fun OnboardingLocationScreen(
     onPermissionGranted: () -> Unit,
     onManualLocationSelected: () -> Unit
 ) {
+    val context = LocalContext.current
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val fineLocation = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
+        val coarseLocation = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+        if (fineLocation || coarseLocation) {
+            SensusAuthManager.setLocationPermissionGranted(true)
+            Toast.makeText(context, "Ubicación activada correctamente", Toast.LENGTH_SHORT).show()
+            onPermissionGranted()
+        } else {
+            // Si el usuario decide continuar manual
+            SensusAuthManager.setLocationPermissionGranted(true)
+            Toast.makeText(context, "Continuando con ubicación manual", Toast.LENGTH_SHORT).show()
+            onManualLocationSelected()
+        }
+    }
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -61,8 +86,10 @@ fun OnboardingLocationScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .statusBarsPadding()
+                .navigationBarsPadding()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp, vertical = 40.dp),
+                .padding(horizontal = 24.dp, vertical = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
@@ -158,7 +185,14 @@ fun OnboardingLocationScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Button(
-                    onClick = onPermissionGranted,
+                    onClick = {
+                        permissionLauncher.launch(
+                            arrayOf(
+                                Manifest.permission.ACCESS_FINE_LOCATION,
+                                Manifest.permission.ACCESS_COARSE_LOCATION
+                            )
+                        )
+                    },
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = SensusPurple),
                     modifier = Modifier
@@ -181,7 +215,10 @@ fun OnboardingLocationScreen(
                 }
 
                 OutlinedButton(
-                    onClick = onManualLocationSelected,
+                    onClick = {
+                        SensusAuthManager.setLocationPermissionGranted(true)
+                        onManualLocationSelected()
+                    },
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = SensusPurple),
                     modifier = Modifier

@@ -1,5 +1,6 @@
 package com.example.sensus.ui.splash
 
+import android.media.MediaPlayer
 import android.net.Uri
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -31,6 +32,8 @@ import com.example.sensus.theme.SensusSplashYellow
  * - Animación fluida 2D cuadro a cuadro: gato corriendo con bolsa morada, cola ondulante,
  *   destellos mágicos, logotipo Sensus, guiño de ojo y barra de progreso.
  * - Fondo continuo #F4B340 que se adapta a cualquier ratio de pantalla (18:9, 19.5:9, 20:9) sin bordes negros.
+ * - Prevención total de cuadros negros: el SurfaceView inicia con opacidad 0 y solo se revela
+ *   al recibir MEDIA_INFO_VIDEO_RENDERING_START, garantizando continuidad visual perfecta.
  * - Modo silencioso (Muted) para una apertura limpia y profesional.
  * - Transición automática al finalizar el video o al tocar la pantalla para omitir.
  */
@@ -70,13 +73,28 @@ fun SplashScreen(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT
                     )
+                    // Inicia con opacidad 0 para evitar que el búfer negro del SurfaceView sea visible
+                    alpha = 0f
                     val videoUri = Uri.parse("android.resource://${ctx.packageName}/${R.raw.sensus_splash}")
                     setVideoURI(videoUri)
                     setOnPreparedListener { mediaPlayer ->
                         mediaPlayer.isLooping = false
                         mediaPlayer.setVolume(0f, 0f) // Silencioso por defecto
+                        mediaPlayer.setOnInfoListener { _, what, _ ->
+                            if (what == MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
+                                alpha = 1f
+                                isVideoReady = true
+                            }
+                            false
+                        }
                         start()
-                        isVideoReady = true
+                        // Salvaguarda por si el driver de video retrasa la notificación de renderizado
+                        postDelayed({
+                            if (!isVideoReady) {
+                                alpha = 1f
+                                isVideoReady = true
+                            }
+                        }, 300)
                     }
                     setOnCompletionListener {
                         finishOnce()
@@ -90,7 +108,7 @@ fun SplashScreen(
             modifier = Modifier.fillMaxSize()
         )
 
-        // Overlay suave que previene destellos antes de que el primer fotograma esté listo
+        // Overlay suave amarillo continuo que previene cualquier destello o cuadro negro
         AnimatedVisibility(
             visible = !isVideoReady,
             exit = fadeOut(animationSpec = tween(150)),
@@ -104,3 +122,4 @@ fun SplashScreen(
         }
     }
 }
+

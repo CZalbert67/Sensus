@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -45,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sensus.data.MockDataProvider
 import com.example.sensus.data.ProductOffer
+import com.example.sensus.data.SensusAuthManager
 import com.example.sensus.theme.SensusBackground
 import com.example.sensus.theme.SensusPurple
 import com.example.sensus.theme.SensusRating
@@ -60,7 +62,7 @@ fun MerchantDashboardScreen(
     onSwitchToBuyer: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val store = MockDataProvider.sampleStore
+    val store = SensusAuthManager.currentUser?.merchantStore ?: MockDataProvider.sampleStore
     val activeStoreOffers = MockDataProvider.sampleOffers.take(3)
 
     LazyColumn(
@@ -75,7 +77,9 @@ fun MerchantDashboardScreen(
             Card(
                 shape = RoundedCornerShape(18.dp),
                 colors = CardDefaults.cardColors(containerColor = SensusPurple),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .statusBarsPadding()
             ) {
                 Column(
                     modifier = Modifier.padding(18.dp)
@@ -175,13 +179,8 @@ fun MerchantDashboardScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceAround
+                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    MerchantKpi(
-                        icon = Icons.Default.MonetizationOn,
-                        value = "$${String.format("%.0f", store.recoveredMoneyToday)}",
-                        label = "Recuperado hoy"
-                    )
                     MerchantKpi(
                         icon = Icons.Default.CheckCircle,
                         value = "${store.redeemedTodayCount}",

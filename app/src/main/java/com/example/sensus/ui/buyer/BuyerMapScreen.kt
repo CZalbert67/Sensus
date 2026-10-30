@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -74,6 +75,7 @@ import com.example.sensus.theme.SensusSuccess
 import com.example.sensus.theme.SensusTextMuted
 import com.example.sensus.theme.SensusTextPrimary
 import com.example.sensus.theme.SensusTextSecondary
+import com.example.sensus.theme.sensusOutlinedTextFieldColors
 import com.example.sensus.ui.common.RadiusSelectorBottomSheet
 import com.example.sensus.ui.common.formatRadiusText
 
@@ -225,33 +227,24 @@ fun BuyerMapScreen(
                     .offset(x = (-16).dp, y = 0.dp)
             ) {
                 Box(
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.size(64.dp)
                 ) {
-                    // Halo de pulso
+                    // Halo de pulso morado
                     Box(
                         modifier = Modifier
                             .size(56.dp)
                             .scale(haloScale)
                             .clip(CircleShape)
-                            .background(SensusPurple.copy(alpha = 0.20f))
+                            .background(SensusPurple.copy(alpha = 0.22f))
                     )
 
-                    // Pin circular con la figura del gatito sentado
-                    Surface(
-                        shape = CircleShape,
-                        color = Color.White,
-                        shadowElevation = 8.dp,
-                        border = BorderStroke(2.5.dp, SensusPurple),
-                        modifier = Modifier.size(46.dp)
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.sensus_cat),
-                            contentDescription = "Tú estás aquí (Gatito Sensus)",
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(4.dp)
-                        )
-                    }
+                    // Figura del Gatito Sensus oficial como pin de ubicación
+                    Image(
+                        painter = painterResource(id = R.drawable.sensus_cat),
+                        contentDescription = "Tú estás aquí (Gatito Sensus)",
+                        modifier = Modifier.size(54.dp)
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -276,7 +269,8 @@ fun BuyerMapScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .statusBarsPadding()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
                 .align(Alignment.TopCenter)
         ) {
             OutlinedTextField(
@@ -306,12 +300,7 @@ fun BuyerMapScreen(
                     }
                 },
                 shape = RoundedCornerShape(16.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
-                    focusedBorderColor = SensusPurple,
-                    unfocusedBorderColor = SensusCardBorder
-                ),
+                colors = sensusOutlinedTextFieldColors(containerColor = Color.White),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )

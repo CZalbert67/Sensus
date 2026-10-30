@@ -1,28 +1,13 @@
 package com.example.sensus.theme
 
-import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 
-private val DarkColorScheme = darkColorScheme(
-    primary = SensusAmber,
-    onPrimary = SensusPurpleDark,
-    secondary = SensusPurpleLight,
-    onSecondary = SensusWhite,
-    tertiary = SensusBeige,
-    background = Color(0xFF18181B),
-    surface = Color(0xFF27272A),
-    onBackground = SensusWhite,
-    onSurface = SensusWhite
-)
-
+// LightColorScheme enforces Sensus brand tokens and ensures high-contrast readability across all devices
 private val LightColorScheme = lightColorScheme(
     primary = SensusPurple,
     onPrimary = SensusWhite,
@@ -37,11 +22,45 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun SensusTheme(
-  darkTheme: Boolean = isSystemInDarkTheme(),
-  dynamicColor: Boolean = false,
-  content: @Composable () -> Unit,
+    darkTheme: Boolean = false,
+    dynamicColor: Boolean = false,
+    content: @Composable () -> Unit,
 ) {
-  val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
-
-  MaterialTheme(colorScheme = colorScheme, typography = Typography, content = content)
+    // Sensus UI strictly implements a light design system with white cards and purple accents.
+    // Forcing LightColorScheme prevents invisible white-on-white text when the host device has dark mode enabled.
+    MaterialTheme(
+        colorScheme = LightColorScheme,
+        typography = Typography,
+        content = content
+    )
 }
+
+/**
+ * Standard Sensus OutlinedTextField colors guaranteeing visible dark text, crisp borders, and purple focus.
+ */
+@Composable
+fun sensusOutlinedTextFieldColors(
+    containerColor: Color = Color.Transparent,
+    focusedBorderColor: Color = SensusPurple,
+    unfocusedBorderColor: Color = SensusCardBorder
+): TextFieldColors = OutlinedTextFieldDefaults.colors(
+    focusedTextColor = SensusTextPrimary,
+    unfocusedTextColor = SensusTextPrimary,
+    focusedContainerColor = containerColor,
+    unfocusedContainerColor = containerColor,
+    focusedBorderColor = focusedBorderColor,
+    unfocusedBorderColor = unfocusedBorderColor,
+    focusedLabelColor = SensusPurple,
+    unfocusedLabelColor = SensusTextSecondary,
+    cursorColor = SensusPurple,
+    errorTextColor = SensusTextPrimary,
+    errorBorderColor = Color(0xFFDC2626),
+    errorCursorColor = Color(0xFFDC2626),
+    errorLabelColor = Color(0xFFDC2626),
+    focusedPlaceholderColor = SensusTextMuted,
+    unfocusedPlaceholderColor = SensusTextMuted,
+    focusedLeadingIconColor = SensusPurple,
+    unfocusedLeadingIconColor = SensusTextSecondary,
+    focusedTrailingIconColor = SensusPurple,
+    unfocusedTrailingIconColor = SensusTextSecondary
+)

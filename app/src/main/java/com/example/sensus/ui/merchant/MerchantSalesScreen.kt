@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -51,6 +52,7 @@ import com.example.sensus.theme.SensusSuccess
 import com.example.sensus.theme.SensusTextMuted
 import com.example.sensus.theme.SensusTextPrimary
 import com.example.sensus.theme.SensusTextSecondary
+import com.example.sensus.theme.sensusOutlinedTextFieldColors
 
 @Composable
 fun MerchantSalesScreen(
@@ -68,7 +70,11 @@ fun MerchantSalesScreen(
     ) {
         // Título
         item {
-            Column {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .statusBarsPadding()
+            ) {
                 Text(
                     text = "Ventas y Canjes",
                     fontSize = 22.sp,
@@ -204,6 +210,7 @@ fun MerchantSalesScreen(
                             placeholder = { Text("Ej. SNS-A7K9-24", fontSize = 13.sp) },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(12.dp),
+                            colors = sensusOutlinedTextFieldColors(),
                             singleLine = true
                         )
 

@@ -99,6 +99,22 @@
 | Menú flotante | Se desplegaba verticalmente | Reimplementado en arcoíris lateral con Spring |
 | Posición del gatito | Flotaba alto | Anclado con `navigationBarsPadding` + `6.dp` |
 | Import faltante | `Unresolved reference 'fillMaxWidth'` | Import agregado; build limpio |
+| Insets barra de estado / carga | Botones superiores tocaban la batería | Agregado `statusBarsPadding()` en todas las pantallas y barras de acción |
+| Adaptabilidad multidispositivo | Recortes en pantallas pequeñas con teclado | Incorporados `verticalScroll()`, `imePadding()` y `navigationBarsPadding()` |
+| Botón de regreso en Términos | Pantalla de Términos bloqueaba retroceso | Incorporado botón de regreso AutoMirrored y memoria de ruta previa |
+| Cuadro negro en Splash | VideoView mostraba buffer negro al iniciar | Opacidad cero inicial y revelación con `MEDIA_INFO_VIDEO_RENDERING_START` |
+| Coexistencia Backend | Clonación de `sensus-back` en workspace | Agregado a `.gitignore` para evitar conflictos entre repositorios independientes |
+| Botón de regreso del sistema | Salidas abruptas de la app con el botón físico/gesto | `BackHandler` escalonado en todas las pantallas y cierre de modales/FAM |
+| Permisos en tiempo de ejecución | Permiso de ubicación no se solicitaba al OS | Integrado launcher nativo de `ACCESS_FINE_LOCATION` y `ACCESS_COARSE_LOCATION` |
+| Persistencia y sesión simulada | Sesión y datos se perdían al salir | `SensusAuthManager` con persistencia en SharedPreferences y cuentas en memoria |
+| Validación de formularios | Sin validación de campos en login/registro | Validaciones de formato, errores en rojo y registro de comerciantes persistido |
+| Visibilidad de texto en campos | Modo oscuro del sistema volvía el texto blanco sobre tarjetas blancas | Forzado `LightColorScheme` en `SensusTheme` y aplicado `sensusOutlinedTextFieldColors` con texto `#1C1917` y cursor morado en todos los inputs |
+| Rotación de pantalla y Splash | Girar el teléfono recreaba la Activity y reejecutaba el Splash | `rememberSaveable` con bandera `hasCompletedSplash`, `configChanges` y orientación portrait en Manifest |
+| Validación estricta y RFC | Teléfonos admitían >10 dígitos y RFC no validaba formato SAT | Límite forzado a 10 dígitos numéricos en inputs y regex oficial SAT de 12/13 caracteres |
+| Ajustes de perfiles y KPIs | KPI "Recuperado hoy" redundante y Métodos de pago en perfil erróneo | Removido "Recuperado hoy", "Métodos de pago" reubicado a comerciante y switch de vendedor activado |
+| Nuevo Gatito Oficial | Gatito desactualizado y encerrado en círculo de mapa | Nueva ilustración oficial integrada en el menú flotante y como pin libre en el mapa con halo radar |
+| Insets y teclado en Sensi IA | Pantalla entera panteaba hacia arriba y saltaba al abrir teclado | Reubicado `windowSoftInputMode="adjustResize"` en `<activity>` (estaba en `<application>` y el OS ejecutaba `adjustPan`), forzado en runtime de Activity y padding animado con `WindowInsets.ime` |
+| Red de amigos en Comunidad | Sin mecanismo de invitación ni adición de contactos | Sección para compartir código por WhatsApp, código QR de usuario y modal con escáner para agregar vecinos |
 
 ---
 
