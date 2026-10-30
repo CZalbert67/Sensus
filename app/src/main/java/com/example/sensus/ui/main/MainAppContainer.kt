@@ -87,6 +87,11 @@ import com.example.sensus.ui.merchant.MerchantProfileScreen
 import com.example.sensus.ui.merchant.MerchantRegisterScreen
 import com.example.sensus.ui.merchant.MerchantSalesScreen
 import com.example.sensus.ui.modals.ConfirmDeleteAccountDialog
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import com.example.sensus.common.Result
+import com.example.sensus.data.di.SensusContainer
 import com.example.sensus.ui.modals.ConfirmLogoutDialog
 import com.example.sensus.ui.modals.GuestPromptDialog
 import com.example.sensus.ui.modals.OfflineDialog
@@ -133,6 +138,10 @@ fun MainAppContainer(
 
     // Diálogos modales
     var showConfirmLogout by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val container = remember { SensusContainer.getInstance(context) }
+
     var showConfirmDeleteAccount by remember { mutableStateOf(false) }
     var showOfflineDialog by remember { mutableStateOf(false) }
     var showGuestPrompt by remember { mutableStateOf(false) }

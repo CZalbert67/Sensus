@@ -67,6 +67,10 @@ import com.example.sensus.theme.SensusBackground
 import com.example.sensus.theme.SensusCardBorder
 import com.example.sensus.theme.SensusPurple
 import com.example.sensus.theme.SensusPurpleDark
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import com.example.sensus.data.di.SensusContainer
 import com.example.sensus.theme.SensusTextMuted
 import com.example.sensus.theme.SensusTextPrimary
 import com.example.sensus.theme.SensusTextSecondary
@@ -80,6 +84,11 @@ fun LoginScreen(
     onContinueAsGuest: () -> Unit,
     onForgotPassword: () -> Unit = {}
 ) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val container = remember { SensusContainer.getInstance(context) }
+    var isGuestLoading by remember { mutableStateOf(false) }
+
     var emailOrPhone by remember { mutableStateOf("usuario@sensus.app") }
     var password by remember { mutableStateOf("••••••••") }
     var isPasswordVisible by remember { mutableStateOf(false) }
@@ -307,7 +316,7 @@ fun LoginScreen(
 
                         // Botón de continuar como invitado
                         OutlinedButton(
-                            onClick = onContinueAsGuest,
+                            onClick = { scope.launch { isGuestLoading = true; container.startGuestSessionUseCase(); isGuestLoading = false; onContinueAsGuest() } }, enabled = !isGuestLoading,
                             shape = RoundedCornerShape(14.dp),
                             colors = ButtonDefaults.outlinedButtonColors(contentColor = SensusPurple),
                             modifier = Modifier

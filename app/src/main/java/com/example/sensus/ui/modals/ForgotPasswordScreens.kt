@@ -52,6 +52,10 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import com.example.sensus.common.Result
+import com.example.sensus.data.di.SensusContainer
 import com.example.sensus.domain.model.PasswordPolicy
 import com.example.sensus.theme.SensusBackground
 import com.example.sensus.theme.SensusPurple
@@ -68,6 +72,9 @@ fun ForgotPasswordScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val container = remember { SensusContainer.getInstance(context) }
+    var isLoading by remember { mutableStateOf(false) }
     // step: 1 = Formulario de correo (02b), 2 = Confirmación enviada (02c), 3 = Nueva contraseña
     var step by remember { mutableIntStateOf(if (!initialToken.isNullOrBlank()) 3 else 1) }
     var email by remember { mutableStateOf("") }
@@ -206,10 +213,23 @@ fun ForgotPasswordScreen(
                                     if (email.isBlank() || !email.contains("@")) {
                                         errorMessage = "Ingresa un correo electrónico válido."
                                     } else {
-                                        // Simular envío de solicitud
-                                        step = 2
+                                        scope.launch {
+                                            isLoading = true
+                                            errorMessage = null
+                                            when (val result = container.requestPasswordResetUseCase(email.trim())) {
+                                                is Result.Success -> {
+                                                    isLoading = false
+                                                    step = 2
+                                                }
+                                                is Result.Failure -> {
+                                                    isLoading = false
+                                                    errorMessage = result.error.message
+                                                }
+                                            }
+                                        }
                                     }
                                 },
+                                enabled = !isLoading,
                                 shape = RoundedCornerShape(14.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = SensusPurple),
                                 modifier = Modifier
@@ -217,7 +237,7 @@ fun ForgotPasswordScreen(
                                     .height(52.dp)
                             ) {
                                 Text(
-                                    text = "Enviar enlace de recuperación",
+                                    text = if (isLoading) "Enviando solicitud..." else "Enviar enlace de recuperación",
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White
@@ -436,10 +456,26 @@ fun ForgotPasswordScreen(
                                         errorMessage = "La contraseña debe tener mínimo 8 caracteres, mayúscula, minúscula y número."
                                     } else if (newPassword != confirmPassword) {
                                         errorMessage = "Las contraseñas no coinciden."
+                                    } else if (resetToken.isBlank()) {
+                                        errorMessage = "El token de recuperación es requerido."
                                     } else {
-                                        onPasswordResetSuccess()
+                                        scope.launch {
+                                            isLoading = true
+                                            errorMessage = null
+                                            when (val result = container.resetPasswordUseCase(resetToken.trim(), newPassword)) {
+                                                is Result.Success -> {
+                                                    isLoading = false
+                                                    onPasswordResetSuccess()
+                                                }
+                                                is Result.Failure -> {
+                                                    isLoading = false
+                                                    errorMessage = result.error.message
+                                                }
+                                            }
+                                        }
                                     }
                                 },
+                                enabled = !isLoading,
                                 shape = RoundedCornerShape(14.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = SensusPurple),
                                 modifier = Modifier
@@ -447,7 +483,7 @@ fun ForgotPasswordScreen(
                                     .height(52.dp)
                             ) {
                                 Text(
-                                    text = "Restablecer e iniciar sesión",
+                                    text = if (isLoading) "Restableciendo..." else "Restablecer e iniciar sesión",
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White

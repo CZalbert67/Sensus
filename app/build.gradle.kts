@@ -91,9 +91,16 @@ dependencies {
   implementation(libs.androidx.security.crypto)
   implementation(libs.kotlinx.serialization.json)
 
+  // Networking (Retrofit 2 & OkHttp)
+  implementation(libs.retrofit.core)
+  implementation(libs.retrofit.converter.kotlinx.serialization)
+  implementation(libs.okhttp.core)
+  implementation(libs.okhttp.logging)
+
   // Unit & Flow Testing
   testImplementation(libs.mockk)
   testImplementation(libs.turbine)
+  testImplementation(libs.mockwebserver)
 }
 
 tasks.matching { it.name.contains("AarMetadata") }.configureEach {

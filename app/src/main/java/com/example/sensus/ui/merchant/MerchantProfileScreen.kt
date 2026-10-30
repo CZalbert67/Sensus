@@ -57,6 +57,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sensus.data.MockDataProvider
 import com.example.sensus.domain.model.HorarioDia
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import com.example.sensus.common.Result
+import com.example.sensus.data.di.SensusContainer
 import com.example.sensus.theme.SensusAmber
 import com.example.sensus.theme.SensusBackground
 import com.example.sensus.theme.SensusPurple
@@ -74,6 +79,11 @@ fun MerchantProfileScreen(
     modifier: Modifier = Modifier
 ) {
     val store = MockDataProvider.sampleStore
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val container = remember { SensusContainer.getInstance(context) }
+    var isSaving by remember { mutableStateOf(false) }
+
     var isOpen by remember { mutableStateOf(store.isOpen) }
 
     // SE-007: Estado del local comercial editable
@@ -576,15 +586,35 @@ fun MerchantProfileScreen(
                             } else if (tempPostalCode.length != 5) {
                                 editError = "El código postal debe tener exactamente 5 dígitos."
                             } else {
-                                storeName = tempName.trim()
-                                storeAddress = trimmedAddr
-                                storePostalCode = tempPostalCode
-                                scheduleList = tempSchedules
-                                storeScheduleText = "Lun-Vie: 08:00 - 20:00 / Sáb: 09:00 - 18:00"
-                                showEditSheet = false
-                                updateSuccessMessage = "¡Datos del local actualizados exitosamente! Coordenadas espaciales recalculadas."
+                                scope.launch {
+                                    isSaving = true
+                                    editError = null
+                                    when (val result = container.updateMerchantProfileUseCase(
+                                        nombreComercial = tempName.trim(),
+                                        direccion = trimmedAddr,
+                                        codigoPostal = tempPostalCode,
+                                        horarios = tempSchedules
+                                    )) {
+                                        is Result.Success -> {
+                                            isSaving = false
+                                            val profile = result.data
+                                            storeName = profile.nombreComercial
+                                            storeAddress = profile.direccion
+                                            storePostalCode = profile.codigoPostal
+                                            scheduleList = profile.horarios
+                                            storeScheduleText = "Lun-Vie: 08:00 - 20:00 / Sáb: 09:00 - 18:00"
+                                            showEditSheet = false
+                                            updateSuccessMessage = "¡Datos del local actualizados exitosamente! Coordenadas espaciales recalculadas (, )."
+                                        }
+                                        is Result.Failure -> {
+                                            isSaving = false
+                                            editError = result.error.message
+                                        }
+                                    }
+                                }
                             }
                         },
+                        enabled = !isSaving,
                         shape = RoundedCornerShape(14.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = SensusPurple),
                         modifier = Modifier
@@ -592,7 +622,7 @@ fun MerchantProfileScreen(
                             .height(52.dp)
                     ) {
                         Text(
-                            text = "Guardar cambios",
+                            text = if (isSaving) "Guardando..." else "Guardar cambios",
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White

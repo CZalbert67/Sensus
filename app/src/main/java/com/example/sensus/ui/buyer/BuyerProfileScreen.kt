@@ -65,6 +65,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.LaunchedEffect
+import kotlinx.coroutines.launch
+import com.example.sensus.common.Result
+import com.example.sensus.data.di.SensusContainer
 import com.example.sensus.theme.SensusBackground
 import com.example.sensus.theme.SensusPurple
 import com.example.sensus.theme.SensusRed
@@ -86,8 +92,24 @@ fun BuyerProfileScreen(
     modifier: Modifier = Modifier
 ) {
     // SE-006: Estado del perfil editable
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val container = remember { SensusContainer.getInstance(context) }
+    var isSaving by remember { mutableStateOf(false) }
+
     var userName by remember { mutableStateOf("Ana Torres") }
-    val userEmail = "ana.torres@email.com"
+    var userEmailState by remember { mutableStateOf("ana.torres@email.com") }
+
+    LaunchedEffect(Unit) {
+        when (val res = container.profileRepository.getProfile()) {
+            is Result.Success -> {
+                userName = res.data.nombreCompleto
+                userEmailState = res.data.correo
+            }
+            is Result.Failure -> {}
+        }
+    }
+    val userEmail = userEmailState
     var userPhotoUri by remember { mutableStateOf<Uri?>(null) }
     var showEditProfileSheet by remember { mutableStateOf(false) }
     var profileUpdatedNotice by remember { mutableStateOf(false) }
@@ -497,12 +519,26 @@ fun BuyerProfileScreen(
                         if (trimmed.length !in 2..100) {
                             editError = "El nombre debe contener entre 2 y 100 caracteres."
                         } else {
-                            userName = trimmed
-                            userPhotoUri = tempPhotoUri
-                            showEditProfileSheet = false
-                            profileUpdatedNotice = true
+                            scope.launch {
+                                isSaving = true
+                                editError = null
+                                when (val result = container.updateProfileUseCase(trimmed, tempPhotoUri?.toString())) {
+                                    is Result.Success -> {
+                                        isSaving = false
+                                        userName = result.data.nombreCompleto
+                                        userPhotoUri = tempPhotoUri
+                                        showEditProfileSheet = false
+                                        profileUpdatedNotice = true
+                                    }
+                                    is Result.Failure -> {
+                                        isSaving = false
+                                        editError = result.error.message
+                                    }
+                                }
+                            }
                         }
                     },
+                    enabled = !isSaving,
                     shape = RoundedCornerShape(14.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = SensusPurple),
                     modifier = Modifier
@@ -510,7 +546,7 @@ fun BuyerProfileScreen(
                         .height(52.dp)
                 ) {
                     Text(
-                        text = "Guardar cambios",
+                        text = if (isSaving) "Guardando..." else "Guardar cambios",
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
