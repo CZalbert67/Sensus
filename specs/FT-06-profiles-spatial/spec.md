@@ -85,7 +85,7 @@ interface ProfileRepository {
 - **UI:** Compose Test Rule para edicion y error.
 - **Contrato:** fixtures de `PUT /api/users/profile` y `PUT /api/merchants/profile`.
 - **Espacial:** verificar que el cliente envia coordenadas y que respeta la respuesta del backend.
-- **Cobertura:** Kover ≥45% (propuesto).
+- **Cobertura:** Kover ≥80% obligatorio en pruebas unitarias, de integración y E2E (constitución §7.4).
 
 ## 7. Riesgos, limites y deuda
 

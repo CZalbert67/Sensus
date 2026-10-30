@@ -38,7 +38,7 @@
 - [ ] `python scripts/check_layers.py` PASS
 - [ ] `python scripts/check_endpoints.py` PASS
 - [ ] `python scripts/check_secrets.py` PASS
-- [ ] `python scripts/check_coverage.py --min 45` PASS o SKIP documentado
+- [ ] `python scripts/check_coverage.py --min 80` PASS o SKIP documentado
 
 ## Cierre SDD
 

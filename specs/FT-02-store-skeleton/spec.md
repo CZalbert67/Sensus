@@ -88,7 +88,7 @@ Regla de conflicto: comparar `updatedAt`; en inventarios gana el servidor; en pr
 - **Unitarias:** `KeystoreManager` con fake, `SecurePrefs` con Robolectric, `SyncManager` con reloj fake.
 - **Seguridad:** verificar que la DB no abre sin passphrase y que no hay claves en logs.
 - **Offline:** `NetworkMonitor` con fake de conectividad.
-- **Cobertura:** Kover ≥45% (propuesto).
+- **Cobertura:** Kover ≥80% obligatorio en pruebas unitarias, de integración y E2E (constitución §7.4).
 
 ## 7. Riesgos, limites y deuda
 

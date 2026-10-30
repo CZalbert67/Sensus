@@ -17,7 +17,7 @@
 - [ ] `./gradlew.bat testDebugUnitTest --no-daemon` verde
 - [ ] `./gradlew.bat compileDebugAndroidTestSources --no-daemon` verde
 - [ ] `detekt` + `ktlintCheck` verdes (cuando el plugin este cableado; deuda de FT-00)
-- [ ] `koverVerify` >= 45% (umbral **propuesto**, pendiente de ratificacion del equipo; constitucion §7.4. Deuda de FT-00)
+- [ ] `koverVerify` >= 80% (umbral obligatorio para todo código nuevo en unitarias, integración y E2E; constitución §7.4. Deuda de FT-00)
 
 ## Gates SDD
 
@@ -25,7 +25,7 @@
 - [ ] `python scripts/check_layers.py` PASS
 - [ ] `python scripts/check_endpoints.py` PASS
 - [ ] `python scripts/check_secrets.py` PASS
-- [ ] `python scripts/check_coverage.py --min 45` PASS o SKIP documentado
+- [ ] `python scripts/check_coverage.py --min 80` PASS o SKIP documentado
 
 ## Arquitectura
 

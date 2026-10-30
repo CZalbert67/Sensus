@@ -44,7 +44,7 @@ jobs:
       - name: Secretos
         run: python scripts/check_secrets.py
       - name: Cobertura (SKIP si aun no hay Kover)
-        run: python scripts/check_coverage.py --min 45
+        run: python scripts/check_coverage.py --min 80
       - name: Evidencia de gates
         if: always()
         run: |
@@ -54,7 +54,7 @@ jobs:
             python scripts/check_layers.py || true
             python scripts/check_endpoints.py || true
             python scripts/check_secrets.py || true
-            python scripts/check_coverage.py --min 45 || true
+            python scripts/check_coverage.py --min 80 || true
           } > sdd-gates.txt
       - uses: actions/upload-artifact@v4
         if: always()

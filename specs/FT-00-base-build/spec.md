@@ -20,7 +20,7 @@ El repositorio compila hoy con un unico modulo `app/` cuyo codigo vive en `com.e
 | RF-00-02 | `gradle/libs.versions.toml` declara todas las dependencias del stack oficial: Hilt, KSP, Room, SQLCipher, Retrofit/OkHttp, Kotlinx Serialization, JUnit5, MockK, Turbine y Kover. |
 | RF-00-03 | `build.gradle.kts` (raiz) y `app/build.gradle.kts` aplican los plugins por `alias(libs.plugins.*)`; sin versiones literales sueltas. |
 | RF-00-04 | `detekt.yml` y `.editorconfig` quedan cableados y ejecutables (`detekt`, `ktlintCheck`). |
-| RF-00-05 | Kover queda cableado con umbral 45% (propuesto, pendiente de ratificacion; constitucion §7.4). |
+| RF-00-05 | Kover queda cableado con umbral mínimo obligatorio del 80% para todo código nuevo en unitarias, integración y E2E (constitución §7.4). |
 | RF-00-06 | R8/ProGuard mantiene `minifyEnabled` y `shrinkResources` en release, con reglas para Retrofit, Kotlinx Serialization y SQLCipher. |
 | RF-00-07 | Existen los paquetes `domain/`, `data/`, `presentation/`, `di/`, `navigation/` y `util/` bajo `com.example.sensus`. |
 | RF-00-08 | `theme/` se traslada a `presentation/theme/` sin romper las pantallas existentes. |
@@ -98,14 +98,14 @@ Regla de dependencias: `presentation -> domain <- data`. `domain/` no importa `a
 - **Compilacion:** `compileDebugKotlin` como gate principal.
 - **Estatico:** `lint`, `detekt`, `ktlintCheck`.
 - **Estructura:** `python scripts/check_sdd.py` y `python scripts/check_layers.py` (FT-03).
-- **Cobertura:** Kover ≥45% (propuesto) sobre lo migrado.
+- **Cobertura:** Kover ≥80% obligatorio sobre todo código nuevo en unitarias, integración y E2E.
 
 ## 7. Riesgos, limites y deuda
 
 - Mover paquetes puede romper imports masivos; migrar por compilacion verde en cada paso.
 - El drift de Kotlin 2.4.21 vs 2.3.20 puede bloquear Hilt/KSP si se fuerza la version constitucional; requiere ratificacion.
 - `MainScreenViewModel.kt` y sus tests son legacy; su reescritura se completa en FT-04.
-- Detekt/ktlint/Kover estan documentados pero no cableados: esta feature los cablea; si el equipo no ratifica el 45%, el gate queda en modo informativo.
+- Detekt/ktlint/Kover estan documentados pero no cableados: esta feature los cablea con el umbral constitucional del 80%.
 - No se toca `app/src/main/java/com/example/sensus/ui/` en esta fase salvo imports de `theme`.
 
 ## Aprobación

@@ -11,7 +11,7 @@
 - [ ] T03.4 Crear fixtures de fallo para `check_layers.py` (import `android.*` en domain) — verif: script con fixture
 - [ ] T03.5 Crear `scripts/check_endpoints.py` (columnas canonicas y endpoints de specs) — verif: `python scripts/check_endpoints.py`
 - [ ] T03.6 Crear `scripts/check_secrets.py` (patrones de secreto y archivos versionados) — verif: `python scripts/check_secrets.py`
-- [ ] T03.7 Crear `scripts/check_coverage.py` (Kover XML, `--min`, `--advisory`) — verif: `python scripts/check_coverage.py --min 45`
+- [ ] T03.7 Crear `scripts/check_coverage.py` (Kover XML, `--min`, `--advisory`) — verif: `python scripts/check_coverage.py --min 80`
 - [ ] T03.8 Verificar que los cinco scripts corren en Windows y Ubuntu sin dependencias externas — verif: ejecucion local + CI
 
 ## Fase B — Documentacion

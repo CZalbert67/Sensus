@@ -21,7 +21,7 @@
 4. **`check_coverage.py`.**
    - Busca `app/build/reports/kover/reportDebug.xml` o `app/build/reports/kover/report.xml`.
    - Calcula `(covered + partially) / total` sobre `LINE` y `BRANCH`.
-   - `--min 45` por defecto; `--advisory` no falla.
+   - `--min 80` por defecto (80% obligatorio en unitarias, integración y E2E); `--advisory` no falla.
    - Si no hay XML: `SKIP`.
 5. **`check_endpoints.py`.**
    - Parsea `docs/endpoints-internos.md`; exige columnas `Endpoint`, `Origen -> Destino`, `Auth`, `Rate`, `Estado`.
@@ -46,7 +46,7 @@
 
 - `python scripts/check_sdd.py` PASS.
 - `python scripts/check_layers.py` PASS.
-- `python scripts/check_coverage.py --min 45` PASS o SKIP documentado.
+- `python scripts/check_coverage.py --min 80` PASS o SKIP documentado.
 - `python scripts/check_endpoints.py` PASS.
 - `python scripts/check_secrets.py` PASS.
 - `ci.yml` con job `sdd-gates` bloqueante.

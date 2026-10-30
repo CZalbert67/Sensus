@@ -102,7 +102,7 @@ Eventos de UI: `LoginViewEffect.NavigateToMain(role)` y `LoginViewEffect.ShowErr
 - **UI:** Compose Test Rule para login, registro y switch de rol.
 - **Seguridad:** test de no enumeracion y de no-fuga de token.
 - **Contrato:** fixtures JSON de `POST /api/auth/login` y `POST /api/auth/register`.
-- **Cobertura:** Kover ≥45% (propuesto).
+- **Cobertura:** Kover ≥80% obligatorio en pruebas unitarias, de integración y E2E (constitución §7.4).
 
 ## 7. Riesgos, limites y deuda
 

@@ -104,7 +104,7 @@ UseCase -> Repository -> RemoteDataSource -> ApiService (Retrofit)
 - **Red:** `MockWebServer` para timeouts, 401, 429 y sanitizacion de logs.
 - **Navegacion:** Compose Test Rule para rutas tipadas.
 - **Seguridad:** test que verifica que `Authorization` nunca se escribe en el logger.
-- **Cobertura:** Kover ≥45% (propuesto).
+- **Cobertura:** Kover ≥80% obligatorio en pruebas unitarias, de integración y E2E (constitución §7.4).
 
 ## 7. Riesgos, limites y deuda
 

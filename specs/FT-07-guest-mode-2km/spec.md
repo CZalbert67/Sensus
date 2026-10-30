@@ -88,7 +88,7 @@ Regla dura: `radiusMeters` se valida en el caso de uso; si el modo es invitado y
 - **UI:** Compose Test Rule para selector fijo, dialogo de bloqueo y redireccion.
 - **Integracion:** repositorio con `MockWebServer` devolviendo ofertas dentro y fuera de 2000 m.
 - **Seguridad:** verificar que no se envia token en modo invitado.
-- **Cobertura:** Kover ≥45% (propuesto).
+- **Cobertura:** Kover ≥80% obligatorio en pruebas unitarias, de integración y E2E (constitución §7.4).
 
 ## 7. Riesgos, limites y deuda
 

@@ -1,5 +1,5 @@
 ---
-version: 1.0.0
+version: 1.1.0
 ratified: 2026-10-29
 last_amended: 2026-10-29
 status: active
@@ -35,6 +35,7 @@ methodology: SDD
 3. **Separación de responsabilidades.** Un ViewModel por pantalla/feature; un Use Case por acción de negocio; un Repository por agregado.
 4. **Inyección de dependencias con Hilt.** Prohibido instanciar dependencias manualmente fuera de módulos Hilt.
 5. **Patrones obligatorios:** Repository, Facade (abstracción de APIs y DB local), Factory Method (creación de ViewModels/Use Cases), Observer (StateFlow/SharedFlow), Strategy (políticas de sincronización offline).
+6. **Cobertura obligatoria por pruebas:** Todo código nuevo DEBE ir integrado con un mínimo del **80% de cobertura** verificada en pruebas unitarias, de integración y de extremo a extremo (E2E). Bloqueo automático de merge si baja del 80%.
 
 ---
 
@@ -92,7 +93,7 @@ methodology: SDD
 1. **Pruebas unitarias** con JUnit 5 + MockK para lógica de dominio y ViewModels.
 2. **Pruebas de integración** con Compose Test Rule simulando flujos de navegación, persistencia SQLite y autenticación.
 3. **Análisis estático (SAST):** Semgrep con reglas personalizadas; Android Lint + detekt + ktlint.
-4. **Cobertura mínima:** definida por el equipo; bloqueo de merge si baja del umbral acordado.
+4. **Cobertura mínima obligatoria:** Todo código nuevo DEBE ir integrado con un mínimo del **80% de cobertura** verificada en pruebas unitarias (lógica de dominio y ViewModels con JUnit 5 + MockK + Turbine), pruebas de integración (Room + SQLCipher, API y navegación) y pruebas de extremo a extremo (E2E con Compose Test Rule / AndroidTest). Bloqueo automático de merge si baja del umbral del 80%.
 5. **Pruebas de UI:** obligatorias para flujos críticos (auth, apartado, pago/canje).
 
 ---

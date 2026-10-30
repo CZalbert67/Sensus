@@ -19,6 +19,7 @@ Si un artefacto contradice la constitucion, se detiene el trabajo y se reporta e
 - **Specs:** toda feature vive en `specs/FT-XX-<slug>/` con exactamente `spec.md`, `plan.md`, `tasks.md` y `checklists/checklist.md`.
 - **Evidencia:** todo cambio deja rastro en `Memoria.md` (que se hizo, por que, como se verifico).
 - **Binarios:** no se versionan `.apk`, `.aab`, `.mp4` (salvo `app/src/main/res/raw/`), ni builds.
+- **Cobertura obligatoria:** Todo código nuevo DEBE ir integrado con un mínimo del **80% de cobertura** en pruebas unitarias, de integración y de extremo a extremo (E2E). Merge bloqueado si no se alcanza el umbral.
 - **Constitucion:** solo se modifica con aprobacion explicita del equipo. `constitution.md` es hardlink de `.specify/memory/constitution.md`.
 
 ## Skills compartidas

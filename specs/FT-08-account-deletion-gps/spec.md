@@ -86,7 +86,7 @@ Secuencia: confirmar -> `deleteAccount()` -> si `Success` -> `SessionManager.cle
 - **Instrumentadas:** verificacion de borrado de DB y prefs tras 204.
 - **UI:** Compose Test Rule para permisos, doble confirmacion y redireccion.
 - **Seguridad:** verificar que no queda PII en logs ni archivos tras la baja.
-- **Cobertura:** Kover ≥45% (propuesto).
+- **Cobertura:** Kover ≥80% obligatorio en pruebas unitarias, de integración y E2E (constitución §7.4).
 
 ## 7. Riesgos, limites y deuda
 

@@ -36,7 +36,7 @@
 - [ ] `compileDebugKotlin` verde
 - [ ] `testDebugUnitTest` verde (`MockWebServer`, Turbine)
 - [ ] `lint`, `detekt`, `ktlintCheck` verdes
-- [ ] `koverVerify` ≥45% (propuesto)
+- [ ] `koverVerify` ≥80% obligatorio en unitarias, integración y E2E (constitución §7.4)
 - [ ] `python scripts/check_layers.py` PASS
 - [ ] `python scripts/check_endpoints.py` PASS
 - [ ] `docs/endpoints-internos.md` y `docs/rate-matrix.md` al dia

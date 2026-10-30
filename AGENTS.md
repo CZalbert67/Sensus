@@ -74,7 +74,7 @@ python scripts/check_sdd.py
 python scripts/check_layers.py
 python scripts/check_endpoints.py
 python scripts/check_secrets.py
-python scripts/check_coverage.py --min 45
+python scripts/check_coverage.py --min 80
 ```
 
 Regla: **no ejecutar `assembleDebug` / `bundleRelease`** salvo instruccion explicita del usuario.
@@ -111,6 +111,7 @@ El CI compila sin generar APK.
 10. **Seguridad primero:** nunca guardar secretos, tokens ni PII en texto plano; usar SQLCipher y Keystore.
 11. **No tocar** `keys.properties`, `local.properties`, `*.jks`, `*.keystore`, `SIGNING_*`, `KEYSTORE_*`.
 12. **Un PR = una slice = una feature.** Sin `CHECKLIST_PR.md` verde no hay merge.
+13. **Cobertura obligatoria (>= 80%):** Todo código nuevo DEBE ir integrado con un mínimo del 80% de cobertura en pruebas unitarias, de integración y de extremo a extremo (E2E). Merge bloqueado si no se alcanza el umbral.
 
 ---
 

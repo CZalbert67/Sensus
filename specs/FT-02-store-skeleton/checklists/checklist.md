@@ -37,7 +37,7 @@
 - [ ] `compileDebugAndroidTestSources` verde
 - [ ] `testDebugUnitTest` verde
 - [ ] `lint`, `detekt`, `ktlintCheck` verdes
-- [ ] `koverVerify` ≥45% (propuesto)
+- [ ] `koverVerify` ≥80% obligatorio en unitarias, integración y E2E (constitución §7.4)
 - [ ] `python scripts/check_layers.py` PASS
 - [ ] `docs/asvs-l2-checklist.md` V6 y V10 actualizados
 

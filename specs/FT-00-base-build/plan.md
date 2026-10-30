@@ -7,7 +7,7 @@
 
 1. **Version Catalog.** Completar `gradle/libs.versions.toml` con: `hilt`, `ksp`, `room`, `sqlcipher`, `retrofit`, `okhttp`, `kotlinx-serialization`, `junit5`, `mockk`, `turbine`, `kover`. Toda version vive aqui; ningun `*.gradle.kts` declara version literal.
 2. **Plugins.** Aplicar por `alias(libs.plugins.*)` en raiz y en `app/`: `android-application`, `kotlin-android`, `compose-compiler`, `kotlin-serialization`, `ksp`, `hilt`, `kover`, `detekt`, `ktlint`.
-3. **Calidad.** Cablear `detekt.yml` y `.editorconfig`; mapear `detekt` y `ktlintCheck` a tareas Gradle reales. Kover con umbral 45% (propuesto) y `koverVerify`.
+3. **Calidad.** Cablear `detekt.yml` y `.editorconfig`; mapear `detekt` y `ktlintCheck` a tareas Gradle reales. Kover con umbral obligatorio del 80% (unitarias, integración y E2E) y `koverVerify`.
 4. **R8/ProGuard.** Reglas de keep para Retrofit (`retrofit2.**`), Kotlinx Serialization (`kotlinx.serialization.**`) y SQLCipher (`net.sqlcipher.**`); mantener `minifyEnabled`/`shrinkResources`.
 5. **Paquetes.** Crear el arbol de §4.1 del spec con un archivo marcador por paquete cuando aun no tenga clases, para que el paquete exista en el repo.
 6. **Tema.** Mover `theme/Color.kt`, `theme/Theme.kt`, `theme/Type.kt` a `presentation/theme/` y actualizar todos los imports.
@@ -29,7 +29,7 @@
 - `./gradlew.bat compileDebugKotlin --no-daemon` verde.
 - `./gradlew.bat lint --no-daemon` verde.
 - `./gradlew.bat detekt ktlintCheck --no-daemon` verde (recien cableados).
-- `./gradlew.bat testDebugUnitTest koverVerify --no-daemon` verde con umbral propuesto.
+- `./gradlew.bat testDebugUnitTest koverVerify --no-daemon` verde con umbral mínimo obligatorio del 80%.
 - `python scripts/check_sdd.py` y `python scripts/check_layers.py` PASS (FT-03).
 - `CHECKLIST_PR.md` y `Memoria.md` al dia.
 

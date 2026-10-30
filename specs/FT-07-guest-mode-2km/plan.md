@@ -32,7 +32,7 @@
 
 - `compileDebugKotlin`, `testDebugUnitTest`, `compileDebugAndroidTestSources` verdes.
 - `lint`, `detekt`, `ktlintCheck` verdes.
-- `koverVerify` ≥45% (propuesto).
+- `koverVerify` ≥80% obligatorio (unitarias, integración y E2E).
 - `python scripts/check_layers.py` PASS.
 - `python scripts/check_endpoints.py` PASS (endpoint de ofertas cercanas).
 

@@ -131,6 +131,7 @@ Verificación de integridad: `constitution.md` y `.specify/memory/constitution.m
 | Reemplazado el stub `scripts/README.md` por 5 validadores ejecutables. | `check_sdd.py`, `check_layers.py`, `check_endpoints.py`, `check_secrets.py`, `check_coverage.py`. |
 | CI actualizado con job `sdd-gates` bloqueante. | `.github/workflows/ci.yml`. |
 | `docs/` alineados con los endpoints de FT-04..FT-08. | `endpoints-internos.md`, `rate-matrix.md`, `asvs-l2-checklist.md`. |
+| Ratificado umbral constitucional de cobertura >= 80% para todo código nuevo en unitarias, integración y E2E. | `constitution.md` (§2.6, §7.4), `AGENTS.md`, `sdd-governance.md`, `CHECKLIST_PR.md`, `scripts/check_coverage.py` (--min 80), `ci.yml` y todas las specs. |
 
 Resultado de los gates al cierre de la reestructuración:
 
@@ -262,7 +263,7 @@ Criterio de salida de FT-00: `compileDebugKotlin` verde, `check_layers.py` PASS 
 4. **Navegación:** se migra a Navigation 3 tipada en FT-01; `MainAppContainer` se mantiene como fallback hasta FT-04.
 5. **Tests stale:** se reescriben en FT-00 (T00.21/T00.22) y se completan en FT-04.
 6. **Nombres canónicos:** `ViewState`/`ViewIntent`/`ViewEffect`, no `UiState`/`UiEvent`.
-7. **Cobertura:** 45% propuesto, pendiente de ratificación (constitucion §7.4).
+7. **Cobertura:** 80% ratificado como umbral mínimo obligatorio para todo código nuevo, distribuido en pruebas unitarias (`app/src/test/`), de integración (Room + SQLCipher y API) y de extremo a extremo (E2E con Compose Test Rule / AndroidTest en `app/src/androidTest/`) (constitución §2.6 y §7.4). Merge bloqueado si no se alcanza el umbral.
 8. **Drift documental:** la constitucion §10 usa los nombres genéricos `spec.md`/`plan.md`/`task.md`; en el repo viven dentro de `specs/FT-XX/`. No se edita la constitucion sin aprobación.
 
 ---

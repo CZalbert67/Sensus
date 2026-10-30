@@ -82,7 +82,7 @@ interface AuthRepository {
 - **UI:** Compose Test Rule para solicitud, confirmacion y contador.
 - **Contrato:** fixtures de `202 Accepted` y errores 410/429.
 - **Seguridad:** test que verifica que el token no aparece en logs ni en `ViewState`.
-- **Cobertura:** Kover ≥45% (propuesto).
+- **Cobertura:** Kover ≥80% obligatorio en pruebas unitarias, de integración y E2E (constitución §7.4).
 
 ## 7. Riesgos, limites y deuda
 

@@ -10,7 +10,7 @@
 - [ ] T00.3 Aplicar plugins por `alias(libs.plugins.*)` en `build.gradle.kts` raiz y `app/build.gradle.kts` — verif: `compileDebugKotlin`
 - [ ] T00.4 Verificar que ningun `*.gradle.kts` tenga versiones literales de dependencias — verif: `python scripts/check_sdd.py`
 - [ ] T00.5 Cablear `detekt.yml` y `.editorconfig` a tareas Gradle — verif: `detekt ktlintCheck`
-- [ ] T00.6 Cablear Kover con umbral 45% (propuesto) y `koverVerify` — verif: `testDebugUnitTest koverVerify`
+- [ ] T00.6 Cablear Kover con umbral mínimo obligatorio del 80% (unitarias, integración y E2E) y `koverVerify` — verif: `testDebugUnitTest koverVerify`
 - [ ] T00.7 Endurecer R8/ProGuard (Retrofit, Serialization, SQLCipher) — verif: `compileDebugKotlin`
 
 ## Fase B — Estructura de paquetes
@@ -44,7 +44,7 @@
 
 - [ ] T00.23 Ejecutar `compileDebugKotlin` y confirmar `BUILD SUCCESSFUL` — verif: `compileDebugKotlin`
 - [ ] T00.24 Ejecutar `lint`, `detekt`, `ktlintCheck` sin errores nuevos — verif: `lint detekt ktlintCheck`
-- [ ] T00.25 Ejecutar `testDebugUnitTest koverVerify` con umbral propuesto — verif: `testDebugUnitTest koverVerify`
+- [ ] T00.25 Ejecutar `testDebugUnitTest koverVerify` con umbral mínimo obligatorio del 80% — verif: `testDebugUnitTest koverVerify`
 - [ ] T00.26 Ejecutar `python scripts/check_sdd.py` y `python scripts/check_layers.py` — verif: ambos PASS
 - [ ] T00.27 Actualizar `Memoria.md` §6 y `CHECKLIST_PR.md` — verif: revision humana
 - [ ] T00.28 Tag `v1.3.0-ft00` sobre `main` — verif: revision humana

@@ -29,7 +29,7 @@
 ## Calidad y seguridad
 
 - [ ] `lint`, `detekt`, `ktlintCheck` verdes
-- [ ] `koverVerify` ≥45% (umbral propuesto, pendiente de ratificacion)
+- [ ] `koverVerify` ≥80% obligatorio en pruebas unitarias, de integración y E2E (constitución §7.4)
 - [ ] R8/ProGuard con keep rules de Retrofit, Serialization y SQLCipher
 - [ ] Sin secretos, tokens ni PII en codigo o logs
 - [ ] `python scripts/check_sdd.py` PASS

@@ -23,8 +23,9 @@ Un test por caso de uso y por ViewModel. Fakes en `test/shared/`, fixtures sin d
 ## Cobertura
 
 - `testDebugUnitTest` verde siempre.
-- `koverVerify` con umbral >= 45% cuando el plugin este cableado (umbral propuesto, pendiente de ratificacion del equipo).
-- Reporta cobertura real; no maquilles con tests vacios.
+- Todo código nuevo DEBE integrarse con un mínimo del **80% de cobertura** distribuida en pruebas unitarias (`app/src/test/`), de integración (persistencia y API) y de extremo a extremo (E2E con Compose Test Rule en `app/src/androidTest/`).
+- `koverVerify` con umbral >= 80% cuando el plugin esté cableado (regla constitucional mandatoria §7.4).
+- Reporta cobertura real; no maquilles con tests vacíos.
 
 ## Deuda conocida
 

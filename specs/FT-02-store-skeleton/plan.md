@@ -34,7 +34,7 @@
 - `compileDebugAndroidTestSources` verde.
 - Test instrumentado de apertura cifrada verde.
 - `lint`, `detekt`, `ktlintCheck` verdes.
-- `koverVerify` ≥45% (propuesto).
+- `koverVerify` ≥80% obligatorio en unitarias, integración y E2E (constitución §7.4).
 - `python scripts/check_sdd.py` PASS (no hay secretos en texto plano).
 - `docs/asvs-l2-checklist.md` actualizado (V6 y V10).
 

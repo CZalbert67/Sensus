@@ -39,7 +39,7 @@
 - `testDebugUnitTest` verde (validacion, use cases, ViewModel, contrato).
 - `compileDebugAndroidTestSources` verde (Compose Test Rule).
 - `lint`, `detekt`, `ktlintCheck` verdes.
-- `koverVerify` ≥45% (propuesto).
+- `koverVerify` ≥80% obligatorio (unitarias, integración y E2E).
 - `python scripts/check_layers.py` PASS.
 - `python scripts/check_endpoints.py` PASS (`POST /api/auth/login`, `POST /api/auth/register`).
 

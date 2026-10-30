@@ -11,7 +11,7 @@
 | `check_layers.py` | `domain/` sin Android/HTTP/JSON, `presentation/` sin `data/`, `data/` sin `presentation/`, sin MVVM/`UiState`/`UiEvent`/Koin | RF-03-04..07 | Si |
 | `check_endpoints.py` | Tabla canonica de `docs/endpoints-internos.md` y endpoints citados en specs | RF-03-09 | Si |
 | `check_secrets.py` | `keys.properties`/`local.properties` no versionados; patrones de clave privada, AWS key y asignaciones literales | RF-03-10 | Si |
-| `check_coverage.py` | Cobertura de lineas Kover contra umbral (45% propuesto) | RF-03-08 | Si (SKIP si no hay reporte) |
+| `check_coverage.py` | Cobertura de lineas Kover contra umbral (80% obligatorio en unitarias, integracion y E2E) | RF-03-08 | Si (SKIP si no hay reporte) |
 
 ## Uso
 
@@ -20,7 +20,7 @@ python scripts/check_sdd.py
 python scripts/check_layers.py
 python scripts/check_endpoints.py
 python scripts/check_secrets.py
-python scripts/check_coverage.py --min 45
+python scripts/check_coverage.py --min 80
 ```
 
 Opciones comunes: `--root <dir>` (por defecto `.`) y `--verbose`.

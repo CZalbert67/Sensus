@@ -3,11 +3,11 @@
 
 Reglas:
   RF-03-08  Falla si la cobertura de LINEAS del reporte Kover es menor al umbral.
-            Umbral por defecto: 45% (propuesto, pendiente de ratificacion).
+            Umbral por defecto: 80% (mandatorio para todo codigo nuevo en unitarias, integracion y E2E).
             Si no existe reporte, imprime SKIP y sale 0.
 
 Uso:
-    python scripts/check_coverage.py [--root .] [--min 45] [--advisory] [--report <xml>]
+    python scripts/check_coverage.py [--root .] [--min 80] [--advisory] [--report <xml>]
 
 Salida:
     OK|FAIL <ruta> <cobertura>% (<umbral>%)
@@ -45,7 +45,7 @@ def read_line_coverage(report: Path) -> tuple[int, int] | None:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Valida cobertura Kover.")
     parser.add_argument("--root", default=".", help="Raiz del repositorio (default: .)")
-    parser.add_argument("--min", type=float, default=45.0, help="Umbral minimo (default: 45)")
+    parser.add_argument("--min", type=float, default=80.0, help="Umbral minimo (default: 80)")
     parser.add_argument("--advisory", action="store_true", help="No falla, solo informa")
     parser.add_argument("--report", default=None, help="Ruta explicita al XML de Kover")
     args = parser.parse_args()

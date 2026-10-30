@@ -35,7 +35,7 @@ Regla: ningun `object` global; todo pasa por constructor injection.
 - `compileDebugKotlin` verde.
 - `testDebugUnitTest` verde (incluye `MockWebServer` y Turbine).
 - `lint`, `detekt`, `ktlintCheck` verdes.
-- `koverVerify` ≥45% (propuesto).
+- `koverVerify` ≥80% obligatorio (unitarias, integración y E2E).
 - `python scripts/check_layers.py` PASS: `presentation/` no importa `data/`.
 - `python scripts/check_endpoints.py` PASS: contratos de red declarados en `docs/endpoints-internos.md`.
 
