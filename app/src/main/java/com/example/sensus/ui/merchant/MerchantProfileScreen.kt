@@ -87,10 +87,10 @@ fun MerchantProfileScreen(
     var isOpen by remember { mutableStateOf(store.isOpen) }
 
     // SE-007: Estado del local comercial editable
-    var storeName by remember { mutableStateOf(store.name) }
-    var storeAddress by remember { mutableStateOf(store.address) }
-    var storePostalCode by remember { mutableStateOf("03100") }
-    var storeScheduleText by remember { mutableStateOf(store.schedule) }
+    var storeName by remember { mutableStateOf("") }
+    var storeAddress by remember { mutableStateOf("") }
+    var storePostalCode by remember { mutableStateOf("") }
+    var storeScheduleText by remember { mutableStateOf("") }
     var showEditSheet by remember { mutableStateOf(false) }
     var updateSuccessMessage by remember { mutableStateOf<String?>(null) }
 

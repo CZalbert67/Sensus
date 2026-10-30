@@ -97,8 +97,8 @@ fun BuyerProfileScreen(
     val container = remember { SensusContainer.getInstance(context) }
     var isSaving by remember { mutableStateOf(false) }
 
-    var userName by remember { mutableStateOf("Ana Torres") }
-    var userEmailState by remember { mutableStateOf("ana.torres@email.com") }
+    var userName by remember { mutableStateOf("") }
+    var userEmailState by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         when (val res = container.profileRepository.getProfile()) {

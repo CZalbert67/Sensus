@@ -54,7 +54,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.sensus.data.SensusAuthManager
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import com.example.sensus.common.Result
+import com.example.sensus.data.di.SensusContainer
 import com.example.sensus.theme.SensusBackground
 import com.example.sensus.theme.SensusCardBorder
 import com.example.sensus.theme.SensusPurple
@@ -70,6 +73,9 @@ fun RegisterScreen(
     onNavigateToTerms: () -> Unit
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val container = remember { SensusContainer.getInstance(context) }
+    var isRegisterLoading by remember { mutableStateOf(false) }
     BackHandler { onNavigateToLogin() }
 
     var name by remember { mutableStateOf("") }
@@ -126,17 +132,20 @@ fun RegisterScreen(
         }
 
         if (!hasError) {
-            val (success, err) = SensusAuthManager.registerUser(
-                name = cleanName,
-                email = cleanEmail,
-                phone = cleanPhone,
-                password = password
-            )
-            if (success) {
-                Toast.makeText(context, "Cuenta creada exitosamente", Toast.LENGTH_SHORT).show()
-                onRegisterSuccess()
-            } else {
-                generalError = err ?: "Error al registrar la cuenta"
+            scope.launch {
+                isRegisterLoading = true
+                generalError = null
+                when (val result = container.authRepository.register(cleanName, cleanEmail, password)) {
+                    is Result.Success -> {
+                        isRegisterLoading = false
+                        Toast.makeText(context, "Cuenta creada exitosamente", Toast.LENGTH_SHORT).show()
+                        onRegisterSuccess()
+                    }
+                    is Result.Failure -> {
+                        isRegisterLoading = false
+                        generalError = result.error.message
+                    }
+                }
             }
         }
     }

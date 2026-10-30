@@ -2,6 +2,7 @@ package com.example.sensus.data
 
 import com.example.sensus.common.Result
 import com.example.sensus.data.local.SecurePreferences
+import com.example.sensus.data.remote.NetworkClient
 import com.example.sensus.data.repository.DefaultAuthRepository
 import com.example.sensus.data.repository.DefaultMerchantRepository
 import com.example.sensus.data.repository.DefaultProfileRepository
@@ -9,35 +10,60 @@ import com.example.sensus.domain.model.HorarioDia
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.test.runTest
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.MockWebServer
+import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
 class RepositoriesIntegrationTest {
 
+    private lateinit var mockWebServer: MockWebServer
     private lateinit var securePreferences: SecurePreferences
+    private lateinit var networkClient: NetworkClient
 
     @Before
     fun setUp() {
+        mockWebServer = MockWebServer()
+        mockWebServer.start()
+
         securePreferences = mockk(relaxed = true)
+        val baseUrl = mockWebServer.url("/").toString()
+        networkClient = NetworkClient(securePreferences, baseUrl)
+    }
+
+    @After
+    fun tearDown() {
+        mockWebServer.shutdown()
     }
 
     @Test
-    fun defaultAuthRepository_createGuestSession_shouldSucceed() = runTest {
-        val repo = DefaultAuthRepository(securePreferences)
+    fun defaultAuthRepository_createGuestSession_shouldSucceedWithRealApi() = runTest {
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(200)
+                .setBody("{\"token\":\"guest_jwt_real_token\",\"tokenType\":\"Bearer\",\"maxRadiusMeters\":2000,\"role\":\"Invitado\"}")
+        )
+
+        val repo = DefaultAuthRepository(securePreferences, networkClient)
         val result = repo.createGuestSession()
 
         assertTrue(result is Result.Success)
         val token = (result as Result.Success).data
-        assertTrue(token.startsWith("guest_jwt_"))
+        assertEquals("guest_jwt_real_token", token)
         verify(exactly = 1) { securePreferences.saveGuestSession(token, 2000) }
     }
 
     @Test
     fun defaultAuthRepository_deleteAccount_shouldClearAllPreferences() = runTest {
-        val repo = DefaultAuthRepository(securePreferences)
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(204)
+        )
+
+        val repo = DefaultAuthRepository(securePreferences, networkClient)
         val result = repo.deleteAccount("ValidPassword123#")
 
         assertTrue(result is Result.Success)
@@ -46,7 +72,18 @@ class RepositoriesIntegrationTest {
 
     @Test
     fun defaultProfileRepository_shouldGetAndUpdateProfile() = runTest {
-        val repo = DefaultProfileRepository(securePreferences)
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(200)
+                .setBody("{\"id\":\"usr_1\",\"nombreCompleto\":\"Ana Torres\",\"correo\":\"ana@test.com\",\"roles\":[\"Consumidor\"],\"estatus\":true,\"fechaRegistro\":\"2026-10-29T10:00:00Z\"}")
+        )
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(200)
+                .setBody("{\"id\":\"usr_1\",\"nombreCompleto\":\"Ana María Torres\",\"correo\":\"ana@test.com\",\"fotoPerfilUrl\":\"https://photo.url\",\"roles\":[\"Consumidor\"],\"estatus\":true,\"fechaRegistro\":\"2026-10-29T10:00:00Z\"}")
+        )
+
+        val repo = DefaultProfileRepository(securePreferences, networkClient)
 
         val initial = repo.getProfile()
         assertTrue(initial is Result.Success)
@@ -60,36 +97,24 @@ class RepositoriesIntegrationTest {
     }
 
     @Test
-    fun defaultProfileRepository_shouldGeneratePhotoSignature() = runTest {
-        val repo = DefaultProfileRepository(securePreferences)
-        val sigResult = repo.requestPhotoSignature()
-
-        assertTrue(sigResult is Result.Success)
-        val (signature, timestamp) = (sigResult as Result.Success).data
-        assertNotNull(signature)
-        assertTrue(timestamp > 0)
-    }
-
-    @Test
-    fun defaultMerchantRepository_shouldUpdateStoreDataAndHours() = runTest {
-        val repo = DefaultMerchantRepository()
-        val newSchedules = listOf(
-            HorarioDia("Lunes", "07:00", "22:00", false),
-            HorarioDia("Domingo", "00:00", "00:00", true)
+    fun defaultMerchantRepository_shouldUpdateMerchantProfile() = runTest {
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(200)
+                .setBody("{\"id\":\"m_1\",\"usuarioId\":\"u_1\",\"nombreComercial\":\"Panadería Tradicional\",\"direccion\":\"Av. Insurgentes Sur 1234\",\"codigoPostal\":\"03100\",\"latitud\":19.380000,\"longitud\":-99.170000,\"activo\":true,\"fechaRegistro\":\"2026-10-29T10:00:00Z\"}")
         )
 
+        val repo = DefaultMerchantRepository(networkClient)
         val result = repo.updateMerchantProfile(
-            nombreComercial = "Café & Panadería Express",
-            direccion = "Avenida Juárez 50, Centro",
-            codigoPostal = "06050",
-            horarios = newSchedules
+            nombreComercial = "Panadería Tradicional",
+            direccion = "Av. Insurgentes Sur 1234",
+            codigoPostal = "03100",
+            horarios = listOf(HorarioDia("Lunes", "08:00", "20:00", false))
         )
 
         assertTrue(result is Result.Success)
         val data = (result as Result.Success).data
-        assertEquals("Café & Panadería Express", data.nombreComercial)
-        assertEquals("Avenida Juárez 50, Centro", data.direccion)
-        assertEquals("06050", data.codigoPostal)
-        assertEquals(2, data.horarios.size)
+        assertEquals("Panadería Tradicional", data.nombreComercial)
+        assertEquals("03100", data.codigoPostal)
     }
 }

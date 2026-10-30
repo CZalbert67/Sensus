@@ -3,11 +3,14 @@ package com.example.sensus.data.repository
 import com.example.sensus.common.AppError
 import com.example.sensus.common.Result
 import com.example.sensus.data.local.SecurePreferences
+import com.example.sensus.data.local.SessionType
 import com.example.sensus.data.remote.api.AuthApiService
 import com.example.sensus.data.remote.api.MerchantApiService
 import com.example.sensus.data.remote.api.ProfileApiService
 import com.example.sensus.data.remote.dto.DeleteAccountRequest
 import com.example.sensus.data.remote.dto.HorarioDiaDto
+import com.example.sensus.data.remote.dto.LoginRequest
+import com.example.sensus.data.remote.dto.RegisterRequest
 import com.example.sensus.data.remote.dto.RequestPasswordResetRequest
 import com.example.sensus.data.remote.dto.ResetPasswordRequest
 import com.example.sensus.data.remote.dto.UpdateMerchantProfileRequest
@@ -27,6 +30,60 @@ class RetrofitAuthRepository(
     private val authApi: AuthApiService,
     private val securePreferences: SecurePreferences
 ) : AuthRepository {
+
+    override suspend fun login(correo: String, password: String): Result<UserProfile> = withContext(Dispatchers.IO) {
+        try {
+            val response = authApi.login(LoginRequest(correo = correo, password = password))
+            if (response.isSuccessful && response.body() != null) {
+                val body = response.body()!!
+                securePreferences.saveAuthToken(body.token)
+                securePreferences.saveSessionType(SessionType.REGISTERED)
+                val user = body.user
+                Result.Success(
+                    UserProfile(
+                        id = user.id,
+                        nombreCompleto = user.nombreCompleto,
+                        correo = user.correo,
+                        fotoPerfilUrl = user.fotoPerfilUrl,
+                        roles = user.roles.ifEmpty { listOf("Consumidor") }
+                    )
+                )
+            } else {
+                mapHttpError(response)
+            }
+        } catch (e: IOException) {
+            Result.Failure(AppError.Network("No se pudo conectar con el servidor: ${e.localizedMessage}"))
+        } catch (e: Exception) {
+            Result.Failure(AppError.Generic(e.localizedMessage ?: "Error inesperado al iniciar sesión."))
+        }
+    }
+
+    override suspend fun register(nombreCompleto: String, correo: String, password: String): Result<UserProfile> = withContext(Dispatchers.IO) {
+        try {
+            val response = authApi.register(RegisterRequest(nombreCompleto = nombreCompleto, correo = correo, password = password))
+            if (response.isSuccessful && response.body() != null) {
+                val body = response.body()!!
+                securePreferences.saveAuthToken(body.token)
+                securePreferences.saveSessionType(SessionType.REGISTERED)
+                val user = body.user
+                Result.Success(
+                    UserProfile(
+                        id = user.id,
+                        nombreCompleto = user.nombreCompleto,
+                        correo = user.correo,
+                        fotoPerfilUrl = user.fotoPerfilUrl,
+                        roles = user.roles.ifEmpty { listOf("Consumidor") }
+                    )
+                )
+            } else {
+                mapHttpError(response)
+            }
+        } catch (e: IOException) {
+            Result.Failure(AppError.Network("No se pudo conectar con el servidor: ${e.localizedMessage}"))
+        } catch (e: Exception) {
+            Result.Failure(AppError.Generic(e.localizedMessage ?: "Error inesperado al registrar usuario."))
+        }
+    }
 
     override suspend fun requestPasswordReset(email: String): Result<Unit> = withContext(Dispatchers.IO) {
         try {

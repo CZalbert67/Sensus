@@ -156,7 +156,6 @@ fun MainAppContainer(
     var showOfflineDialog by remember { mutableStateOf(false) }
     var showGuestPrompt by remember { mutableStateOf(false) }
 
-    val context = LocalContext.current
     var lastBackPressTime by remember { mutableStateOf(0L) }
 
     // Manejador del botón de regreso del sistema para evitar salir abruptamente

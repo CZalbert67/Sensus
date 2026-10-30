@@ -87,7 +87,7 @@ object SensusAuthManager {
 
         val activeEmail = sp.getString(KEY_ACTIVE_USER_EMAIL, null)
         if (isSessionActive && !isGuestUser && activeEmail != null) {
-            currentUser = registeredUsers[activeEmail.lowercase()] ?: defaultUser
+            currentUser = registeredUsers[activeEmail.lowercase()]
         } else if (isSessionActive && isGuestUser) {
             currentUser = UserAccount("guest", "Invitado Sensus", "invitado@sensus.app", "", "")
         }

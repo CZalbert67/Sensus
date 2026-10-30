@@ -66,7 +66,10 @@ import com.example.sensus.theme.SensusAmber
 import com.example.sensus.theme.SensusBackground
 import com.example.sensus.theme.SensusCardBorder
 import com.example.sensus.theme.SensusPurple
-import com.example.sensus.theme.SensusPurpleDark
+import com.example.sensus.theme.SensusRed
+import com.example.sensus.common.Result
+import com.example.sensus.theme.SensusPurple
+import com.example.sensus.theme.SensusRed
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
@@ -89,8 +92,10 @@ fun LoginScreen(
     val container = remember { SensusContainer.getInstance(context) }
     var isGuestLoading by remember { mutableStateOf(false) }
 
-    var emailOrPhone by remember { mutableStateOf("usuario@sensus.app") }
-    var password by remember { mutableStateOf("••••••••") }
+    var isLoginLoading by remember { mutableStateOf(false) }
+    var loginErrorMessage by remember { mutableStateOf<String?>(null) }
+    var emailOrPhone by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
     var isPasswordVisible by remember { mutableStateOf(false) }
 
     Box(
@@ -275,7 +280,31 @@ fun LoginScreen(
 
                         // Botón principal
                         Button(
-                            onClick = onLoginSuccess,
+                            onClick = {
+                                val cleanEmail = emailOrPhone.trim()
+                                val cleanPass = password.trim()
+                                if (cleanEmail.isBlank()) {
+                                    loginErrorMessage = "Ingresa tu correo o teléfono."
+                                } else if (cleanPass.isBlank()) {
+                                    loginErrorMessage = "Ingresa tu contraseña."
+                                } else {
+                                    scope.launch {
+                                        isLoginLoading = true
+                                        loginErrorMessage = null
+                                        when (val result = container.authRepository.login(cleanEmail, cleanPass)) {
+                                            is Result.Success -> {
+                                                isLoginLoading = false
+                                                onLoginSuccess()
+                                            }
+                                            is Result.Failure -> {
+                                                isLoginLoading = false
+                                                loginErrorMessage = result.error.message
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            enabled = !isLoginLoading && !isGuestLoading,
                             shape = RoundedCornerShape(14.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = SensusPurple),
                             modifier = Modifier
@@ -283,7 +312,7 @@ fun LoginScreen(
                                 .height(50.dp)
                         ) {
                             Text(
-                                text = "Entrar",
+                                text = if (isLoginLoading) "Iniciando..." else "Entrar",
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
