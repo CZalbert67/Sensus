@@ -19,12 +19,14 @@
 - [ ] Sin dependencias Python externas
 - [ ] Sin rutas absolutas de Windows
 
-## CI
+## CI / CD
 
-- [ ] Job `sdd-gates` existe y es bloqueante
+- [ ] Job `sdd-gates` existe y es bloqueante en `ci.yml`
 - [ ] Orden: `validate-wrapper -> sdd-gates -> security-scan -> static-analysis -> unit-test -> instrumentation-compile -> build(main)`
 - [ ] Evidencia subida como artefacto
-- [ ] Sin generacion de APK/AAB
+- [ ] `ci.yml` no emite APK ni AAB en PRs rutinarios
+- [ ] Pipeline CD `.github/workflows/release-playstore.yml` configurado con firma efímera, subida de AAB y mapping ProGuard
+- [ ] `distribution/whatsnew/` presente con notas de versión y credenciales documentadas en `keys.properties.example`
 
 ## Documentacion
 

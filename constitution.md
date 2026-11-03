@@ -1,7 +1,7 @@
 ---
-version: 1.1.0
+version: 1.2.0
 ratified: 2026-10-29
-last_amended: 2026-10-29
+last_amended: 2026-11-01
 status: active
 source_of_truth: .specify/memory/constitution.md
 mirror: ./constitution.md
@@ -98,12 +98,21 @@ methodology: SDD
 
 ---
 
-## 8. CI/CD y despliegue
+## 8. CI/CD y despliegue a Google Play Store
 
-1. **Pipeline en GitHub Actions:** SAST → tests unitarios → tests de integración → build AAB firmado → despliegue a pista interna de Google Play.
-2. **Versionamiento Semántico** (`MAJOR.MINOR.PATCH`) para releases.
-3. **Firma criptográfica** del AAB mediante Keystore.
-4. **Quality Gate:** bloqueo de despliegue si fallan políticas de seguridad o cobertura.
+1. **Pipeline de Integración Continua (CI):** Ejecutado en cada PR y push a `main`:
+   - `validate-wrapper` → `sdd-gates` (validación obligatoria de estructura SDD, capas Clean, contratos, secretos y cobertura mínima del 80%) → `security-scan` (SAST CodeQL) → `static-analysis` (Lint, Detekt, Ktlint) → `unit-test` (JUnit 5 + MockK + Turbine) → `instrumentation-compile` → `build` (compilación limpia sin generar binarios versionables).
+2. **Infraestructura de Despliegue Continuo (CD) a Play Store (`.github/workflows/release-playstore.yml`):**
+   - **Disparo controlado:** manual mediante `workflow_dispatch` con selección de pista (`internal`, `alpha`, `beta`, `production`) y porcentaje de rollout progresivo (`user_fraction`), o activado por tag de versión formal `v*.*.*` sobre `main` con aprobación requerida en GitHub Environment `play-store-release`.
+   - **Quality Gate previo:** Bloqueo terminante del build y despliegue si algún gate de CI falla o si la cobertura es inferior al 80%.
+   - **Firma criptográfica en runner efímero:** Generación del Android App Bundle (`app-release.aab`) mediante `./gradlew bundleRelease` inyectando el Keystore de producción (`KEYSTORE_BASE64`) y credenciales (`SIGNING_*`) exclusivamente en variables de entorno volátiles en memoria.
+   - **Subida automatizada a Google Play Console:** Publicación mediante Google Play Developer API utilizando cuenta de servicio GCP (`PLAY_STORE_SERVICE_ACCOUNT_JSON`).
+   - **Desofuscación obligatoria:** Subida automatizada del archivo de mapeo R8/ProGuard (`mapping.txt`) a Play Console para permitir análisis y desofuscación de crashes en producción.
+   - **Notas de versión (Release Notes):** Carga obligatoria de notas de versión multilingüe desde `distribution/whatsnew/whatsnew-es-419.txt` asociadas al `versionCode`.
+3. **Versionamiento Semántico y Códigos de Versión:**
+   - Versionamiento Semántico (`MAJOR.MINOR.PATCH`) en `versionName` reflejado en tags de git (`v1.3.0`).
+   - `versionCode` estrictamente entero incremental en cada release a Play Store.
+4. **Higiene de artefactos:** Prohibición absoluta de versionar archivos `.apk`, `.aab` o `.jks` en el repositorio Git. Todo binario es efímero y viaja directo desde el runner de GitHub Actions hacia Google Play Console.
 
 ---
 

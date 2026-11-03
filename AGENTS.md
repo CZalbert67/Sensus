@@ -140,6 +140,13 @@ El CI compila sin generar APK.
 
 Invoca el subagente o skill adecuado segun la tarea.
 
+### Maqueta Oficial Figma & Integración MCP
+
+- **Lienzo Oficial:** [https://www.figma.com/design/iwlrDS420Bsbgtn5GeOhNn/SENSUS](https://www.figma.com/design/iwlrDS420Bsbgtn5GeOhNn/SENSUS) (File Key: `iwlrDS420Bsbgtn5GeOhNn`, 109 pantallas maestras).
+- **Servidores MCP Disponibles:** `mcp_config.json`, `.agent/mcp_config.json` y `.cursor/mcp.json` (`Figma` stdio Node, `FigmaRemote` OAuth, `FigmaDesktop` Dev Mode).
+- **Herramientas para agentes:** `get_figma_data` (inspección de frames, layout y propiedades) y `download_figma_images` (exportación de assets e iconos).
+- **Especificación completa:** [`docs/figma-maqueta.md`](file:///C:/Users/Rodrigo/Sensus/Sensus/docs/figma-maqueta.md).
+
 ---
 
 ## 7. Flujo SDD para una feature
@@ -160,13 +167,16 @@ FT-00 -> FT-01 -> FT-02 -> FT-03 -> FT-04 -> FT-05 -> FT-06 -> FT-07 -> FT-08
 
 ---
 
-## 8. Gates y CI
+## 8. Gates, CI y Despliegue a Google Play Store
 
-- Local: `compileDebugKotlin`, `lint`, `testDebugUnitTest`, `compileDebugAndroidTestSources`.
-- Local SDD: `check_sdd.py`, `check_layers.py`, `check_endpoints.py`, `check_secrets.py`, `check_coverage.py`.
-- CI (`.github/workflows/ci.yml`): `validate-wrapper -> sdd-gates -> security-scan -> static-analysis -> unit-test -> instrumentation-compile -> build(main)`.
-- Sin despliegue automatico: el release a pista interna de Google Play es manual y con aprobacion.
-- Deuda actual: detekt, ktlint y Kover estan configurados/documentados pero aun no cableados en `app/build.gradle.kts` (FT-00).
+- **Validación Local:** `compileDebugKotlin`, `lint`, `testDebugUnitTest`, `compileDebugAndroidTestSources`.
+- **Gates SDD Locales:** `check_sdd.py`, `check_layers.py`, `check_endpoints.py`, `check_secrets.py`, `check_coverage.py --min 80`.
+- **CI (`.github/workflows/ci.yml`):** `validate-wrapper -> sdd-gates -> security-scan -> static-analysis -> unit-test -> instrumentation-compile -> build(main)`. Valida compilación limpia sin emitir APK ni AAB.
+- **CD a Play Store (`.github/workflows/release-playstore.yml`):**
+  - Despliegue automatizado por GitHub Actions con control de acceso en entorno `play-store-release`.
+  - Disparado vía `workflow_dispatch` (pistas `internal`, `alpha`, `beta`, `production` con rollout gradual `user_fraction`) o tags `v*.*.*`.
+  - Construye `./gradlew bundleRelease`, firma efímeramente con `KEYSTORE_BASE64` y sube el `.aab`, `mapping.txt` y `distribution/whatsnew` a Google Play Console vía Service Account GCP.
+- **Deuda actual:** detekt, ktlint y Kover estan configurados/documentados pero aun no cableados en `app/build.gradle.kts` (FT-00).
 
 ---
 

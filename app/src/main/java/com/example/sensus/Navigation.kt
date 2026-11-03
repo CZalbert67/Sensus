@@ -5,6 +5,7 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,8 +34,15 @@ enum class AppScreen {
 }
 
 @Composable
-fun MainNavigation() {
-    val initialScreen = if (SensusAuthManager.hasCompletedSplash) {
+fun MainNavigation(
+    initialDeepLinkResetToken: String? = null,
+    onResetTokenConsumed: () -> Unit = {}
+) {
+    var activeResetToken by rememberSaveable { mutableStateOf(initialDeepLinkResetToken) }
+
+    val initialScreen = if (!initialDeepLinkResetToken.isNullOrBlank()) {
+        AppScreen.FORGOT_PASSWORD
+    } else if (SensusAuthManager.hasCompletedSplash) {
         if (SensusAuthManager.isSessionActive) {
             if (!SensusAuthManager.hasAcceptedTerms && !SensusAuthManager.isGuestUser) {
                 AppScreen.TERMS
@@ -52,6 +60,15 @@ fun MainNavigation() {
 
     var currentScreen by rememberSaveable { mutableStateOf(initialScreen) }
     var previousScreenBeforeTerms by rememberSaveable { mutableStateOf<AppScreen?>(null) }
+
+    // Reaccionar cuando entra un Deep Link (tanto al iniciar como si ya estaba abierta la app)
+    LaunchedEffect(initialDeepLinkResetToken) {
+        if (!initialDeepLinkResetToken.isNullOrBlank()) {
+            activeResetToken = initialDeepLinkResetToken
+            currentScreen = AppScreen.FORGOT_PASSWORD
+            onResetTokenConsumed()
+        }
+    }
 
     Crossfade(
         targetState = currentScreen,
@@ -110,6 +127,7 @@ fun MainNavigation() {
                         currentScreen = AppScreen.MAIN
                     },
                     onForgotPassword = {
+                        activeResetToken = null
                         currentScreen = AppScreen.FORGOT_PASSWORD
                     }
                 )
@@ -150,12 +168,18 @@ fun MainNavigation() {
                 )
             }
             AppScreen.FORGOT_PASSWORD -> {
-                BackHandler { currentScreen = AppScreen.LOGIN }
+                BackHandler {
+                    activeResetToken = null
+                    currentScreen = AppScreen.LOGIN
+                }
                 ForgotPasswordScreen(
+                    initialToken = activeResetToken,
                     onNavigateBack = {
+                        activeResetToken = null
                         currentScreen = AppScreen.LOGIN
                     },
                     onPasswordResetSuccess = {
+                        activeResetToken = null
                         currentScreen = AppScreen.LOGIN
                     }
                 )

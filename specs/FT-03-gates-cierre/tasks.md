@@ -26,9 +26,11 @@
 - [ ] T03.13 Agregar job `sdd-gates` a `.github/workflows/ci.yml` antes de `security-scan` — verif: validacion YAML
 - [ ] T03.14 Confirmar orden `validate-wrapper -> sdd-gates -> security-scan -> static-analysis -> unit-test -> instrumentation-compile -> build(main)` — verif: revision humana
 - [ ] T03.15 Confirmar que el job es bloqueante y sube evidencia como artefacto — verif: revision humana
+- [ ] T03.16 Crear pipeline CD `.github/workflows/release-playstore.yml` para despliegue automatizado a Google Play Console — verif: validación YAML
+- [ ] T03.17 Crear plantilla de notas de versión en `distribution/whatsnew/` y documentar credenciales en `keys.properties.example` — verif: revision humana
 
 ## Fase D — Cierre
 
-- [ ] T03.16 Ejecutar los cinco scripts sobre el repo y confirmar PASS/SKIP documentado — verif: scripts
-- [ ] T03.17 Registrar salida en `Memoria.md` §6 — verif: revision humana
-- [ ] T03.18 Tag `v1.6.0-ft03` — verif: revision humana
+- [ ] T03.18 Ejecutar los cinco scripts sobre el repo y confirmar PASS/SKIP documentado — verif: scripts
+- [ ] T03.19 Registrar salida en `Memoria.md` §6 — verif: revision humana
+- [ ] T03.20 Tag `v1.6.0-ft03` — verif: revision humana

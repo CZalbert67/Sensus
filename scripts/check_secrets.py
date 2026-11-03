@@ -24,7 +24,14 @@ import subprocess
 import sys
 from pathlib import Path
 
-IGNORED_FILES = {"keys.properties", "local.properties", "keys.properties.example"}
+IGNORED_FILES = {
+    "keys.properties",
+    "local.properties",
+    "keys.properties.example",
+    "mcp_config.json",
+    "mcp_config.example.json",
+    "mcp.json",
+}
 SCAN_SUFFIXES = {".kt", ".kts", ".xml", ".yml", ".yaml", ".properties", ".json", ".toml"}
 SKIP_DIRS = {".git", "build", ".gradle", ".kotlin", ".idea", "node_modules"}
 
@@ -39,7 +46,7 @@ PATTERNS = (
     ),
 )
 
-SENSITIVE_FILES = ("keys.properties", "local.properties")
+SENSITIVE_FILES = ("keys.properties", "local.properties", "mcp_config.json")
 
 
 def git_tracked(root: Path, name: str) -> bool:

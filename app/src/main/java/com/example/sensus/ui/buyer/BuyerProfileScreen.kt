@@ -1,5 +1,8 @@
 package com.example.sensus.ui.buyer
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -40,7 +43,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
@@ -51,9 +53,11 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,14 +65,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.LaunchedEffect
-import kotlinx.coroutines.launch
 import com.example.sensus.common.Result
 import com.example.sensus.data.di.SensusContainer
 import com.example.sensus.theme.SensusBackground
@@ -79,6 +80,10 @@ import com.example.sensus.theme.SensusSuccessBg
 import com.example.sensus.theme.SensusTextMuted
 import com.example.sensus.theme.SensusTextPrimary
 import com.example.sensus.theme.SensusTextSecondary
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -99,18 +104,21 @@ fun BuyerProfileScreen(
 
     var userName by remember { mutableStateOf("") }
     var userEmailState by remember { mutableStateOf("") }
+    var userPhotoUri by remember { mutableStateOf<Uri?>(null) }
 
     LaunchedEffect(Unit) {
         when (val res = container.profileRepository.getProfile()) {
             is Result.Success -> {
                 userName = res.data.nombreCompleto
                 userEmailState = res.data.correo
+                if (!res.data.fotoPerfilUrl.isNullOrBlank()) {
+                    userPhotoUri = Uri.parse(res.data.fotoPerfilUrl)
+                }
             }
             is Result.Failure -> {}
         }
     }
     val userEmail = userEmailState
-    var userPhotoUri by remember { mutableStateOf<Uri?>(null) }
     var showEditProfileSheet by remember { mutableStateOf(false) }
     var profileUpdatedNotice by remember { mutableStateOf(false) }
 
@@ -522,11 +530,35 @@ fun BuyerProfileScreen(
                             scope.launch {
                                 isSaving = true
                                 editError = null
-                                when (val result = container.updateProfileUseCase(trimmed, tempPhotoUri?.toString())) {
+
+                                // SE-006: Si la foto seleccionada es un URI local (content:// o file://),
+                                // se limpia EXIF/GPS, se optimiza tamaño y se sube firmada a Cloudinary.
+                                var finalPhotoUrl: String? = tempPhotoUri?.toString()
+                                val selectedUri = tempPhotoUri
+                                if (selectedUri != null && !selectedUri.toString().startsWith("https://", ignoreCase = true)) {
+                                    val compressedBytes = compressAndStripExif(context, selectedUri)
+                                    if (compressedBytes == null) {
+                                        isSaving = false
+                                        editError = "No se pudo procesar la imagen seleccionada."
+                                        return@launch
+                                    }
+                                    when (val uploadRes = container.profileRepository.uploadProfilePhoto(compressedBytes)) {
+                                        is Result.Success -> {
+                                            finalPhotoUrl = uploadRes.data
+                                        }
+                                        is Result.Failure -> {
+                                            isSaving = false
+                                            editError = uploadRes.error.message
+                                            return@launch
+                                        }
+                                    }
+                                }
+
+                                when (val result = container.updateProfileUseCase(trimmed, finalPhotoUrl)) {
                                     is Result.Success -> {
                                         isSaving = false
                                         userName = result.data.nombreCompleto
-                                        userPhotoUri = tempPhotoUri
+                                        userPhotoUri = result.data.fotoPerfilUrl?.takeIf { it.isNotBlank() }?.let { Uri.parse(it) } ?: tempPhotoUri
                                         showEditProfileSheet = false
                                         profileUpdatedNotice = true
                                     }
@@ -554,6 +586,39 @@ fun BuyerProfileScreen(
                 }
             }
         }
+    }
+}
+
+/**
+ * SE-006: Decodifica la imagen seleccionada, la redimensiona a máximo 800px (optimizado para plan Free de Cloudinary)
+ * y la re-codifica a JPEG eliminando cualquier metadato EXIF/GPS.
+ */
+private suspend fun compressAndStripExif(context: Context, uri: Uri): ByteArray? = withContext(Dispatchers.IO) {
+    try {
+        val originalBitmap = context.contentResolver.openInputStream(uri)?.use { stream ->
+            BitmapFactory.decodeStream(stream)
+        } ?: return@withContext null
+
+        val maxDim = 800
+        val width = originalBitmap.width
+        val height = originalBitmap.height
+        val scaledBitmap = if (width > maxDim || height > maxDim) {
+            val ratio = width.toFloat() / height.toFloat()
+            val (newW, newH) = if (width >= height) {
+                maxDim to (maxDim / ratio).toInt().coerceAtLeast(1)
+            } else {
+                (maxDim * ratio).toInt().coerceAtLeast(1) to maxDim
+            }
+            Bitmap.createScaledBitmap(originalBitmap, newW, newH, true)
+        } else {
+            originalBitmap
+        }
+
+        val out = ByteArrayOutputStream()
+        scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 82, out)
+        out.toByteArray()
+    } catch (_: Exception) {
+        null
     }
 }
 

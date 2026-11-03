@@ -19,8 +19,8 @@ class NetworkClient(
 ) {
 
     companion object {
-        // En dispositivo físico con `adb reverse tcp:5235 tcp:5235` apunta directamente al backend de la PC
-        const val DEFAULT_BASE_URL = "http://localhost:5235/"
+        // Apunta a la IP LAN de la laptop donde corre Sensus.Api (misma red Wi-Fi)
+        const val DEFAULT_BASE_URL = "http://192.168.1.114:5235/"
     }
 
     private val json = Json {

@@ -1,12 +1,18 @@
 # Copiar a keys.properties (gitignored). Nunca subir secretos al repositorio.
-# Las llaves de firma viven solo en variables de entorno de CI.
+# Las llaves de firma y credenciales de despliegue viven solo en variables de entorno / GitHub Secrets.
 #
-# key.alias.aliasDebug=
-# key.store.password.256b.from.env=
-# SIGNING_STORE_FILE=
-# SIGNING_STORE_PASSWORD=
-# SIGNING_KEY_ALIAS=
-# SIGNING_KEY_PASSWORD=
+# --- Firma de Release (Android App Bundle) ---
+# SIGNING_STORE_FILE=             # Ruta local efimera del archivo .jks
+# SIGNING_STORE_PASSWORD=         # Contrasena del keystore
+# SIGNING_KEY_ALIAS=              # Alias de la llave de release (upload key)
+# SIGNING_KEY_PASSWORD=           # Contrasena de la llave de release
+# KEYSTORE_BASE64=                # Keystore (.jks) codificado en base64 para inyeccion en CI (GitHub Secrets)
 #
-# Base URL del backend (no es secreto, pero no se hardcodea en codigo):
-# SENSUS_BASE_URL=https://
+# --- Despliegue a Google Play Console (Google Play Developer API) ---
+# PLAY_STORE_SERVICE_ACCOUNT_JSON= # Contenido JSON integro de la Service Account de Google Cloud vinculada a Play Console
+#
+# --- Backend y APIs ---
+# SENSUS_BASE_URL=https://         # Base URL del backend (no es secreto, pero configurable por ambiente)
+#
+# --- Integración Figma MCP ---
+# FIGMA_API_KEY=                   # Personal Access Token de Figma (para mcp_config.json local en modo stdio)

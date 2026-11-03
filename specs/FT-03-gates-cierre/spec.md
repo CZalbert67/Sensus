@@ -28,6 +28,7 @@
 | RF-03-10 | Detecta patrones de secreto (claves, tokens, `keys.properties` versionado) sin leer valores reales. | `check_secrets.py` |
 | RF-03-11 | El CI ejecuta los cinco scripts en un job `sdd-gates` bloqueante. | `ci.yml` |
 | RF-03-12 | Cada script imprime `PASS`/`FAIL` con evidencia y codigo de salida 0/1. | todos |
+| RF-03-13 | Pipeline CD para Google Play Console con firma efímera, subida de AAB, mapeo ProGuard y notas de versión. | `release-playstore.yml` |
 
 ## 3. Requisitos no funcionales
 

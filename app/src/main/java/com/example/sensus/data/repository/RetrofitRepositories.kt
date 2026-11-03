@@ -23,8 +23,17 @@ import com.example.sensus.domain.repository.MerchantRepository
 import com.example.sensus.domain.repository.ProfileRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Response
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 class RetrofitAuthRepository(
     private val authApi: AuthApiService,
@@ -218,6 +227,14 @@ class RetrofitProfileRepository(
         }
     }
 
+    private val cloudinaryHttpClient: OkHttpClient by lazy {
+        OkHttpClient.Builder()
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
+            .build()
+    }
+
     override suspend fun requestPhotoSignature(): Result<Pair<String, Long>> = withContext(Dispatchers.IO) {
         try {
             val response = profileApi.generatePhotoSignature()
@@ -231,6 +248,55 @@ class RetrofitProfileRepository(
             Result.Failure(AppError.Network("No se pudo conectar con el servidor: ${e.localizedMessage}"))
         } catch (e: Exception) {
             Result.Failure(AppError.Generic(e.localizedMessage ?: "Error al generar firma de foto."))
+        }
+    }
+
+    override suspend fun uploadProfilePhoto(imageBytes: ByteArray): Result<String> = withContext(Dispatchers.IO) {
+        try {
+            val sigResponse = profileApi.generatePhotoSignature()
+            if (!sigResponse.isSuccessful || sigResponse.body() == null) {
+                return@withContext mapHttpError(sigResponse)
+            }
+            val sig = sigResponse.body()!!
+            val multipartBody = MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart(
+                    "file",
+                    "profile_avatar.jpg",
+                    imageBytes.toRequestBody("image/jpeg".toMediaType())
+                )
+                .addFormDataPart("api_key", sig.apiKey)
+                .addFormDataPart("timestamp", sig.timestamp.toString())
+                .addFormDataPart("folder", sig.folder)
+                .addFormDataPart("signature", sig.signature)
+                .build()
+
+            val uploadUrl = "https://api.cloudinary.com/v1_1/${sig.cloudName}/image/upload"
+            val request = Request.Builder()
+                .url(uploadUrl)
+                .post(multipartBody)
+                .build()
+
+            cloudinaryHttpClient.newCall(request).execute().use { uploadResp ->
+                val respBody = uploadResp.body?.string().orEmpty()
+                if (!uploadResp.isSuccessful) {
+                    return@withContext Result.Failure(
+                        AppError.Generic("Error al subir imagen a Cloudinary (${uploadResp.code}).")
+                    )
+                }
+                val jsonObj = Json.parseToJsonElement(respBody).jsonObject
+                val secureUrl = jsonObj["secure_url"]?.jsonPrimitive?.content
+                if (secureUrl.isNullOrBlank()) {
+                    return@withContext Result.Failure(
+                        AppError.Generic("Cloudinary no devolvió una URL segura válida.")
+                    )
+                }
+                Result.Success(secureUrl)
+            }
+        } catch (e: IOException) {
+            Result.Failure(AppError.Network("No se pudo subir la imagen a Cloudinary: ${e.localizedMessage}"))
+        } catch (e: Exception) {
+            Result.Failure(AppError.Generic(e.localizedMessage ?: "Error al procesar la subida de foto."))
         }
     }
 

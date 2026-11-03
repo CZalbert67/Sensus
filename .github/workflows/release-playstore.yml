@@ -1,0 +1,156 @@
+name: release-playstore
+
+on:
+  workflow_dispatch:
+    inputs:
+      track:
+        description: "Pista de Google Play Console (internal, alpha, beta, production)"
+        required: true
+        default: "internal"
+        type: choice
+        options:
+          - "internal"
+          - "alpha"
+          - "beta"
+          - "production"
+      user_fraction:
+        description: "Fracción de usuarios para rollout gradual (ej: 0.1, 0.25, 0.5, 1.0)"
+        required: false
+        default: "1.0"
+        type: string
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-playstore-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+jobs:
+  pre-flight-gates:
+    name: "Validación estricta pre-lanzamiento"
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validar Gradle Wrapper
+        uses: gradle/wrapper-validation-action@v2
+
+      - name: Configurar Python para compuertas SDD
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Ejecutar compuertas SDD y DevSecOps
+        run: |
+          python scripts/check_sdd.py
+          python scripts/check_layers.py
+          python scripts/check_endpoints.py
+          python scripts/check_secrets.py
+          python scripts/check_coverage.py --min 80
+
+      - name: Configurar JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Cache de dependencias Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', 'gradle/libs.versions.toml') }}
+          restore-keys: gradle-${{ runner.os }}-
+
+      - name: Dar permisos de ejecución a gradlew
+        run: chmod +x ./gradlew
+
+      - name: Análisis estático (Lint)
+        run: ./gradlew lint --no-daemon
+
+      - name: Pruebas unitarias con reporte de cobertura
+        run: ./gradlew testDebugUnitTest --no-daemon
+
+  build-and-deploy:
+    name: "Compilación de AAB firmado y despliegue a Play Store"
+    needs: pre-flight-gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: play-store-release
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Cache de dependencias Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', 'gradle/libs.versions.toml') }}
+          restore-keys: gradle-${{ runner.os }}-
+
+      - name: Dar permisos de ejecución a gradlew
+        run: chmod +x ./gradlew
+
+      - name: Decodificar credenciales de firma y Service Account en runner efímero
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          PLAY_ACCOUNT_JSON: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 --decode > "${{ runner.temp }}/release.keystore"
+          echo "$PLAY_ACCOUNT_JSON" > "${{ runner.temp }}/play-service-account.json"
+
+      - name: Compilar Android App Bundle de Release (AAB)
+        env:
+          SIGNING_STORE_FILE: "${{ runner.temp }}/release.keystore"
+          SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+        run: |
+          ./gradlew bundleRelease --no-daemon
+
+      - name: Determinar pista y fracción de rollout
+        id: release-config
+        run: |
+          TRACK="${{ inputs.track }}"
+          FRACTION="${{ inputs.user_fraction }}"
+          if [ -z "$TRACK" ]; then
+            TRACK="internal"
+          fi
+          if [ -z "$FRACTION" ]; then
+            FRACTION="1.0"
+          fi
+          echo "track=$TRACK" >> $GITHUB_OUTPUT
+          echo "fraction=$FRACTION" >> $GITHUB_OUTPUT
+
+      - name: Publicar AAB en Google Play Console
+        uses: r0adkll/upload-google-play@v4
+        with:
+          serviceAccountJson: "${{ runner.temp }}/play-service-account.json"
+          packageName: "sensus.com"
+          releaseFiles: "app/build/outputs/bundle/release/*.aab"
+          track: ${{ steps.release-config.outputs.track }}
+          userFraction: ${{ steps.release-config.outputs.fraction }}
+          mappingFile: "app/build/outputs/mapping/release/mapping.txt"
+          whatsNewDirectory: "distribution/whatsnew"
+
+      - name: Limpieza higiénica de credenciales efímeras
+        if: always()
+        run: |
+          rm -f "${{ runner.temp }}/release.keystore"
+          rm -f "${{ runner.temp }}/play-service-account.json"

@@ -59,6 +59,10 @@
 
 ## 5. Arquitectura del maquetado oficial Figma
 
+> **Lienzo Oficial Figma:** https://www.figma.com/design/iwlrDS420Bsbgtn5GeOhNn/SENSUS
+> **File Key:** `iwlrDS420Bsbgtn5GeOhNn` | **Proyecto:** `SENSUS` | **Pantallas maestras:** 109 frames
+> **Integración MCP:** Configurado en `mcp_config.json`, `.agent/mcp_config.json` y `.cursor/mcp.json` con soporte para `Figma` (stdio local Node CLI), `FigmaRemote` (OAuth) y `FigmaDesktop` (Dev Mode). Documentación técnica en `docs/figma-maqueta.md`.
+
 ### A. Pantalla inicial y navegación flotante en arcoíris / acordeón
 
 1. **El Mapa como Primera Vista:** al iniciar sesión o entrar como invitado, la primera pantalla es **El Mapa** (`BuyerMapScreen`, índice 0 de navegación).
@@ -132,6 +136,7 @@ Verificación de integridad: `constitution.md` y `.specify/memory/constitution.m
 | CI actualizado con job `sdd-gates` bloqueante. | `.github/workflows/ci.yml`. |
 | `docs/` alineados con los endpoints de FT-04..FT-08. | `endpoints-internos.md`, `rate-matrix.md`, `asvs-l2-checklist.md`. |
 | Ratificado umbral constitucional de cobertura >= 80% para todo código nuevo en unitarias, integración y E2E. | `constitution.md` (§2.6, §7.4), `AGENTS.md`, `sdd-governance.md`, `CHECKLIST_PR.md`, `scripts/check_coverage.py` (--min 80), `ci.yml` y todas las specs. |
+| Integrada infraestructura CD para Google Play Store. | `.github/workflows/release-playstore.yml` (firma efímera, AAB, mapping ProGuard, upload Google Play), `distribution/whatsnew/`, `keys.properties.example`, `constitution.md` §8 y `AGENTS.md` §8. |
 
 Resultado de los gates al cierre de la reestructuración:
 

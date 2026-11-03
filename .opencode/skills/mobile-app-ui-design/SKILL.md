@@ -7,6 +7,12 @@ description: Disenar y revisar pantallas moviles Sensus con fidelidad a Figma y 
 
 Guia de diseno para pantallas Android Compose alineadas a la maqueta Figma aprobada y a la constitucion §9.
 
+## Maqueta Oficial Figma & MCP
+- **URL del Diseño:** [https://www.figma.com/design/iwlrDS420Bsbgtn5GeOhNn/SENSUS](https://www.figma.com/design/iwlrDS420Bsbgtn5GeOhNn/SENSUS)
+- **File Key:** `iwlrDS420Bsbgtn5GeOhNn` (109 pantallas maestras)
+- **Herramientas MCP:** `get_figma_data` y `download_figma_images` configuradas en `mcp_config.json`.
+- **Documentación de componentes:** [`docs/figma-maqueta.md`](file:///C:/Users/Rodrigo/Sensus/Sensus/docs/figma-maqueta.md).
+
 ## Principios
 
 Antes de disenar, define:

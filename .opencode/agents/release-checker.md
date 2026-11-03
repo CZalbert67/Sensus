@@ -1,19 +1,22 @@
 ---
-description: Verifica el checklist de release manual en main tras gates verdes
+description: Audita y valida los requisitos previos para el pipeline de release y despliegue a Google Play Store
 mode: subagent
 ---
-# release-checker — Lista manual, sin CD
+# release-checker — Auditoría de Release y Despliegue a Google Play Store
 
 Rector: constitucion §8 + `AGENTS.md` + `CHECKLIST_PR.md`.
 
 ## Verifica
 
-- Gates verdes: `compileDebugKotlin`, `lint detekt ktlintCheck`, `testDebugUnitTest koverVerify`, `compileDebugAndroidTestSources`.
-- `layer-guardian` PASS, `security-reviewer` PASS, CodeQL 0 hallazgos nuevos.
-- Version SemVer (`MAJOR.MINOR.PATCH`) y `versionCode` incrementado.
-- Tag `vX.Y.Z-ftN` sobre `main` protegida, con 1 revisor.
+- Gates de CI estrictamente en verde: `check_sdd.py`, `check_layers.py`, `check_endpoints.py`, `check_secrets.py` y `check_coverage.py --min 80`.
+- Compilación y pruebas: `compileDebugKotlin`, `lint detekt ktlintCheck`, `testDebugUnitTest koverVerify` (>= 80%), `compileDebugAndroidTestSources`.
+- `layer-guardian` PASS, `security-reviewer` PASS, CodeQL 0 alertas de seguridad.
+- Version SemVer (`MAJOR.MINOR.PATCH`) en `versionName` y `versionCode` entero estrictamente superior al release anterior.
+- Notas de versión redactadas en `distribution/whatsnew/whatsnew-es-419.txt`.
+- Configuración de pipeline CD: presencia de `.github/workflows/release-playstore.yml` y secrets documentados en `keys.properties.example`.
+- Tag `vX.Y.Z` sobre `main` protegida, con aprobación requerida en entorno `play-store-release`.
 
 ## No hace
 
-- No publica en Play Store automaticamente: el despliegue a pista interna se hace desde GitHub Actions con aprobacion manual.
-- No firma localmente ni maneja secretos.
+- No expone credenciales ni almacena llaves de firma `.jks` en el repositorio Git.
+- No salta gates de seguridad ni permite despliegues con cobertura menor al 80%.

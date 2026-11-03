@@ -1,0 +1,29 @@
+{
+  "mcpServers": {
+    "Figma": {
+      "command": "node",
+      "args": [
+        "C:\\Users\\<USER>\\AppData\\Roaming\\npm\\node_modules\\figma-developer-mcp\\dist\\bin.js",
+        "--figma-api-key=YOUR_FIGMA_API_KEY",
+        "--stdio"
+      ],
+      "env": {
+        "FIGMA_API_KEY": "YOUR_FIGMA_API_KEY"
+      }
+    },
+    "FigmaRemote": {
+      "url": "https://mcp.figma.com/mcp",
+      "serverUrl": "https://mcp.figma.com/mcp"
+    },
+    "FigmaDesktop": {
+      "url": "http://127.0.0.1:3845/mcp",
+      "serverUrl": "http://127.0.0.1:3845/mcp"
+    }
+  },
+  "_metadata": {
+    "projectName": "SENSUS",
+    "fileKey": "iwlrDS420Bsbgtn5GeOhNn",
+    "figmaDesignUrl": "https://www.figma.com/design/iwlrDS420Bsbgtn5GeOhNn/SENSUS",
+    "description": "Configuracion MCP de Figma para la maqueta oficial de Sensus Mobile (109 pantallas maestras)"
+  }
+}

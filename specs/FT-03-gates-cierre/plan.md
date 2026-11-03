@@ -33,6 +33,7 @@
    - Nunca imprime el valor; solo ruta y linea.
 7. **CI.** Nuevo job `sdd-gates` entre `validate-wrapper` y `security-scan`; ejecuta los cinco scripts con `python`.
 8. **Documentacion.** `scripts/README.md` describe contrato, uso y salida de cada gate.
+9. **CD a Google Play.** Workflow `.github/workflows/release-playstore.yml` con compuertas previas (cobertura >= 80%, lint, tests), compilación de AAB firmado en memoria efímera, desofuscación ProGuard (`mapping.txt`), notas de versión y subida a Google Play Console.
 
 ## 2. UI y navegacion
 

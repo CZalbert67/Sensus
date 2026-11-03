@@ -1,0 +1,5 @@
+- Cimentación arquitectónica Clean Architecture + MVI lista.
+- Soporte inicial para perfiles de Consumidor y Comercio.
+- Visualización de mapa interactivo y cálculo de radio de cercanía.
+- Almacenamiento local seguro con SQLCipher (AES-256).
+- Mejoras continuas de rendimiento, estabilidad y seguridad.

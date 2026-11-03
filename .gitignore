@@ -14,9 +14,12 @@
 /out/
 /reports/
 
-# Secretos y firma
+# Secretos, firma y MCP local
 keys.properties
 local.properties
+mcp_config.json
+.agent/mcp_config.json
+.cursor/mcp.json
 *.jks
 *.keystore
 signing/
