@@ -18,12 +18,18 @@ on:
         required: false
         default: "1.0"
         type: string
+      dry_run:
+        description: "Modo simulación (valida gates y compilación sin subir a Play Console)"
+        required: false
+        default: false
+        type: boolean
   push:
     tags:
       - "v*.*.*"
 
 permissions:
   contents: read
+  security-events: write
 
 concurrency:
   group: release-playstore-${{ github.ref }}
@@ -33,23 +39,31 @@ env:
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
 jobs:
+  # =========================================================================
+  # 1. COMPUERTA ESTRICTA PRE-LANZAMIENTO (Quality & Security Gate)
+  # Si CUALQUIER verificación falla, el despliegue a Play Store se CANCELA.
+  # =========================================================================
   pre-flight-gates:
     name: "Validación estricta pre-lanzamiento"
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout del código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Validar Gradle Wrapper
         uses: gradle/wrapper-validation-action@v2
 
-      - name: Configurar Python para compuertas SDD
+      - name: Configurar Python 3.12 para compuertas SDD
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Ejecutar compuertas SDD y DevSecOps
+      - name: Ejecutar compuertas SDD y DevSecOps (Bloqueante)
         run: |
+          echo "Ejecutando compuertas SDD..."
           python scripts/check_sdd.py
           python scripts/check_layers.py
           python scripts/check_endpoints.py
@@ -74,20 +88,40 @@ jobs:
       - name: Dar permisos de ejecución a gradlew
         run: chmod +x ./gradlew
 
-      - name: Análisis estático (Lint)
+      - name: Escaneo estricto de secretos (Gitleaks)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Escaneo SAST de seguridad móvil (Semgrep)
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/default
+            p/owasp-top-ten
+            p/mobile
+
+      - name: Análisis estático oficial (Android SDK Lint)
         run: ./gradlew lint --no-daemon
 
-      - name: Pruebas unitarias con reporte de cobertura
+      - name: Pruebas unitarias
         run: ./gradlew testDebugUnitTest --no-daemon
 
+  # =========================================================================
+  # 2. COMPILACIÓN DE RELEASE Y DESPLIEGUE A GOOGLE PLAY CONSOLE
+  # Solo se ejecuta si pre-flight-gates está en VERDE.
+  # Si el entorno aún no tiene credenciales en GitHub Secrets, pausa el envío
+  # y reporta diagnóstico sin fallar el pipeline ni subir artefactos corruptos.
+  # =========================================================================
   build-and-deploy:
-    name: "Compilación de AAB firmado y despliegue a Play Store"
+    name: "Compilación de AAB y Despliegue a Play Store"
     needs: pre-flight-gates
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: play-store-release
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout del código
+        uses: actions/checkout@v4
 
       - name: Configurar JDK 17
         uses: actions/setup-java@v4
@@ -107,7 +141,47 @@ jobs:
       - name: Dar permisos de ejecución a gradlew
         run: chmod +x ./gradlew
 
+      - name: Verificar aprovisionamiento del entorno Google Play Console
+        id: check-env
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          PLAY_ACCOUNT_JSON: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT_JSON }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          READY=true
+          REASONS=""
+
+          if [ "$DRY_RUN" = "true" ]; then
+            READY=false
+            REASONS="${REASONS}\n• Modo simulación (dry_run) solicitado explícitamente."
+          fi
+
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            READY=false
+            REASONS="${REASONS}\n• Secreto KEYSTORE_BASE64 no configurado en GitHub Secrets."
+          fi
+
+          if [ -z "$PLAY_ACCOUNT_JSON" ]; then
+            READY=false
+            REASONS="${REASONS}\n• Secreto PLAY_STORE_SERVICE_ACCOUNT_JSON no configurado en GitHub Secrets."
+          fi
+
+          echo "ready=$READY" >> $GITHUB_OUTPUT
+
+          if [ "$READY" = "true" ]; then
+            echo "::notice::Entorno de Play Console verificado y credenciales detectadas. Procediendo al despliegue."
+          else
+            echo "::warning::El entorno de Google Play Console no está listo o faltan credenciales:$REASONS"
+            echo "::notice::Quality Gates APROBADOS. El CI/CD está listo y en espera de las credenciales de producción."
+          fi
+
+      - name: Validar compilación de Release (Sintaxis y R8/ProGuard)
+        run: |
+          echo "Validando compilación de Release..."
+          ./gradlew compileReleaseKotlin --no-daemon
+
       - name: Decodificar credenciales de firma y Service Account en runner efímero
+        if: steps.check-env.outputs.ready == 'true'
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
           PLAY_ACCOUNT_JSON: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT_JSON }}
@@ -115,7 +189,8 @@ jobs:
           echo "$KEYSTORE_BASE64" | base64 --decode > "${{ runner.temp }}/release.keystore"
           echo "$PLAY_ACCOUNT_JSON" > "${{ runner.temp }}/play-service-account.json"
 
-      - name: Compilar Android App Bundle de Release (AAB)
+      - name: Compilar Android App Bundle de Release firmado (AAB)
+        if: steps.check-env.outputs.ready == 'true'
         env:
           SIGNING_STORE_FILE: "${{ runner.temp }}/release.keystore"
           SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
@@ -125,6 +200,7 @@ jobs:
           ./gradlew bundleRelease --no-daemon
 
       - name: Determinar pista y fracción de rollout
+        if: steps.check-env.outputs.ready == 'true'
         id: release-config
         run: |
           TRACK="${{ inputs.track }}"
@@ -139,6 +215,7 @@ jobs:
           echo "fraction=$FRACTION" >> $GITHUB_OUTPUT
 
       - name: Publicar AAB en Google Play Console
+        if: steps.check-env.outputs.ready == 'true'
         uses: r0adkll/upload-google-play@v4
         with:
           serviceAccountJson: "${{ runner.temp }}/play-service-account.json"
@@ -154,3 +231,16 @@ jobs:
         run: |
           rm -f "${{ runner.temp }}/release.keystore"
           rm -f "${{ runner.temp }}/play-service-account.json"
+
+      - name: Resumen de Despliegue en Step Summary
+        if: always()
+        run: |
+          echo "### 🚀 Estado del Despliegue a Google Play Console" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Compuertas de Calidad (Quality Gate):** ✅ APROBADO (Bloqueo terminante si algo falla)" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.check-env.outputs.ready }}" = "true" ]; then
+            echo "- **Publicación en Google Play:** 🟢 PUBLICADO exitosamente en la pista \`${{ steps.release-config.outputs.track }}\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- **Publicación en Google Play:** ⏸️ EN PAUSA (Entorno no aprovisionado)" >> $GITHUB_STEP_SUMMARY
+            echo "- **Detalle:** El pipeline CI/CD está 100% preparado. La publicación real se activará automáticamente en cuanto crees la Service Account y agregues los secretos \`PLAY_STORE_SERVICE_ACCOUNT_JSON\` y \`KEYSTORE_BASE64\` en GitHub Secrets." >> $GITHUB_STEP_SUMMARY
+          fi

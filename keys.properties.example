@@ -16,3 +16,9 @@
 #
 # --- Integración Figma MCP ---
 # FIGMA_API_KEY=                   # Personal Access Token de Figma (para mcp_config.json local en modo stdio)
+#
+# --- Escáneres de Seguridad y Calidad de Código en CI/CD (GitHub Secrets) ---
+# SONAR_TOKEN=                     # Token generado en SonarCloud.io para análisis SAST y Quality Gate
+# SONAR_ORGANIZATION=              # Clave de la organización en SonarCloud (opcional)
+# SONAR_PROJECT_KEY=               # Clave del proyecto en SonarCloud (opcional)
+# SNYK_TOKEN=                      # Token API de Snyk para escaneo de vulnerabilidades y SCA
