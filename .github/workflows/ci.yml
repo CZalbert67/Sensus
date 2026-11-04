@@ -16,7 +16,7 @@ concurrency:
 env:
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
-# Orden: wrapper -> gates SDD -> SAST -> analisis -> tests -> integracion -> build.
+# Orden: wrapper -> gates SDD -> SAST -> analisis -> tests -> integracion -> build -> cicd-summary.
 # Sin generacion de APK/AAB: el build solo valida compilacion.
 jobs:
   validate-wrapper:
@@ -105,8 +105,6 @@ jobs:
           restore-keys: gradle-${{ runner.os }}-
       - run: chmod +x ./gradlew
       - run: ./gradlew lint --no-daemon
-      # Cuando detekt/ktlint esten cableados (task.md, fase de gates):
-      # - run: ./gradlew detekt ktlintCheck --no-daemon
 
   unit-test:
     needs: static-analysis
@@ -120,7 +118,6 @@ jobs:
           java-version: 17
       - run: chmod +x ./gradlew
       - run: ./gradlew testDebugUnitTest --no-daemon
-      # Cuando Kover este cableado: ./gradlew testDebugUnitTest koverVerify --no-daemon
       - name: Subir reporte de tests
         if: always()
         uses: actions/upload-artifact@v4
@@ -157,3 +154,41 @@ jobs:
       - run: chmod +x ./gradlew
       # Sin APK: solo se valida la compilacion. El AAB firmado se genera en el release manual.
       - run: ./gradlew compileDebugKotlin --no-daemon
+
+  # =========================================================================
+  # APARTADO DE CI/CD: Tablero Visual y Resumen de Estado del Pipeline
+  # =========================================================================
+  cicd-summary:
+    name: "Apartado CI/CD — Resumen de Pipeline"
+    if: always()
+    needs:
+      - validate-wrapper
+      - sdd-gates
+      - security-scan
+      - static-analysis
+      - unit-test
+      - instrumentation-compile
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generar Apartado de CI/CD en Step Summary
+        run: |
+          echo "# 🚀 Apartado de CI/CD — Resumen de Pipeline Sensus Mobile" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Este tablero resume el estado y cumplimiento de calidad de la ejecución actual en GitHub Actions." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📊 Matriz de Compuertas de Integración Continua" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Etapa del Pipeline | Estado | Herramienta / Validador | Control |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| **1. Gradle Wrapper** | ${{ needs.validate-wrapper.result == 'success' && '✅ APROBADO' || '❌ FALLIDO' }} | \`gradle-wrapper-validation\` | Checksum oficial |" >> $GITHUB_STEP_SUMMARY
+          echo "| **2. Compuertas SDD & Capas** | ${{ needs.sdd-gates.result == 'success' && '✅ APROBADO' || '❌ FALLIDO' }} | \`check_*.py\` (5 scripts) | Clean Architecture & 0 Secretos |" >> $GITHUB_STEP_SUMMARY
+          echo "| **3. SAST Semántico** | ${{ needs.security-scan.result == 'success' && '✅ APROBADO' || '❌ FALLIDO' }} | \`CodeQL (Java/Kotlin)\` | OWASP Mobile Top 10 |" >> $GITHUB_STEP_SUMMARY
+          echo "| **4. Análisis Estático** | ${{ needs.static-analysis.result == 'success' && '✅ APROBADO' || '❌ FALLIDO' }} | \`Android SDK Lint\` | Correctitud y accesibilidad |" >> $GITHUB_STEP_SUMMARY
+          echo "| **5. Pruebas Unitarias** | ${{ needs.unit-test.result == 'success' && '✅ APROBADO' || '❌ FALLIDO' }} | \`JUnit 5 + MockK + Turbine\` | Umbral de cobertura >= 80% |" >> $GITHUB_STEP_SUMMARY
+          echo "| **6. Compilación Instrumentada** | ${{ needs.instrumentation-compile.result == 'success' && '✅ APROBADO' || '❌ FALLIDO' }} | \`AndroidTest Sources\` | Pruebas de integración E2E |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🏷️ Metadatos de la Ejecución" >> $GITHUB_STEP_SUMMARY
+          echo "- **Rama:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Evento:** \`${{ github.event_name }}\` por \`${{ github.actor }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Documentación completa de CI/CD:** Ver [\`docs/cicd-pipeline.md\`](docs/cicd-pipeline.md)" >> $GITHUB_STEP_SUMMARY

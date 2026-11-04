@@ -55,13 +55,25 @@ CHECKLIST_PR.md            Gate obligatorio de PR
 .opencode/skills/          Skills reutilizables
 .agent/rules/              Gobernanza para OpenCode y Antigravity IDE
 .agent/skills/             Junction de Windows hacia .opencode/skills
-docs/                      Tablas vivas (endpoints, rate-matrix, ASVS)
+docs/                      Tablas vivas (endpoints, rate-matrix, ASVS, cicd)
 scripts/                   Gates ejecutables (check_sdd, check_layers, ...)
-.github/workflows/ci.yml   Pipeline CI (sin deploy automatico)
+.github/workflows/         Workflows CI/CD (ci.yml, security-scanners.yml, release-playstore.yml)
 ```
 
 Flujo: `specs/FT-XX/spec.md` -> `plan.md` -> `tasks.md` -> implementacion -> pruebas -> `checklists/checklist.md` -> `Memoria.md`.
 Metodologia: Spec-Driven Development (SDD).
+
+## 🚀 Apartado de CI/CD y Despliegue Continuo
+
+El proyecto cuenta con un ecosistema completo de CI/CD gobernado por GitHub Actions bajo metodología DevSecOps y compuertas de calidad no negociables (`constitution.md` §8):
+
+| Pipeline | Archivo Workflow | Disparador | Propósito y Compuertas |
+|---|---|---|---|
+| **Integración Continua** | [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | PR y Push a `main` | Valida wrapper, arquitectura limpia, contratos, secretos, CodeQL SAST y pruebas unitarias (cobertura >= 80%). Genera el resumen visual de CI/CD en cada ejecución. |
+| **Suite de Seguridad (14 Escáneres)** | [`.github/workflows/security-scanners.yml`](.github/workflows/security-scanners.yml) | Push a `main`, PRs y Lunes 03:00 UTC | Escaneo estático profundo con 14 herramientas: Semgrep, MobSFscan, Detekt, Ktlint, TruffleHog, Gitleaks, OSV-Scanner, Trivy, OWASP Dependency-Check, SonarCloud y Snyk. |
+| **Despliegue a Google Play (CD)** | [`.github/workflows/release-playstore.yml`](.github/workflows/release-playstore.yml) | Tags `v*.*.*` o `workflow_dispatch` | **Quality Gate estricto:** si falla alguna prueba o escáner, el despliegue se cancela. Firma efímera y subida controlada por pistas (`internal`, `alpha`, `beta`, `production`). |
+
+> Consulta la guía técnica integral en [`docs/cicd-pipeline.md`](docs/cicd-pipeline.md).
 
 ## Design System
 

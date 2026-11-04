@@ -228,6 +228,7 @@ Criterio de salida de FT-00: `compileDebugKotlin` verde, `check_layers.py` PASS 
 | Reestructuracion SDD (2026-10-29) | Artefactos raiz sueltos, specs vacias, scripts stub, artefactos binarios versionados | Fases 1-6 ejecutadas: saneamiento, gobernanza dual, FT-00..FT-08, scripts reales, docs alineados |
 | Escáneres CI/CD (2026-11-04) | Requerimiento de suite de 10-14 escáneres de código | Configurado `.github/workflows/security-scanners.yml` con 14 herramientas (CodeQL, Semgrep, MobSFscan, Detekt, Ktlint, Android Lint, TruffleHog, Gitleaks, OSV-Scanner, Trivy, OWASP Dependency-Check, SonarCloud, Snyk, Sensus Gates), documentado en `docs/security-scanners.md` y `keys.properties.example` |
 | Bloqueo CD Play Store (2026-11-04) | Condicionamiento estricto: sin gates no hay despliegue | `.github/workflows/release-playstore.yml` actualizado: `pre-flight-gates` bloquea `build-and-deploy` si falla algún gate; `build-and-deploy` valida compilación Release y pausa limpiamente la publicación si faltan credenciales en GitHub Secrets |
+| Apartado CI/CD (2026-11-04) | Requerimiento de apartado visual y documental de CI/CD | Integrado job `cicd-summary` en `.github/workflows/ci.yml` para emitir tablero visual en `$GITHUB_STEP_SUMMARY`, creada guía `docs/cicd-pipeline.md` y añadido apartado oficial en `README.md` |
 
 ---
 
