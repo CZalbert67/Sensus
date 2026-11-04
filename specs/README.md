@@ -28,6 +28,7 @@ specs/FT-XX-<slug>/
 | `FT-06-profiles-spatial` | Negocio | SE-006, SE-007 | FT-02, FT-04 | Especificada, sin ejecutar | `spec.md` |
 | `FT-07-guest-mode-2km` | Negocio | SE-008 | FT-01, FT-06 | Especificada, sin ejecutar | `spec.md` |
 | `FT-08-account-deletion-gps` | Negocio | SE-009 | FT-02, FT-04 | Especificada, sin ejecutar | `spec.md` |
+| `FT-09-cicd-devsecops` | Infraestructura / CD | — | FT-03 | Cerrada | `spec.md`, `ci.yml`, `security-scanners.yml`, `release-playstore.yml` |
 
 Estados permitidos: `Borrador`, `Especificada, sin ejecutar`, `En implementacion`, `En revision`, `Cerrada`.
 Ninguna feature pasa a `Cerrada` sin `checklists/checklist.md` completo y evidencia en `Memoria.md` §6.

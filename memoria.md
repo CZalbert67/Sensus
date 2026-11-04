@@ -163,6 +163,7 @@ python scripts/check_coverage.py   -> SKIP (sin reporte Kover)
 | `FT-06-profiles-spatial` | Negocio | Perfiles de Consumidor y Comercio con recálculo `GEOGRAPHY` | SE-006, SE-007 | FT-02, FT-04 | Especificada, sin ejecutar |
 | `FT-07-guest-mode-2km` | Negocio | Modo invitado con filtro estricto de 2000 m y bloqueo de acciones | SE-008 | FT-01, FT-06 | Especificada, sin ejecutar |
 | `FT-08-account-deletion-gps` | Negocio | Permisos GPS nativos y baja definitiva con purga SQLCipher | SE-009 | FT-02, FT-04 | Especificada, sin ejecutar |
+| `FT-09-cicd-devsecops` | Infraestructura / CD | Workflows CI/CD, 14 escáneres DevSecOps, gates bloqueantes y CD Play Store | — | FT-03 | Cerrada |
 
 Cadena de trazabilidad vigente:
 
