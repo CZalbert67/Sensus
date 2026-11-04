@@ -1,8 +1,5 @@
 package com.example.sensus.domain.model
 
-import kotlinx.serialization.Serializable
-
-@Serializable
 data class UserProfile(
     val id: String = "",
     val nombreCompleto: String,
@@ -11,7 +8,6 @@ data class UserProfile(
     val roles: List<String> = listOf("Consumidor")
 )
 
-@Serializable
 data class HorarioDia(
     val dia: String,
     val horaApertura: String? = "08:00",
@@ -19,7 +15,6 @@ data class HorarioDia(
     val estaCerrado: Boolean = false
 )
 
-@Serializable
 data class MerchantProfile(
     val id: String = "",
     val usuarioId: String = "",
