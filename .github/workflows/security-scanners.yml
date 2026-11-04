@@ -82,6 +82,11 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - name: Configurar Python 3.12 para MobSFscan
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
       # Herramienta 4: Semgrep SAST
       - name: "4. Semgrep SAST (OWASP Top 10 & Mobile Security)"
         uses: returntocorp/semgrep-action@v1
@@ -150,14 +155,15 @@ jobs:
 
       # Herramienta 7: Detekt
       - name: "7. Detekt (Code Smells y Complejidad Ciclomática)"
-        uses: natiginfo/action-detekt@v1
+        uses: natiginfo/action-detekt-all@v3
         with:
-          args: --config detekt.yml --build-upon-default-config
+          detekt-version: '1.23.6'
+          args: '--config detekt.yml --build-upon-default-config'
         continue-on-error: true
 
       # Herramienta 8: Ktlint
       - name: "8. Ktlint (Formato y Estilo Canónico Kotlin)"
-        uses: scacap/action-ktlint@v1
+        uses: ScaCap/action-ktlint@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-check
@@ -174,18 +180,17 @@ jobs:
       - name: Checkout del repositorio
         uses: actions/checkout@v4
 
-      # Herramienta 9: Google OSV-Scanner
+      # Herramienta 9: Google OSV-Scanner (Binario Oficial CLI)
       - name: "9. Google OSV-Scanner (Vulnerabilidades Open Source)"
-        uses: google/osv-scanner-action/osv-scanner-action@v1.9.0
-        with:
-          scan-args: |-
-            --recursive
-            ./
+        run: |
+          curl -fsSL https://github.com/google/osv-scanner/releases/latest/download/osv-scanner_linux_amd64 -o osv-scanner
+          chmod +x osv-scanner
+          ./osv-scanner --recursive . || true
         continue-on-error: true
 
-      # Herramienta 10: Aqua Security Trivy
+      # Herramienta 10: Aqua Security Trivy (Versión oficial con prefijo v)
       - name: "10. Trivy (Misconfigurations y CVEs en Repositorio)"
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: 'fs'
           scan-ref: '.'
