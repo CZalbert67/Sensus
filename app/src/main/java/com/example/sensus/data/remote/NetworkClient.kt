@@ -19,8 +19,8 @@ class NetworkClient(
 ) {
 
     companion object {
-        // Apunta a la IP LAN de la laptop donde corre Sensus.Api (misma red Wi-Fi)
-        const val DEFAULT_BASE_URL = "http://192.168.1.114:5235/"
+        // Apunta al backend en AWS EC2 con SSL (HTTPS)
+        const val DEFAULT_BASE_URL = "https://18-117-247-171.sslip.io/"
     }
 
     private val json = Json {
